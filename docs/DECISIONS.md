@@ -1,0 +1,49 @@
+# Decisions and assumptions
+
+Update this file whenever a material product, architecture, security, or operating choice is made. Do not reopen accepted decisions without recording why.
+
+## Current defaults
+
+| ID | Decision | Reason / consequence | Status |
+| --- | --- | --- | --- |
+| ADR-001 | Build a multi-tenant schema from day one but expose only the Meade County tenant during the pilot. | Avoid costly data redesign without burdening first users with SaaS UI. | Accepted |
+| ADR-002 | Use a TypeScript pnpm/Turborepo monorepo with Next.js web, Expo mobile, NestJS API/worker, PostgreSQL/Prisma, Redis/BullMQ, MinIO, and a Python OR-Tools scheduler. | Maximum shared language/contracts; proper tools for SEO/admin, native mobile, jobs, relational integrity, live scoring with offline resilience, and constraints. | Accepted |
+| ADR-003 | Use Better Auth behind repository abstractions; application database owns tenant roles/permissions. | Self-hosted web/mobile support and replaceability; identity does not equal authorization. | Accepted |
+| ADR-004 | Build a modular monolith and one primary database; only the OR-Tools solver is a small separate service. | Low operating burden with clean boundaries. | Accepted |
+| ADR-005 | Use append-only game events and versioned projections; one designated official scorer writes. | Prevent offline conflicts and keep official facts reproducible. | Accepted |
+| ADR-006 | Umpire attestation signs the exact scorebook snapshot hash; corrections are approved amendments. | Creates a trustworthy official-book chain without destructive edits. | Accepted |
+| ADR-007 | Use responsive web/PWA as universal access and complex admin surface; ship Expo native apps for game-day, notifications, teams, players, and officials. | Reduces duplicated complex UI while providing reliable offline/push/native distribution. | Accepted |
+| ADR-008 | Use EAS Build/Submit for iOS from Ubuntu; local Android builds; occasional Mac access only when native debugging/QA requires it. | Codex/VS Code can maintain both apps without making a Mac the primary workstation. | Accepted |
+| ADR-009 | Waiver versions/artifacts are immutable; exact body changes require explicit legal approval. | Electronic-signature validity depends on evidence and does not cure defective wording. | Accepted |
+| ADR-010 | Under-13 profiles are guardian-managed; no direct minor chat, ads, tracking, or self-service accounts in MVP. | Safer privacy/COPPA/SafeSport posture. | Accepted |
+| ADR-011 | AI narrates finalized public data only, uses structured output and deterministic fact validation, and always requires human approval to publish. | Prevents AI from becoming an official record or reputational risk. | Accepted |
+| ADR-012 | NWS data informs a human decision; public status page is canonical; social is secondary. | Weather APIs and social delivery cannot replace authorized safety judgment. | Accepted |
+| ADR-013 | Payments use provider-hosted redirect; card data never touches the platform. | Reduce PCI/security scope. | Accepted |
+| ADR-014 | Email/SMS/payment/social providers remain adapters and are selected closer to production. | Avoid premature vendor lock-in/cost and keep fake providers in development. | Accepted |
+| ADR-015 | Use synthetic data until a production data-import gate is approved. | Protect player/guardian/signature information during AI-assisted development. | Accepted |
+| ADR-016 | Public production may begin on the Ubuntu server only after availability/security/recovery review; move to reliable cloud/VPS/managed data services before commercial dependence. | The local server is useful for development/pilot but is a single power/internet/recovery domain. | Accepted |
+| ADR-017 | Scorekeeping is live-first with offline failover. Connected plays submit/broadcast immediately; loss of service never stops scoring or game submission. Offline umpire attestation requires cached authorization, and `Official final` waits for server validation. | Meets the league's live-following goal without risking the official book when field connectivity is weak. | Accepted |
+
+## Product defaults needing validation, not coding blockers
+
+- Display name remains “Meade County Church Softball League” for the first tenant; platform/product name is a later branding decision.
+- League timezone is `America/New_York`.
+- Schedule defaults come from the current 2026 workbook/rules but are editable per season.
+- Stats MVP is basic batting plus team line score/standings; advanced pitch/fielding capture is later.
+- Public minor identity defaults to private/minimized until counsel/guardian policy is approved.
+- Payment status may be manual in the pilot; provider checkout is enabled only after review.
+- Email/SMS/social implementations use fakes in development and staging.
+
+## Decision template
+
+```md
+### ADR-XXX — title
+
+- Date:
+- Status: proposed | accepted | superseded
+- Context:
+- Decision:
+- Alternatives considered:
+- Consequences and risks:
+- Validation/rollback:
+```

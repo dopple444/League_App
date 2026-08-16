@@ -1,0 +1,36 @@
+# Dependencies and builds
+node_modules/
+.turbo/
+.next/
+dist/
+build/
+coverage/
+.expo/
+android/
+ios/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.mobileprovision
+
+# Local/runtime data
+data/
+backups/
+*.log
+*.sqlite
+*.sqlite3
+
+# Real source documents and exports may contain personal/signature data
+import/source-docs/
+exports/
+
+# IDE/OS
+.DS_Store
+.idea/
+.vscode/settings.json
+
