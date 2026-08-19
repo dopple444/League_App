@@ -11,6 +11,8 @@ Build a reliable league operating system for the Meade County Church Softball Le
 - `docs/REQUIREMENTS.md` is the testable scope source.
 - `docs/ARCHITECTURE_AND_DATA.md` is the architecture and invariant source.
 - `docs/DECISIONS.md` contains approved defaults. Add dated ADR-style entries when making a material decision.
+- `docs/LEAGUE_APP_UI_STYLE_GUIDE.md` is the visual design reference for every page, screen, form, component, and generated communication or document artifact.
+- `docs/UI_ARTIFACT_REGISTER.md` is the implementation and style-review ledger. Add or update an entry before creating or materially changing a user-visible artifact. If the style guide has no matching specification, add one there before implementation.
 - `docs/STATUS.md` is the current handoff record and must be updated at every stopping point.
 
 ## Product invariants
@@ -67,6 +69,7 @@ Before marking work complete, run the narrow tests while developing and then the
 - migration up/down or forward-recovery validation
 - dependency and container vulnerability checks
 - accessibility checks for changed user flows
+- an updated UI artifact register and recorded style-review evidence for changed user-visible artifacts
 
 Document exact commands and results in `docs/STATUS.md`.
 

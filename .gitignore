@@ -1,10 +1,16 @@
 # Dependencies and builds
 node_modules/
+packages/database/src/generated/
+.tools/
+.venv/
+**/.venv/
 .turbo/
 .next/
 dist/
 build/
 coverage/
+test-results/
+*.tsbuildinfo
 .expo/
 android/
 ios/
@@ -24,6 +30,12 @@ backups/
 *.log
 *.sqlite
 *.sqlite3
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+**/.mypy_cache/
+__pycache__/
+*.py[cod]
 
 # Real source documents and exports may contain personal/signature data
 import/source-docs/
@@ -33,4 +45,3 @@ exports/
 .DS_Store
 .idea/
 .vscode/settings.json
-

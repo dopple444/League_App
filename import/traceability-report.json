@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "sourceDirectoryPresent": false,
+  "overallStatus": "awaiting_authorized_sources",
+  "sources": [
+    {
+      "logicalSourceId": "all_team_packets_clean_form_2026",
+      "filename": "2026_Meade_County_Church_Softball_All_Team_Packets_Clean_Form.pdf",
+      "mediaType": "application/pdf",
+      "status": "absent",
+      "sha256": null,
+      "byteSize": null,
+      "mappings": []
+    },
+    {
+      "logicalSourceId": "master_2026",
+      "filename": "Meade_County_Church_Softball_Master_2026.xlsx",
+      "mediaType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "status": "absent",
+      "sha256": null,
+      "byteSize": null,
+      "mappings": []
+    },
+    {
+      "logicalSourceId": "rules_reorganized_draft",
+      "filename": "Meade_County_Church_Softball_League_Rules_Reorganized_Draft.docx",
+      "mediaType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "status": "absent",
+      "sha256": null,
+      "byteSize": null,
+      "mappings": []
+    },
+    {
+      "logicalSourceId": "schedule_original_2026",
+      "filename": "Meade_County_Church_Softball_League_Schedules.xlsx",
+      "mediaType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "status": "absent",
+      "sha256": null,
+      "byteSize": null,
+      "mappings": []
+    },
+    {
+      "logicalSourceId": "schedule_revised_2026",
+      "filename": "Meade_County_Church_Softball_League_Schedules_Revised.xlsx",
+      "mediaType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "status": "absent",
+      "sha256": null,
+      "byteSize": null,
+      "mappings": []
+    }
+  ],
+  "components": [
+    {
+      "componentId": "league_insurance_waiver",
+      "sourceId": "all_team_packets_clean_form_2026",
+      "status": "pending_source_review",
+      "contentHash": null,
+      "renderHash": null
+    },
+    {
+      "componentId": "parks_fiscal_court_waiver",
+      "sourceId": "all_team_packets_clean_form_2026",
+      "status": "pending_source_review",
+      "contentHash": null,
+      "renderHash": null
+    }
+  ]
+}

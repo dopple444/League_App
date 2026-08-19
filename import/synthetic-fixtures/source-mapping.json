@@ -1,0 +1,30 @@
+{
+  "fixture": "synthetic-only",
+  "containsPersonalData": false,
+  "mappings": [
+    {
+      "sourceLocation": "Synthetic Schedule!B2:C2",
+      "target": "scheduleVersion.games[].homeTeamNumber / awayTeamNumber",
+      "transformation": "Keep opposing team numbers in separate cells and validate both references.",
+      "confidence": "high",
+      "conflict": null,
+      "resolutionStatus": "resolved"
+    },
+    {
+      "sourceLocation": "Synthetic Master!Teams",
+      "target": "team / teamSeason",
+      "transformation": "Create a stable team identity and a season-specific participation record.",
+      "confidence": "high",
+      "conflict": null,
+      "resolutionStatus": "resolved"
+    },
+    {
+      "sourceLocation": "Authorized source section pending",
+      "target": "seasonConfigurationRevision.rules",
+      "transformation": "Preserve the source reference and require human conflict resolution before activation.",
+      "confidence": "low",
+      "conflict": "Authorized rule source is not present.",
+      "resolutionStatus": "pending"
+    }
+  ]
+}

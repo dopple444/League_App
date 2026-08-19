@@ -1,0 +1,50 @@
+{
+  "name": "@league/mobile",
+  "version": "0.0.0",
+  "private": true,
+  "main": "expo-router/entry",
+  "scripts": {
+    "android": "expo run:android",
+    "build": "expo export --platform all --output-dir dist",
+    "dev": "expo start",
+    "ios": "expo run:ios",
+    "lint": "eslint app src --max-warnings 0",
+    "start": "expo start",
+    "test": "jest --runInBand",
+    "test:watch": "jest --watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "@better-auth/expo": "1.6.29",
+    "@expo-google-fonts/roboto-flex": "0.4.1",
+    "@league/sdk": "workspace:*",
+    "@league/ui-tokens": "workspace:*",
+    "better-auth": "1.6.29",
+    "expo": "57.0.13",
+    "expo-constants": "57.0.11",
+    "expo-font": "57.0.1",
+    "expo-linking": "57.0.6",
+    "expo-network": "57.0.1",
+    "expo-router": "57.0.13",
+    "expo-secure-store": "57.0.1",
+    "expo-status-bar": "57.0.1",
+    "expo-web-browser": "57.0.2",
+    "react": "19.2.3",
+    "react-native": "0.86.2",
+    "react-native-safe-area-context": "5.9.0",
+    "react-native-screens": "4.27.0",
+    "react-native-worklets": "0.10.4"
+  },
+  "devDependencies": {
+    "@react-native/metro-config": "0.86.2",
+    "@testing-library/react-native": "14.0.1",
+    "@types/jest": "29.5.14",
+    "@types/react": "19.2.18",
+    "babel-preset-expo": "57.0.7",
+    "jest": "29.7.0",
+    "jest-expo": "57.0.4",
+    "react-test-renderer": "19.2.3",
+    "typescript": "6.0.3"
+  }
+}

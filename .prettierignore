@@ -1,0 +1,15 @@
+.expo
+.next
+.tools/**
+.turbo
+**/.mypy_cache
+coverage
+dist
+node_modules
+pnpm-lock.yaml
+import/source-docs
+packages/database/src/generated
+packages/sdk/src/generated
+packages/sdk/openapi.json
+**/next-env.d.ts
+**/*.md

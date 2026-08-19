@@ -1,0 +1,45 @@
+[build-system]
+requires = ["hatchling==1.28.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "league-scheduler"
+version = "0.1.0"
+description = "Bounded OR-Tools scheduling service for the league platform"
+readme = "README.md"
+requires-python = ">=3.14,<3.15"
+dependencies = [
+  "fastapi==0.141.1",
+  "ortools==9.15.6755",
+  "pydantic==2.12.5",
+  "uvicorn==0.40.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "httpx==0.28.1",
+  "mypy==1.19.1",
+  "pip-audit==2.10.0",
+  "pytest==9.0.3",
+  "ruff==0.15.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/league_scheduler"]
+
+[tool.pytest.ini_options]
+addopts = "--strict-config --strict-markers"
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py314"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "SIM", "RUF"]
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+packages = ["league_scheduler"]
+mypy_path = "src"

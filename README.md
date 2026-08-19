@@ -1,17 +1,39 @@
-# Softball League Platform — Codex Starter Package
+# Softball League Platform
 
-This package is the durable project brief and execution framework for building a website and Android/iOS app for the Meade County Church Softball League, while keeping the core product ready for other leagues later.
+This repository contains the developing website and Android/iOS application for the Meade County Church Softball League, together with the durable project brief and execution framework needed to keep the core product ready for other leagues later.
 
-## Recommended way to use it
+## Local quick start
+
+The repository pins Node 24.19.0, pnpm 11.22.0, and Python 3.14.7. If `pnpm` is not on `PATH`,
+create a user-local shim without sudo (the script falls back to exact-version npm installation when
+the host Corepack is too old):
+
+```bash
+bash tools/scripts/bootstrap-pnpm.sh
+export PATH="$HOME/.local/bin:$PATH"
+pnpm env:init
+pnpm install --frozen-lockfile
+pnpm scheduler:sync --frozen
+pnpm toolchain:check
+pnpm env:check
+pnpm stack:up
+pnpm stack:smoke
+```
+
+Open <http://127.0.0.1:8080>. Generated `.env` values and source documents under
+`import/source-docs/` are ignored. Use only synthetic data until its Production Gate is approved,
+and do not paste generated secrets into logs or issues. `pnpm stack:down` stops containers without
+deleting local volumes. See `docs/runbooks/LOCAL_DEVELOPMENT.md` for the complete runbook.
+
+## Development workflow
 
 The canonical repository is [dopple444/League_App](https://github.com/dopple444/League_App). Do not create another repository or initialize a nested `.git` directory.
 
-1. Clone `https://github.com/dopple444/League_App.git` onto the Ubuntu development server, or open the existing checkout.
-2. Copy every file and folder from this package into the `League_App` repository root. The package README may replace the one-line initial README.
-3. Put copies of the existing league source documents listed in `import/README.md` into `import/source-docs/`.
-4. Open the repository root in VS Code with Codex.
-5. Start Codex in Plan mode and paste the contents of `PROMPT_START_HERE.md`.
-6. Review the initial plan and the first vertical-slice demo. After that, use the short continuation prompt in `PROMPT_START_HERE.md`.
+1. Clone or update the canonical repository, then open its root in VS Code.
+2. Read `AGENTS.md`, `docs/STATUS.md`, the active dated plan under `execplans/`, and the UI style guide/register before changing a milestone or user-visible artifact.
+3. Follow the local quick start above and the complete development runbook in `docs/runbooks/LOCAL_DEVELOPMENT.md`.
+4. When authorized source documents become available, place them only in the ignored `import/source-docs/` directory and validate them against `import/expected-sources.json`.
+5. Continue from the next action and open blockers recorded in `docs/STATUS.md` and the active ExecPlan.
 
 Do not begin with app-store submission, paid messaging, live payments, or a public production deployment. Those are explicit production gates after the core system is tested.
 
@@ -27,6 +49,8 @@ Do not begin with app-store submission, paid messaging, live payments, or a publ
 - `docs/SECURITY_LEGAL_OPERATIONS.md` — security, waivers, minors, communications, payments, backups, and store obligations.
 - `docs/ROADMAP_ACCEPTANCE.md` — milestone order and definition of done.
 - `docs/DECISIONS.md` — defaults, assumptions, and architecture-decision log.
+- `docs/LEAGUE_APP_UI_STYLE_GUIDE.md` — the normative visual language and specifications for pages, forms, screens, and generated artifacts.
+- `docs/UI_ARTIFACT_REGISTER.md` — the living inventory and style-compliance review ledger for implemented UI artifacts.
 - `docs/STATUS.md` — Codex's persistent handoff and progress record.
 - `docs/RESEARCH_SOURCES.md` — current official and vendor references used for this design.
 

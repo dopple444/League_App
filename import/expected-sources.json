@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "logicalSourceId": "master_2026",
+      "filename": "Meade_County_Church_Softball_Master_2026.xlsx",
+      "mediaType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    {
+      "logicalSourceId": "schedule_original_2026",
+      "filename": "Meade_County_Church_Softball_League_Schedules.xlsx",
+      "mediaType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    {
+      "logicalSourceId": "schedule_revised_2026",
+      "filename": "Meade_County_Church_Softball_League_Schedules_Revised.xlsx",
+      "mediaType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    {
+      "logicalSourceId": "rules_reorganized_draft",
+      "filename": "Meade_County_Church_Softball_League_Rules_Reorganized_Draft.docx",
+      "mediaType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    },
+    {
+      "logicalSourceId": "all_team_packets_clean_form_2026",
+      "filename": "2026_Meade_County_Church_Softball_All_Team_Packets_Clean_Form.pdf",
+      "mediaType": "application/pdf"
+    }
+  ]
+}
