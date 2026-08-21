@@ -10,7 +10,8 @@ approval.
 | Organization membership and role assignment | Internal | Tenant selection and server authorization | PostgreSQL | organization-scoped, audited, runtime RLS |
 | Organization/league/season/team drafts | Internal | League administration | PostgreSQL | organization-scoped, version checked, not exposed publicly |
 | Published league/team/schedule snapshot | Public | Approved public read-only pages/API | immutable PostgreSQL publication snapshot | explicit DTO allowlist; withdrawn/nonexistent is 404 |
-| Audit/security/idempotency/outbox metadata | Internal; security-sensitive | Traceability, retries, queued effects | append-restricted PostgreSQL tables | request/actor/organization correlation; no secret/contact payloads in logs |
+| Audit/security/idempotency metadata | Internal; security-sensitive | Traceability, authorization evidence, and retry deduplication | PostgreSQL | tenant-scoped; audit history append-restricted; no secret/contact payloads in logs |
+| Outbox event and lifecycle | Internal; security-sensitive | Durable post-commit work dispatch, retry, recovery, and terminal-failure evidence | PostgreSQL | tenant RLS; payload/identity immutable to runtime; lifecycle-only updates; retained records; metadata-only Redis envelope and logs |
 | Generated local credentials | Secret | Local service/auth/database access | ignored mode-0600 `.env` | independent high-entropy values, never printed or committed |
 | Synthetic demo identity | Confidential synthetic | Reproducible demo and tests | PostgreSQL | `.invalid` identity; generated ignored password; never reused for production |
 | Authorized source-document metadata | Highly restricted metadata | Provenance and later import review | committed metadata report | filename/type/size/hash only; content remains ignored and is not logged |

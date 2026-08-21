@@ -84,6 +84,31 @@ for (const key of configuredFeaturedPublicSlugs) {
   }
 }
 
+const optionalIntegerSettings = {
+  OUTBOX_BATCH_SIZE: [1, 100],
+  OUTBOX_DISCOVERY_LIMIT: [1, 500],
+  OUTBOX_LEASE_MS: [1_000, 900_000],
+  OUTBOX_MAX_DISPATCH_ATTEMPTS: [1, 100],
+  OUTBOX_POLL_INTERVAL_MS: [100, 60_000],
+};
+for (const [key, [minimum, maximum]] of Object.entries(optionalIntegerSettings)) {
+  const value = env[key];
+  if (value === undefined || value === '') continue;
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed < minimum || parsed > maximum) {
+    errors.push(`${key} must be an integer between ${minimum} and ${maximum}.`);
+  }
+}
+const outboxPollInterval = Number(env.OUTBOX_POLL_INTERVAL_MS ?? 1_000);
+const outboxLease = Number(env.OUTBOX_LEASE_MS ?? 60_000);
+if (
+  Number.isFinite(outboxPollInterval) &&
+  Number.isFinite(outboxLease) &&
+  outboxLease < outboxPollInterval * 2
+) {
+  errors.push('OUTBOX_LEASE_MS must be at least twice OUTBOX_POLL_INTERVAL_MS.');
+}
+
 try {
   new Intl.DateTimeFormat('en-US', { timeZone: env.LEAGUE_TIMEZONE }).format();
 } catch {

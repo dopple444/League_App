@@ -22,6 +22,7 @@ minor record, payment credential, or provider token is authorized in this slice.
 | Draft/private data reaches public response | Immutable publication snapshot and public DTO allowlist; absent/draft/withdrawn returns 404 | API/E2E public visibility tests |
 | Retried mutation duplicates state | Idempotency record plus state/audit/outbox in one transaction | retry and rollback tests |
 | Audit/outbox failure loses trace | Transaction rollback; audit tables deny ordinary update/delete | forced-failure integration test |
+| Redis loss, worker crash, or stale delivery abandons/duplicates committed work | PostgreSQL-authoritative outbox; metadata-only queue envelope; leased tenant-scoped `SKIP LOCKED` claims; dispatch-generation fencing; terminal failure visibility | relay unit/integration tests, lease reclaim, concurrent claim, stale completion, and Redis restart rehearsal |
 | Session/secret disclosure | HttpOnly web session design, secure mobile storage boundary, redacted structured logs, ignored generated secrets | logger tests, secret scan, response inspection |
 | Database-owner RLS bypass | Separate migrator from runtime/test LOGIN roles with `NOBYPASSRLS`; API receives runtime URL only | role assertions and denial tests |
 | Public infrastructure exposure | Gateway is the only application ingress; data services are internal and diagnostics bind loopback | Compose config and socket inspection |
@@ -40,3 +41,6 @@ minor record, payment credential, or provider token is authorized in this slice.
   or timely patch operations.
 - No current worker performs an external send. Adding real providers, recipients, payments, public
   deployment, real data, or app-store release remains a Production Gate.
+- The relay provides at-least-once processing, not exactly-once external effects. Every future
+  provider adapter must use the stable outbox event ID as its idempotency key and record delivery
+  evidence before a real send is approved.

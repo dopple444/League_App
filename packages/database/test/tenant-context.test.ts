@@ -32,4 +32,43 @@ describe('TenantDatabase', () => {
       operation.mock.invocationCallOrder[0] ?? 0,
     );
   });
+
+  it('discovers only bounded due-organization identifiers', async () => {
+    const queryRaw = vi
+      .fn()
+      .mockResolvedValue([
+        { organization_id: '00000000-0000-4000-8000-000000000001' },
+        { organization_id: '00000000-0000-4000-8000-000000000002' },
+      ]);
+    const client = { $queryRaw: queryRaw } as unknown as PrismaClient;
+    const database = new TenantDatabase(client);
+
+    await expect(database.listDueOutboxOrganizationIds(25)).resolves.toEqual([
+      '00000000-0000-4000-8000-000000000001',
+      '00000000-0000-4000-8000-000000000002',
+    ]);
+    expect(queryRaw).toHaveBeenCalledOnce();
+    await expect(database.listDueOutboxOrganizationIds(0)).rejects.toBeInstanceOf(RangeError);
+    await expect(database.listDueOutboxOrganizationIds(501)).rejects.toBeInstanceOf(RangeError);
+  });
+
+  it('normalizes aggregate outbox health without exposing tenant event data', async () => {
+    const queryRaw = vi.fn().mockResolvedValue([
+      {
+        pending_count: 2n,
+        processing_count: '1',
+        failed_count: 0,
+        oldest_due_seconds: '3.5',
+      },
+    ]);
+    const client = { $queryRaw: queryRaw } as unknown as PrismaClient;
+    const database = new TenantDatabase(client);
+
+    await expect(database.outboxRelayHealth()).resolves.toEqual({
+      failed: 0,
+      oldestDueSeconds: 3.5,
+      pending: 2,
+      processing: 1,
+    });
+  });
 });

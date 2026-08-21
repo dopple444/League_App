@@ -439,6 +439,7 @@ model OutboxEvent {
 
   @@id([organizationId, id])
   @@index([organizationId, status, availableAt])
+  @@index([status, availableAt, organizationId], map: "outbox_event_relay_due_idx")
   @@map("outbox_event")
 }
 

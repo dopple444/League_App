@@ -1,6 +1,6 @@
 # Project status
 
-Last updated: 2026-08-19
+Last updated: 2026-08-21
 
 ## Current state
 
@@ -8,30 +8,45 @@ Last updated: 2026-08-19
 - Scoring clarified as live-first with immediate connected broadcasts and outage-safe offline continuation/submission/authorized attestation.
 - Codex repository guidance and autonomous execution runbook complete.
 - The canonical GitHub repository is `dopple444/League_App`; this `main` changeset captures the Milestones 0–1 application foundation.
-- The foundation contains the monorepo scaffold and a working web/mobile vertical slice. The public web journey is now navigable from the runtime-configured root gateway through league home, schedule, team directory, and team detail. Local static, database, restore, browser, accessibility, and fresh-stack checks pass; clean-clone verification, source inputs, outbox delivery, security remediation, and real assistive-technology/physical-device review remain pending.
+- The foundation contains the monorepo scaffold and a working web/mobile vertical slice. The public web journey is now navigable from the runtime-configured root gateway through league home, schedule, team directory, and team detail. Local static, database, restore, browser, accessibility, and fresh-stack checks pass; clean-clone verification, through-stack outbox recovery, security remediation, source inputs, and real assistive-technology/physical-device review remain pending.
 - The League App UI Style Guide is now the visual reference, with a separate artifact register governing page, form, component, and generated-output review.
 - The shared Modern Field token package and base web/native primitives are implemented. DS-TOKEN-001 passed its foundation review. The changed public pages now have retained responsive synthetic screenshots and automated interaction/accessibility evidence but remain **Needs changes** until real screen-reader, desktop Ctrl-Plus, and physical-device/manual review is recorded.
 - All nine local Compose services are healthy and the gateway is available for private-LAN synthetic testing on port `8088`. This is a temporary local test deployment, not production and not authorization for public-internet exposure.
 - No production infrastructure, credentials, real data, messages, payments, or app-store resources have been changed.
+- The 2026-09-15 target is now defined as Beta 0: a controlled, invitation-only, browser-first hosted
+  beta using synthetic/practice data. It covers assisted league setup, validated manual schedule
+  publication, and the public league experience; it does not represent completion of the full
+  commercial roadmap or authorize real participant/legal/payment/message/official-game data.
 
 ## Active milestone
 
-Milestone 0 — discovery, traceability, and repository foundation.
+Beta 0 release foundation — transactional outbox and runtime hardening.
 
 ## Next action
 
-Modernize/prune the production container images and track the unresolved dependency advisories, then implement the database outbox relay. Obtain the five authorized source files and complete real screen-reader, desktop Ctrl-Plus, and physical-device/manual review before promoting the affected UI artifacts or any release gate.
+Rotate the exposed synthetic local environment credentials, rebuild/reseed the local stack with the
+new relay and migration, and prove API-mutation-to-Redis-to-completion plus Redis/worker restart and
+restore recovery. Further deduplicate/prune the API/worker runtime packages and freshly scan every
+deployed image before starting assisted beta provisioning and privileged-auth controls.
 
 ## Known blockers / production gates
 
 - Five authorized source files are absent, so source-specific mappings and authentic waiver content/render hashes cannot be completed.
 - The refreshed dependency lane fails on two high-severity transitive `image-size` advisories plus one moderate finding; the Python dependency audit is clean. The refreshed container lane also fails on fixable high/critical findings across the Compose images.
-- The mutation layer writes transactional outbox rows, but no relay currently enqueues and advances them through delivery lifecycle states.
+- The transactional relay, lifecycle, migration, and isolated PostgreSQL tests are implemented, but
+  the active LAN stack still runs the prior worker image. A fresh-stack Redis/worker-loss rehearsal
+  and restore check remain before the outbox plan can be marked complete.
 - Final waiver/minor workflow and retention require Kentucky counsel, insurer, and Parks/Fiscal Court approval.
 - Real messaging/provider consent configuration is not selected or approved.
 - Real payment provider/acquirer/PCI responsibility is not selected or approved.
 - Production host/recovery choice and app-store developer accounts are not approved.
 - Public minor name/photo/stat policy requires formal approval.
+- The current local Compose topology is development-only and is a no-go for internet exposure. A
+  separate approved hosted-beta topology, TLS/private-service boundary, external secret injection,
+  encrypted off-site backup/restore, monitoring, and rollback rehearsal are required.
+- Synthetic local Compose credentials appeared in diagnostic tool output on 2026-08-21. They are not
+  production credentials, but the local environment must be regenerated at the next safe migration
+  boundary and none of those values may be reused for beta.
 
 ## Verification log
 
@@ -115,3 +130,40 @@ Codex must append dated entries here after each milestone, including exact comma
 - Five authorized sources remain absent, and the transactional outbox relay remains incomplete. The
   private-LAN stack and this synthetic public-read increment are not production-ready and did not
   touch production infrastructure, real data, external messages, payments, or app-store resources.
+
+### 2026-08-21 — Controlled online-beta scope and release-foundation start
+
+- Locally checkpointed the verified navigable public-league slice as commit `b41d214`. Local `main`
+  is one commit ahead of `origin/main`; no remote push or public deployment was performed.
+- Added `execplans/2026-08-21-controlled-online-beta.md` and recorded ADR-023. The September 15 target
+  is an invitation-only browser beta with synthetic/practice data, assisted operator provisioning,
+  manual validated schedule publication, and the existing public journey. Registration/waivers,
+  payments, real messaging, scoring/official results, native distribution, and unrestricted
+  self-service are explicitly deferred.
+- Added `execplans/2026-08-21-transactional-outbox-relay.md` and began implementing the
+  PostgreSQL-authoritative, metadata-only BullMQ relay with tenant-scoped claims, lease recovery,
+  generation fencing, terminal-failure visibility, and no external effects.
+- The deployment/security audit classified the active Compose stack as local-development only. It
+  identified minimal non-root runtime images, zero unaccepted deployed HIGH/CRITICAL findings, TLS,
+  privileged MFA/rate limiting, off-site restore, monitoring, and rollback rehearsal as online-beta
+  gates. Existing ignored scanner counts are stale and will not be used as release evidence.
+- Implemented the PostgreSQL-authoritative outbox relay and ADR-024: metadata-only BullMQ envelopes,
+  `SYSTEM` actor context, tenant-scoped leased `SKIP LOCKED` claims, generation-specific job IDs and
+  fencing, bounded retry/terminal failure, duplicate/stale no-op handling, and dependency/backlog
+  health. The definer role can read only organization/status/time discovery columns; the production
+  runtime role cannot delete outbox records or rewrite payload/identity metadata.
+- `pnpm install --frozen-lockfile`, worker/database lint, typecheck, builds, Prisma validation, and
+  database tests 3/3 passed. Worker unit tests passed 19 with four environment-gated cases skipped;
+  `pnpm db:migrate:verify` then applied `20260821000100_outbox_relay` to the synthetic test database
+  and passed the repeat no-op, and `pnpm test:outbox` passed 4/4 real-PostgreSQL cases for metadata
+  discovery, wrong-tenant denial, concurrent claim, lease reclaim, stale fencing, terminal failure,
+  and least-privilege grants.
+- Implemented ADR-025's multi-stage Node packaging and a static/runtime verifier. Distinct validation
+  images for web, API, and worker passed non-root, allowlisted-artifact, compiled-entry, dev-tool
+  exclusion, and API migration-to-database-boundary checks without replacing the running Compose
+  images. Sizes were web 403 MB, API 1.55 GB, and worker 845 MB; API dependency duplication and the
+  worker size regression remain open, as do startup probes and fresh vulnerability scans. This does
+  not close the runtime security gate.
+- No production infrastructure, DNS, firewall, live credential, real-data, provider, payment, or
+  app-store action was taken. The active LAN stack was left running on its prior images; credential
+  rotation, fresh-stack relay/recovery evidence, restore, and current scanner results remain next.

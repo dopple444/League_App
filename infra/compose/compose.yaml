@@ -138,13 +138,21 @@ services:
       args:
         WORKSPACE: '@league/worker'
     environment:
+      DATABASE_URL: ${RUNTIME_DATABASE_URL:?Run pnpm env:init}
       LOG_LEVEL: ${LOG_LEVEL:-info}
       NODE_ENV: production
+      OUTBOX_BATCH_SIZE: ${OUTBOX_BATCH_SIZE:-25}
+      OUTBOX_DISCOVERY_LIMIT: ${OUTBOX_DISCOVERY_LIMIT:-100}
+      OUTBOX_LEASE_MS: ${OUTBOX_LEASE_MS:-60000}
+      OUTBOX_MAX_DISPATCH_ATTEMPTS: ${OUTBOX_MAX_DISPATCH_ATTEMPTS:-10}
+      OUTBOX_POLL_INTERVAL_MS: ${OUTBOX_POLL_INTERVAL_MS:-1000}
       REDIS_URL: redis://redis:6379/0
       WORKER_PORT: 3002
     depends_on:
       migrate:
         condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
       redis:
         condition: service_healthy
     expose:

@@ -86,8 +86,8 @@ jobs:
         run: pnpm stack:up
       - name: Verify migrations and seed
         run: pnpm db:migrate:verify && pnpm db:seed:verify
-      - name: Run API security suites
-        run: pnpm test:integration && pnpm test:tenancy && pnpm test:authz
+      - name: Run API and relay security suites
+        run: pnpm test:integration && pnpm test:tenancy && pnpm test:authz && pnpm test:outbox
       - name: Run browser and accessibility suites
         run: pnpm test:e2e && pnpm test:a11y
       - name: Verify backup and service health

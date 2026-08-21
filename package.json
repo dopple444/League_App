@@ -41,6 +41,7 @@
     "test:integration": "node tools/scripts/run-with-env.mjs api-test -- pnpm --filter @league/api test:integration",
     "test:tenancy": "node tools/scripts/run-with-env.mjs api-test -- pnpm --filter @league/api test:tenancy",
     "test:authz": "node tools/scripts/run-with-env.mjs api-test -- pnpm --filter @league/api test:authz",
+    "test:outbox": "node tools/scripts/run-with-env.mjs api-test -- pnpm --filter @league/worker exec vitest run test/outbox.integration.test.ts",
     "test:e2e": "node tools/scripts/run-with-env.mjs web-test -- pnpm --filter @league/web test:e2e",
     "test:a11y": "node tools/scripts/run-with-env.mjs web-test -- pnpm --filter @league/web test:a11y",
     "import:trace": "node tools/import/trace-source-documents.mjs",

@@ -30,6 +30,7 @@ pnpm db:seed:verify
 pnpm test:integration
 pnpm test:tenancy
 pnpm test:authz
+pnpm test:outbox
 pnpm test:e2e
 pnpm test:a11y
 pnpm db:restore:verify
