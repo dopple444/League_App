@@ -1,0 +1,18 @@
+.page {
+  display: grid;
+  gap: var(--space-xl);
+}
+
+.page > :global(.page-heading) {
+  margin-bottom: 0;
+}
+
+.scheduleSection {
+  display: grid;
+  gap: var(--space-md);
+  min-width: 0;
+}
+
+.scheduleSection h2 {
+  margin-bottom: 0;
+}

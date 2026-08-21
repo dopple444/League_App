@@ -43,6 +43,8 @@ services:
         WORKSPACE: '@league/web'
     environment:
       API_INTERNAL_URL: http://api:3001
+      FEATURED_PUBLIC_LEAGUE_SLUG: ${FEATURED_PUBLIC_LEAGUE_SLUG:-}
+      FEATURED_PUBLIC_ORGANIZATION_SLUG: ${FEATURED_PUBLIC_ORGANIZATION_SLUG:-}
       NEXT_PUBLIC_API_BASE_URL: ''
       NODE_ENV: production
     depends_on:

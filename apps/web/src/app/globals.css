@@ -491,12 +491,21 @@ h3 {
 }
 
 .breadcrumbs ol {
+  align-items: center;
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
   list-style: none;
   margin: 0 0 1rem;
   padding: 0;
+}
+
+.breadcrumbs a {
+  align-items: center;
+  display: inline-flex;
+  justify-content: center;
+  min-height: var(--target-touch-min);
+  min-width: var(--target-touch-min);
 }
 
 .breadcrumbs li:not(:last-child)::after {

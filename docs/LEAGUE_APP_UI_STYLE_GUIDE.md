@@ -407,6 +407,45 @@ The source does not provide explicit mockup filenames for PUB-01, ADM-31, MOB-13
 - **Responsive and accessibility:** TOC collapses into a standard dropdown or accordion on mobile.
 - **Mockup filenames:** `PUB-20-legal-template-desktop.png`.
 
+#### PUB-21 - League gateway and tenant entry
+
+- **Route and roles:** `/` | Public (Read-only).
+- **Primary goal and action:** Give a visitor a clear, trustworthy path into one explicitly configured
+  league's published experience without requiring authentication, guessing a deep link, or exposing a
+  directory of platform tenants. The primary action is "Open league"; "Staff sign in" is secondary.
+- **Layout and target viewport:** Public responsive shell | Desktop (1440) / Tablet (1024) / Mobile
+  (393).
+- **Above the fold:** Compact public header, League Hub identity, concise explanation of the published
+  information boundary, and a prominent featured-league card when a deployment-configured public
+  organization/league pair resolves. The card shows only published organization and league names and
+  links to the canonical slugged league home. It never displays internal identifiers, draft state, or
+  private membership data.
+- **Main content:** A short three-card orientation covering published schedules, approved public team
+  pages, and attributable league administration. When no featured league is configured, replace the
+  featured card with a neutral instruction to use the public link supplied by the visitor's league;
+  do not list or search tenants. Staff sign-in remains available but is not the only way forward when
+  a published featured league is configured.
+- **Sticky and scrollable regions:** The standard public header remains sticky. Page content uses the
+  bounded public content width and ordinary document scrolling; no nested scrolling region is
+  introduced.
+- **Components:** Top Bar, Featured League Card, Button Primary, Button Secondary, Feature Card,
+  Service/Empty State.
+- **Variants and states:** Configured published league; no configured league; configured league absent
+  or withdrawn; public service temporarily unavailable. An absent or withdrawn configured league must
+  not fall through to a different tenant.
+- **Responsive and accessibility:** The featured-league action remains above the fold where practical,
+  all actions are at least 44px, focus order follows reading order, focus is visible, and identity plus
+  action meaning never relies on color alone. Cards stack in one column at mobile widths without
+  horizontal viewport overflow. At 200% zoom, content reflows without obscuring the primary action.
+  Reduced-motion preferences are honored by the shared shell.
+- **Publication, privacy, and security constraints:** Featured league identity comes only from a
+  validated server-side deployment configuration and the existing allowlisted public endpoint. The
+  page must not enumerate tenants, select the first database row, reveal configuration secrets, or
+  render unpublished data. Failure copy must not imply an authorized field/weather decision or other
+  official fact that is absent from the public payload.
+- **Mockup filenames:** None established. Retain reviewed implementation screenshots at 1440px,
+  1024px, and 393px before marking the artifact Pass.
+
 ### 8.2 Player, guardian, coach, and team portal
 
 #### TEAM-01 - Role-aware personal or coach dashboard

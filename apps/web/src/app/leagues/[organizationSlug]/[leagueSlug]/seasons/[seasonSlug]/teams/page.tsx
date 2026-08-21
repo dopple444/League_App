@@ -2,11 +2,8 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { Breadcrumbs } from '../../../../../../../components/breadcrumbs';
-import {
-  EmptyState,
-  PageHeading,
-  ServiceUnavailable,
-} from '../../../../../../../components/site-shell';
+import { PublicTeamDirectory } from '../../../../../../../components/public-team-directory';
+import { PageHeading, ServiceUnavailable } from '../../../../../../../components/site-shell';
 import { ApiError, createServerApi } from '../../../../../../../lib/api-client';
 
 interface PageParams {
@@ -47,23 +44,10 @@ export default async function PublicTeamsPage({
               </Link>
             }
           />
-          {data.items.length ? (
-            <div className="grid">
-              {data.items.map((team) => (
-                <article className="card" key={team.teamSeasonId}>
-                  <p className="eyebrow">Published team</p>
-                  <h2>{team.publicName}</h2>
-                  <Link href={`${leaguePath}/seasons/${seasonSlug}/teams/${team.slug}`}>
-                    View team page
-                  </Link>
-                </article>
-              ))}
-            </div>
-          ) : (
-            <EmptyState title="No teams published">
-              <p>League staff have not published any team pages for this season.</p>
-            </EmptyState>
-          )}
+          <PublicTeamDirectory
+            baseTeamUrl={`${leaguePath}/seasons/${seasonSlug}/teams`}
+            teams={data.items}
+          />
         </div>
       </main>
     );

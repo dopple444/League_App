@@ -3,13 +3,36 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { Breadcrumbs } from '../../../../components/breadcrumbs';
-import { EmptyState, PageHeading, ServiceUnavailable } from '../../../../components/site-shell';
-import { ApiError, createServerApi } from '../../../../lib/api-client';
+import {
+  EmptyState,
+  PageHeading,
+  ServiceUnavailable,
+  StatusBadge,
+} from '../../../../components/site-shell';
+import { ApiError, createServerApi, type PublicLeague } from '../../../../lib/api-client';
 
 interface PageParams {
   readonly organizationSlug: string;
   readonly leagueSlug: string;
 }
+
+const formatGameTime = (startsAt: string, timezone: string): string => {
+  const parsed = new Date(startsAt);
+  if (Number.isNaN(parsed.getTime())) return 'Time to be announced';
+  try {
+    return new Intl.DateTimeFormat('en-US', {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+      timeZone: timezone,
+    }).format(parsed);
+  } catch {
+    return new Intl.DateTimeFormat('en-US', {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+      timeZone: 'UTC',
+    }).format(parsed);
+  }
+};
 
 export async function generateMetadata({
   params,
@@ -34,54 +57,10 @@ export default async function PublicLeaguePage({
   readonly params: Promise<PageParams>;
 }) {
   const { organizationSlug, leagueSlug } = await params;
+  const api = createServerApi();
+  let data: PublicLeague;
   try {
-    const data = await createServerApi().getPublicLeague(organizationSlug, leagueSlug);
-    const season = data.currentSeason;
-    const leaguePath = `/leagues/${organizationSlug}/${leagueSlug}`;
-
-    return (
-      <main className="main-content" id="main-content">
-        <div className="content-width">
-          <Breadcrumbs items={[{ href: '/', label: 'Home' }, { label: data.league.name }]} />
-          <PageHeading
-            eyebrow={data.organization.name}
-            title={data.league.name}
-            description={
-              season ? `${season.name} · ${season.timezone}` : 'Official league information'
-            }
-          />
-          {season ? (
-            <div className="grid">
-              <article className="card">
-                <p className="eyebrow">Published schedule</p>
-                <h2>Game times and fields</h2>
-                <p className="muted">
-                  See the current schedule and game status published by the league.
-                </p>
-                <Link className="button" href={`${leaguePath}/seasons/${season.slug}/schedule`}>
-                  View schedule
-                </Link>
-              </article>
-              <article className="card">
-                <p className="eyebrow">Teams</p>
-                <h2>{season.name}</h2>
-                <p className="muted">Browse approved public team pages for this season.</p>
-                <Link
-                  className="button secondary"
-                  href={`${leaguePath}/seasons/${season.slug}/teams`}
-                >
-                  View teams
-                </Link>
-              </article>
-            </div>
-          ) : (
-            <EmptyState title="No published season yet">
-              <p>Check back after league staff publish the active season.</p>
-            </EmptyState>
-          )}
-        </div>
-      </main>
-    );
+    data = await api.getPublicLeague(organizationSlug, leagueSlug);
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) notFound();
     return (
@@ -92,4 +71,102 @@ export default async function PublicLeaguePage({
       </main>
     );
   }
+
+  const season = data.currentSeason;
+  const leaguePath = `/leagues/${organizationSlug}/${leagueSlug}`;
+  let scheduleUnavailable = false;
+  let scheduleRequestId: string | undefined;
+  let scheduleItems = [] as Awaited<ReturnType<typeof api.getPublicSchedule>>['items'];
+  if (season) {
+    try {
+      scheduleItems = (await api.getPublicSchedule(organizationSlug, leagueSlug, season.slug))
+        .items;
+    } catch (error) {
+      scheduleUnavailable = true;
+      if (error instanceof ApiError) scheduleRequestId = error.requestId;
+    }
+  }
+  const now = Date.now();
+  const upcomingGames = [...scheduleItems]
+    .filter((game) => {
+      const start = new Date(game.startsAt).getTime();
+      return Number.isFinite(start) && start >= now;
+    })
+    .sort((left, right) => Date.parse(left.startsAt) - Date.parse(right.startsAt))
+    .slice(0, 4);
+
+  return (
+    <main className="main-content" id="main-content">
+      <div className="content-width">
+        <Breadcrumbs items={[{ href: '/', label: 'Home' }, { label: data.league.name }]} />
+        <PageHeading
+          eyebrow={data.organization.name}
+          title={data.league.name}
+          description={
+            season ? `${season.name} · ${season.timezone}` : 'Official league information'
+          }
+          actions={
+            season ? (
+              <>
+                <Link className="button" href={`${leaguePath}/seasons/${season.slug}/schedule`}>
+                  Schedule
+                </Link>
+                <Link
+                  className="button secondary"
+                  href={`${leaguePath}/seasons/${season.slug}/teams`}
+                >
+                  Teams
+                </Link>
+              </>
+            ) : undefined
+          }
+        />
+        {season ? (
+          <section aria-labelledby="upcoming-games-heading">
+            <p className="eyebrow">Published schedule</p>
+            <h2 id="upcoming-games-heading">Upcoming games</h2>
+            {scheduleUnavailable ? (
+              <EmptyState title="Published schedule unavailable">
+                <p>We could not load upcoming games. Please try again later.</p>
+                {scheduleRequestId ? (
+                  <p className="meta">Support reference: {scheduleRequestId}</p>
+                ) : null}
+              </EmptyState>
+            ) : upcomingGames.length ? (
+              <div className="grid">
+                {upcomingGames.map((game) => (
+                  <article className="card" key={game.gameId}>
+                    <StatusBadge value={game.status} />
+                    <h3>
+                      {game.awayTeam.publicName} at {game.homeTeam.publicName}
+                    </h3>
+                    <p>{formatGameTime(game.startsAt, season.timezone)}</p>
+                    <p className="muted">{game.field.name}</p>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                action={
+                  <Link
+                    className="button secondary"
+                    href={`${leaguePath}/seasons/${season.slug}/schedule`}
+                  >
+                    View published schedule
+                  </Link>
+                }
+                title="No upcoming games published"
+              >
+                <p>Check the full schedule for published dates and game information.</p>
+              </EmptyState>
+            )}
+          </section>
+        ) : (
+          <EmptyState title="No published season yet">
+            <p>Check back after league staff publish the active season.</p>
+          </EmptyState>
+        )}
+      </div>
+    </main>
+  );
 }

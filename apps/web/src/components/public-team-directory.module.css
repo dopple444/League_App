@@ -1,0 +1,153 @@
+.directory {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.searchPanel {
+  align-items: end;
+  background: var(--color-background-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  display: grid;
+  gap: var(--space-md);
+  grid-template-columns: minmax(14rem, 1fr) auto;
+  padding: var(--space-md);
+}
+
+.searchField {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.searchField label {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+}
+
+.searchField input {
+  background: var(--color-background-surface);
+  border: 1px solid var(--color-border-interactive);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-primary);
+  min-height: var(--field-min-height);
+  padding: var(--space-xs) var(--space-sm);
+  width: 100%;
+}
+
+.resetButton {
+  background: var(--color-action-secondary-default);
+  border-color: var(--color-action-secondary-border);
+  color: var(--color-action-secondary-foreground);
+  min-height: var(--target-touch-min);
+  white-space: nowrap;
+}
+
+.resetButton:hover:not(:disabled) {
+  background: var(--color-action-secondary-hover);
+  border-color: var(--color-action-secondary-border);
+  color: var(--color-action-secondary-foreground);
+}
+
+.resetButton:active:not(:disabled) {
+  background: var(--color-action-secondary-pressed);
+}
+
+.resultCount {
+  color: var(--color-text-muted);
+  font-weight: 700;
+  margin: 0;
+}
+
+.teamGrid {
+  display: grid;
+  gap: var(--space-md);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.teamItem {
+  min-width: 0;
+}
+
+.teamCard {
+  background: var(--color-background-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  color: var(--color-text-primary);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+  min-height: 10rem;
+  overflow-wrap: anywhere;
+  padding: var(--space-lg);
+  text-decoration: none;
+}
+
+.teamCard:hover {
+  background: var(--color-action-secondary-hover);
+  border-color: var(--color-action-secondary-border);
+  color: var(--color-text-primary);
+}
+
+.teamCard:active {
+  background: var(--color-action-secondary-pressed);
+}
+
+.cardEyebrow {
+  color: var(--color-action-primary-default);
+  font-size: var(--font-size-xs);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.teamName {
+  font-size: var(--font-size-lg);
+  font-weight: 800;
+  line-height: var(--line-height-tight);
+  margin-block: var(--space-xs) var(--space-md);
+}
+
+.cardAction {
+  color: var(--color-action-link-default);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.emptyState {
+  background: var(--color-background-surface);
+  border: 2px dashed var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  padding: clamp(var(--space-xl), 5vw, var(--space-xxxl));
+  text-align: center;
+}
+
+.emptyState h2 {
+  margin-top: 0;
+}
+
+.emptyState p {
+  color: var(--color-text-muted);
+  margin-inline: auto;
+  max-width: 48ch;
+}
+
+@media (max-width: 47.99rem) {
+  .searchPanel {
+    grid-template-columns: 1fr;
+  }
+
+  .resetButton {
+    width: 100%;
+  }
+
+  .teamGrid {
+    grid-template-columns: 1fr;
+  }
+}

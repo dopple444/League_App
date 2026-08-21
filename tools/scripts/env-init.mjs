@@ -34,6 +34,25 @@ if (existsSync(target)) {
     values.MOBILE_ORIGIN = 'league-companion://';
     addedDerivedValues = true;
   }
+  const publicLeagueDefaults = {
+    FEATURED_PUBLIC_ORGANIZATION_SLUG: 'meade-county-demo',
+    FEATURED_PUBLIC_LEAGUE_SLUG: 'church-softball',
+  };
+  const missingPublicLeagueKeys = Object.keys(publicLeagueDefaults).filter(
+    (key) => values[key] === undefined,
+  );
+  if (missingPublicLeagueKeys.length === 1) {
+    throw new Error(
+      'Existing .env must configure featured public organization and league slugs together; no values were changed.',
+    );
+  }
+  if (missingPublicLeagueKeys.length === 2) {
+    for (const [key, value] of Object.entries(publicLeagueDefaults)) {
+      current += `${key}=${value}\n`;
+      values[key] = value;
+    }
+    addedDerivedValues = true;
+  }
   if (values.TEST_MIGRATOR_DATABASE_URL === undefined) {
     const databaseUrl = values.DATABASE_URL;
     if (databaseUrl === undefined) throw new Error('Existing .env has no DATABASE_URL.');

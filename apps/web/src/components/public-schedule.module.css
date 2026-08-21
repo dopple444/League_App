@@ -1,0 +1,246 @@
+.schedule {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.filterPanel {
+  background: var(--color-background-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-md);
+  position: sticky;
+  top: 5.25rem;
+  z-index: 10;
+}
+
+.filterGrid {
+  align-items: end;
+  display: grid;
+  gap: var(--space-md);
+  grid-template-columns: repeat(4, minmax(8rem, 1fr)) auto;
+}
+
+.field {
+  display: grid;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+.field label {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+}
+
+.field select {
+  background: var(--color-background-surface);
+  border: 1px solid var(--color-border-interactive);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-primary);
+  min-height: var(--field-min-height);
+  padding: var(--space-xs) var(--space-sm);
+  width: 100%;
+}
+
+.resetControl {
+  display: flex;
+}
+
+.resetButton {
+  background: var(--color-action-secondary-default);
+  border-color: var(--color-action-secondary-border);
+  color: var(--color-action-secondary-foreground);
+  min-height: var(--target-touch-min);
+  white-space: nowrap;
+}
+
+.resetButton:hover:not(:disabled) {
+  background: var(--color-action-secondary-hover);
+  border-color: var(--color-action-secondary-border);
+  color: var(--color-action-secondary-foreground);
+}
+
+.resetButton:active:not(:disabled) {
+  background: var(--color-action-secondary-pressed);
+}
+
+.resultsSummary {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-lg);
+  justify-content: space-between;
+}
+
+.resultCount,
+.timeZoneNote {
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.resultCount {
+  font-weight: 700;
+}
+
+.results {
+  display: grid;
+  gap: var(--space-xl);
+}
+
+.dateGroup {
+  min-width: 0;
+}
+
+.dateHeading {
+  font-size: var(--font-size-lg);
+  margin: 0 0 var(--space-sm);
+}
+
+.columnLabels,
+.gameRow {
+  display: grid;
+  gap: var(--space-md);
+  grid-template-columns:
+    minmax(7rem, 0.8fr) minmax(14rem, 2fr) minmax(11rem, 1.2fr)
+    minmax(8rem, 0.8fr);
+}
+
+.columnLabels {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 0 var(--space-md) var(--space-xs);
+  text-transform: uppercase;
+}
+
+.gameList {
+  display: grid;
+  gap: var(--space-xs);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.gameItem {
+  min-width: 0;
+}
+
+.gameRow {
+  align-items: center;
+  background: var(--color-background-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+}
+
+.gameCell {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.mobileLabel {
+  border: 0;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: 800;
+  height: 1px;
+  letter-spacing: 0.04em;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  text-transform: uppercase;
+  white-space: nowrap;
+  width: 1px;
+}
+
+.directionsLink {
+  align-items: center;
+  display: inline-flex;
+  font-weight: 700;
+  min-height: var(--target-touch-min);
+}
+
+.directionsText {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.emptyState {
+  background: var(--color-background-surface);
+  border: 2px dashed var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  padding: clamp(var(--space-xl), 5vw, var(--space-xxxl));
+  text-align: center;
+}
+
+.emptyState h2 {
+  margin-top: 0;
+}
+
+.emptyState p {
+  color: var(--color-text-muted);
+  margin-inline: auto;
+  max-width: 48ch;
+}
+
+@media (max-width: 63.99rem) {
+  .filterGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .resetControl {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 47.99rem) {
+  .filterPanel {
+    position: static;
+  }
+
+  .filterGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .resetControl {
+    grid-column: auto;
+  }
+
+  .resetButton,
+  .resetControl {
+    width: 100%;
+  }
+
+  .columnLabels {
+    display: none;
+  }
+
+  .gameRow {
+    align-items: stretch;
+    gap: var(--space-sm);
+    grid-template-columns: 1fr;
+    padding: var(--space-lg);
+  }
+
+  .gameCell {
+    gap: var(--space-xxs);
+  }
+
+  .mobileLabel {
+    clip: auto;
+    clip-path: none;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    position: static;
+    white-space: normal;
+    width: auto;
+  }
+}

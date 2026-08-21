@@ -64,6 +64,26 @@ for (const [key, value] of Object.entries(env)) {
   }
 }
 
+const publicSlugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
+const featuredPublicSlugs = ['FEATURED_PUBLIC_ORGANIZATION_SLUG', 'FEATURED_PUBLIC_LEAGUE_SLUG'];
+const configuredFeaturedPublicSlugs = featuredPublicSlugs.filter(
+  (key) => env[key] !== undefined && env[key] !== '',
+);
+if (
+  configuredFeaturedPublicSlugs.length > 0 &&
+  configuredFeaturedPublicSlugs.length !== featuredPublicSlugs.length
+) {
+  errors.push('Featured public organization and league slugs must be configured together.');
+}
+for (const key of configuredFeaturedPublicSlugs) {
+  const value = env[key];
+  if (value.length < 2 || value.length > 80 || !publicSlugPattern.test(value)) {
+    errors.push(
+      `${key} must contain 2-80 lowercase letters, numbers, or single hyphen separators.`,
+    );
+  }
+}
+
 try {
   new Intl.DateTimeFormat('en-US', { timeZone: env.LEAGUE_TIMEZONE }).format();
 } catch {

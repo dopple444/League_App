@@ -35,7 +35,7 @@ The guide was introduced after the initial UI was implemented. The shared Modern
 
 | Register ID   | Artifact and route                                                                                  | Surface/type        | Source                                                                                                    | Guide mapping                                    | Build       | Style review  | Review record |
 | ------------- | --------------------------------------------------------------------------------------------------- | ------------------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------ | ----------- | ------------- | ------------- |
-| WEB-PAGE-001  | League Hub landing `/`                                                                              | Web page            | `apps/web/src/app/page.tsx`                                                                               | No exact match                                   | Implemented | Spec needed   | —             |
+| WEB-PAGE-001  | League gateway and tenant entry `/`                                                                 | Web page            | `apps/web/src/app/page.tsx`                                                                               | PUB-21                                           | Implemented | Needs changes | [WEB-PAGE-001](#web-page-001--league-gateway-and-tenant-entry)               |
 | WEB-PAGE-002  | Sign in `/sign-in`                                                                                  | Web page            | `apps/web/src/app/sign-in/page.tsx`                                                                       | SYS-01                                           | Implemented | Needs changes | —             |
 | WEB-PAGE-003  | Organization chooser `/admin/organizations`                                                         | Web page            | `apps/web/src/app/admin/organizations/page.tsx`                                                           | No exact match                                   | Implemented | Spec needed   | —             |
 | WEB-PAGE-004  | Organization command center `/admin/{organizationId}`                                               | Web page            | `apps/web/src/app/admin/[organizationId]/page.tsx`                                                        | ADM-01                                           | Partial     | Needs changes | —             |
@@ -45,10 +45,10 @@ The guide was introduced after the initial UI was implemented. The shared Modern
 | WEB-PAGE-008  | New administrative team `/admin/{organizationId}/seasons/{seasonId}/teams/new`                      | Web page            | `apps/web/src/app/admin/[organizationId]/seasons/[seasonId]/teams/new/page.tsx`                           | No exact match                                   | Implemented | Spec needed   | —             |
 | WEB-PAGE-009  | Administrative team editor `/admin/{organizationId}/seasons/{seasonId}/teams/{teamSeasonId}`        | Web page            | `apps/web/src/app/admin/[organizationId]/seasons/[seasonId]/teams/[teamSeasonId]/page.tsx`                | No exact match; ADM-15 is roster detail          | Partial     | Spec needed   | —             |
 | WEB-PAGE-010  | Audit explorer `/admin/{organizationId}/audit`                                                      | Web page            | `apps/web/src/app/admin/[organizationId]/audit/page.tsx`                                                  | ADM-56                                           | Partial     | Needs changes | —             |
-| WEB-PAGE-011  | Public league home `/leagues/{organizationSlug}/{leagueSlug}`                                       | Web page            | `apps/web/src/app/leagues/[organizationSlug]/[leagueSlug]/page.tsx`                                       | PUB-01                                           | Partial     | Needs changes | —             |
-| WEB-PAGE-012  | Public schedule explorer `/leagues/{organizationSlug}/{leagueSlug}/seasons/{seasonSlug}/schedule`   | Web page            | `apps/web/src/app/leagues/[organizationSlug]/[leagueSlug]/seasons/[seasonSlug]/schedule/page.tsx`         | PUB-03                                           | Partial     | Needs changes | —             |
-| WEB-PAGE-013  | Public team directory `/leagues/{organizationSlug}/{leagueSlug}/seasons/{seasonSlug}/teams`         | Web page            | `apps/web/src/app/leagues/[organizationSlug]/[leagueSlug]/seasons/[seasonSlug]/teams/page.tsx`            | PUB-11                                           | Partial     | Needs changes | —             |
-| WEB-PAGE-014  | Public team detail `/leagues/{organizationSlug}/{leagueSlug}/seasons/{seasonSlug}/teams/{teamSlug}` | Web page            | `apps/web/src/app/leagues/[organizationSlug]/[leagueSlug]/seasons/[seasonSlug]/teams/[teamSlug]/page.tsx` | PUB-12                                           | Partial     | Needs changes | —             |
+| WEB-PAGE-011  | Public league home `/leagues/{organizationSlug}/{leagueSlug}`                                      | Web page            | `apps/web/src/app/leagues/[organizationSlug]/[leagueSlug]/page.tsx`                                       | PUB-01                                           | Partial     | Needs changes | [WEB-PAGE-011](#web-page-011--public-league-home)                            |
+| WEB-PAGE-012  | Public schedule explorer `/leagues/{organizationSlug}/{leagueSlug}/seasons/{seasonSlug}/schedule`  | Web page            | `apps/web/src/app/leagues/[organizationSlug]/[leagueSlug]/seasons/[seasonSlug]/schedule/page.tsx`         | PUB-03                                           | Partial     | Needs changes | [WEB-PAGE-012](#web-page-012--public-schedule-explorer)                      |
+| WEB-PAGE-013  | Public team directory `/leagues/{organizationSlug}/{leagueSlug}/seasons/{seasonSlug}/teams`        | Web page            | `apps/web/src/app/leagues/[organizationSlug]/[leagueSlug]/seasons/[seasonSlug]/teams/page.tsx`            | PUB-11                                           | Partial     | Needs changes | [WEB-PAGE-013](#web-page-013--public-team-directory)                         |
+| WEB-PAGE-014  | Public team detail `/leagues/{organizationSlug}/{leagueSlug}/seasons/{seasonSlug}/teams/{teamSlug}` | Web page            | `apps/web/src/app/leagues/[organizationSlug]/[leagueSlug]/seasons/[seasonSlug]/teams/[teamSlug]/page.tsx` | PUB-12                                           | Partial     | Needs changes | [WEB-PAGE-014](#web-page-014--public-team-detail)                            |
 | WEB-STATE-001 | Global loading state                                                                                | Web system state    | `apps/web/src/app/loading.tsx`                                                                            | SYS-04                                           | Implemented | Needs changes | —             |
 | WEB-STATE-002 | Global error and service-unavailable states                                                         | Web system state    | `apps/web/src/app/error.tsx`; `apps/web/src/components/site-shell.tsx`                                    | SYS-04                                           | Implemented | Needs changes | —             |
 | WEB-STATE-003 | Not-found state                                                                                     | Web system state    | `apps/web/src/app/not-found.tsx`                                                                          | SYS-04                                           | Implemented | Needs changes | —             |
@@ -68,6 +68,8 @@ The guide was introduced after the initial UI was implemented. The shared Modern
 | WEB-FORM-003 | Edit and publish season              | Web form    | `apps/web/src/components/admin/season-editor.tsx`      | ADM-03/ADM-04 overlap; exact form missing | Partial     | Spec needed   | —             |
 | WEB-FORM-004 | Create administrative team           | Web form    | `apps/web/src/components/admin/team-create-form.tsx`   | No exact match                            | Implemented | Spec needed   | —             |
 | WEB-FORM-005 | Edit and publish administrative team | Web form    | `apps/web/src/components/admin/team-editor.tsx`        | No exact match                            | Partial     | Spec needed   | —             |
+| WEB-FORM-006 | Public schedule filters              | Web form    | `apps/web/src/components/public-schedule.tsx`          | PUB-03                                    | Implemented | Needs changes | [WEB-FORM-006](#web-form-006--public-schedule-filters) |
+| WEB-FORM-007 | Public team-name search              | Web form    | `apps/web/src/components/public-team-directory.tsx`    | PUB-11                                    | Implemented | Needs changes | [WEB-FORM-007](#web-form-007--public-team-name-search) |
 | MOB-FORM-001 | Sign in                              | Native form | `apps/mobile/app/(auth)/sign-in.tsx`                   | MOB-01                                    | Implemented | Needs changes | —             |
 
 ## Current shared-foundation baseline
@@ -75,16 +77,17 @@ The guide was introduced after the initial UI was implemented. The shared Modern
 | Register ID    | Artifact                                                             | Surface/type                 | Source                                                                                                  | Guide mapping                   | Build       | Style review  | Review record                                                                 |
 | -------------- | -------------------------------------------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------- | ----------- | ------------- | ----------------------------------------------------------------------------- |
 | DS-TOKEN-001   | Shared semantic token package                                        | Cross-platform design system | `packages/ui-tokens/`                                                                                   | Sections 2, 4, and 10           | Implemented | Pass          | [DS-TOKEN-001](#ds-token-001--shared-semantic-token-package)                  |
-| WEB-SHELL-001  | Public header and footer                                             | Web shell                    | `apps/web/src/app/layout.tsx`; `apps/web/src/app/globals.css`; `apps/web/src/components/site-shell.tsx` | Sections 5, 6, and 10           | Implemented | Needs changes | [WEB-SHELL-001](#web-shell-001--public-header-and-footer)                     |
+| WEB-SHELL-001  | Public header, footer, and site icon                                  | Web shell                    | `apps/web/src/app/layout.tsx`; `apps/web/src/app/icon.tsx`; `apps/web/src/app/globals.css`; `apps/web/src/components/site-shell.tsx` | Sections 2, 5, 6, and 10        | Implemented | Needs changes | [WEB-SHELL-001](#web-shell-001--public-header-and-footer)                     |
 | WEB-SHELL-002  | Administration shell                                                 | Web shell                    | `apps/web/src/app/globals.css`; `apps/web/src/components/admin/admin-shell.tsx`                         | Sections 5, 6, and 10           | Partial     | Needs changes | [WEB-SHELL-002](#web-shell-002--administration-shell)                         |
 | WEB-NAV-001    | Breadcrumbs                                                          | Web navigation               | `apps/web/src/components/breadcrumbs.tsx`                                                               | Section 6                       | Implemented | Needs changes | —                                                                             |
+| WEB-NAV-002    | Contextual public-league navigation                                  | Web navigation               | `apps/web/src/components/public-league-navigation.tsx`                                                  | PUB-21; PUB-01; Sections 5–6    | Implemented | Needs changes | [WEB-NAV-002](#web-nav-002--contextual-public-league-navigation)              |
 | WEB-PRIM-001   | Page heading, status badge, and empty/service states                 | Web component set            | `apps/web/src/app/globals.css`; `apps/web/src/components/site-shell.tsx`                                | Sections 4 and 6; SYS-04        | Implemented | Needs changes | [WEB-PRIM-001](#web-prim-001--web-heading-status-and-system-state-primitives) |
 | WEB-PRIM-002   | Form error summary, field error, and invalid-field attributes        | Web component set            | `apps/web/src/components/form-feedback.tsx`                                                             | Section 6 form behavior         | In progress | Needs changes | —                                                                             |
 | WEB-DOMAIN-001 | Organization picker                                                  | Web interaction              | `apps/web/src/components/admin/organization-picker.tsx`                                                 | No exact match                  | Implemented | Spec needed   | —                                                                             |
 | WEB-DOMAIN-002 | Season list                                                          | Web data display             | `apps/web/src/components/admin/season-list.tsx`                                                         | ADM-03                          | Partial     | Needs changes | —                                                                             |
 | WEB-DOMAIN-003 | Team list                                                            | Web data display             | `apps/web/src/components/admin/team-list.tsx`                                                           | No exact administrative mapping | Partial     | Spec needed   | —                                                                             |
 | WEB-DOMAIN-004 | Audit list                                                           | Web data display             | `apps/web/src/components/admin/audit-list.tsx`                                                          | ADM-56                          | Partial     | Needs changes | —                                                                             |
-| WEB-DOMAIN-005 | Public schedule results                                              | Web interaction/data display | `apps/web/src/components/public-schedule.tsx`                                                           | PUB-03                          | Partial     | Needs changes | —                                                                             |
+| WEB-DOMAIN-005 | Public schedule results                                              | Web interaction/data display | `apps/web/src/components/public-schedule.tsx`                                                           | PUB-03                          | Implemented | Needs changes | [WEB-DOMAIN-005](#web-domain-005--public-schedule-results)                    |
 | MOB-PRIM-001   | Screen, heading, card, action, error, loading, and status primitives | Native component set         | `apps/mobile/app/_layout.tsx`; `apps/mobile/src/components/ui.tsx`                                      | Sections 4, 6, and 10           | Implemented | Needs changes | [MOB-PRIM-001](#mob-prim-001--native-ui-primitives-and-font-adapter)          |
 
 The unimplemented `PUB`, `TEAM`, `ADM`, `MOB`, `SYS`, `ACC`, `DOC`, and `COM` catalog remains in the style guide and is intentionally not duplicated here. Add its entries to this register when implementation starts.
@@ -92,11 +95,12 @@ The unimplemented `PUB`, `TEAM`, `ADM`, `MOB`, `SYS`, `ACC`, `DOC`, and `COM` ca
 ### Foundation audit evidence
 
 - `packages/ui-tokens` now implements the locked Slate/Emerald/Gold primitives, accessible semantic action/status appearances, type/spacing/target/layout values, and web/native platform adapters. Exact-value and foreground/surface contrast tests pass.
-- The changed web foundation consumes the shared CSS contract without feature-local hex/RGB values, bundles Roboto Flex locally, uses a finite status-tone map with visible labels and a neutral unknown fallback, and provides a compact semantic mobile menu.
+- The changed web foundation consumes the shared CSS contract without feature-local hex/RGB values, bundles Roboto Flex locally, uses a finite status-tone map with visible labels and a neutral unknown fallback, and provides a compact semantic mobile menu that closes after route navigation.
 - The native primitive set consumes the TypeScript contract, loads a local Expo-compatible Roboto Flex face, uses semantic action/status appearances, and distinguishes 44dp standard from 64dp scoring controls.
-- The public schedule does not yet provide the specified filter set, date grouping, sticky filter bar, or mobile-card reflow.
+- The public schedule now provides combined Date, Team, Field, and Status filters, league-timezone date grouping, a sticky desktop filter region, visible result/reset/empty states, and single-DOM mobile-card reflow. Division remains absent because it is not present in the approved public DTO.
 - The current public league, public team, administration, and mobile-home surfaces implement only subsets of their mapped specifications.
-- Automated token, component, lint, type, web-build, and Android/iOS export evidence exists. No responsive screenshot baselines, emulator/physical-device visual review, screen-reader review, or visual-regression checks have been recorded yet.
+- The final 12-image public recapture uses synthetic records and was reviewed without clipping, horizontal overflow, broken styling, private data, favicon failure, console errors, or page errors.
+- Automated token, component, lint, type, web-build, browser-flow, accessibility, zoom/reflow, keyboard/focus, reduced-motion, and minimum-target evidence exists. Twelve responsive public-web screenshots are retained. Real screen-reader, desktop Ctrl-Plus, physical-device/manual, and visual-regression review remain unavailable.
 
 ## Style review checklist
 
@@ -160,16 +164,218 @@ The initial foundation ambiguities were resolved on 2026-08-18 in the style guid
 - Checklist result: Pass.
 - Gaps, exceptions, and follow-up: Iconography remains component-owned until a shared icon system is selected. Every consuming artifact still requires its own responsive, interaction, and accessibility review.
 
-### WEB-SHELL-001 — Public header and footer
+### WEB-PAGE-001 — League gateway and tenant entry
 
-- Guide specification and revision: Modern Field Sections 4–6 and 10, revised 2026-08-18.
-- Requirements and constraints: locally bundled Roboto Flex, sticky compact header, semantic responsive navigation, 44px controls, visible focus, and reduced-motion support.
-- Reviewer and date: Codex, 2026-08-18.
-- Viewports or output formats checked: desktop Chromium and Pixel 7 emulation passed automated flow/accessibility checks; no retained screenshots or manual assistive-technology review.
-- Automated checks: web unit tests (20/20), browser E2E (4/4), and desktop/Pixel 7 axe scans (2/2) passed with lint, typecheck, and production build; tests cover mobile-menu semantics, status fallback behavior, CSP nonce hydration, and compressed static assets.
-- Screenshot/output evidence: None recorded.
+- Guide specification and revision: PUB-21 and Modern Field Sections 4–6 and 10, reviewed 2026-08-19.
+- Requirements and constraints: public read-only gateway; one validated server-side featured-league
+  pair; no tenant enumeration, guessing, first-row selection, unpublished identity, or private fields;
+  canonical slugged destination; useful absent/invalid/withdrawn/unavailable states; 44px actions.
+- Reviewer and date: Codex, 2026-08-19.
+- Viewports or output formats checked: automated Chromium at desktop, tablet/reflow, 393px mobile, and
+  200% CDP zoom; private-LAN synthetic journey through the test origin on port `8088`.
+- Automated checks: web unit tests passed 40/40; E2E passed 7/7; axe passed 4/4; the separate LAN
+  journey passed 5/5. Runtime-dynamic rendering, keyboard/focus order, reduced motion, minimum targets,
+  no horizontal overflow, no console/page errors, and `/icon` as `200 image/png` were verified.
+- Screenshot/output evidence:
+  [root desktop 1440](evidence/ui/2026-08-19-navigable-published-league/01-root-desktop-1440.png),
+  [root mobile menu 393](evidence/ui/2026-08-19-navigable-published-league/02-root-mobile-menu-393.png).
 - Checklist result: Needs changes.
-- Gaps, exceptions, and follow-up: Capture desktop/tablet/mobile screenshots and complete keyboard, zoom, reduced-motion, and screen-reader review before Pass.
+- Gaps, exceptions, and follow-up: No real screen-reader, desktop Ctrl-Plus, or physical-device/manual
+  review is available. The retained set does not include every service/configuration variant or a
+  dedicated root 1024px image; automated state and reflow coverage does not replace that review.
+
+### WEB-PAGE-011 — Public league home
+
+- Guide specification and revision: PUB-01, reviewed 2026-08-19.
+- Requirements and constraints: read only from the current published snapshot; show only basic
+  published matchup data; do not invent canonical field/weather status, news, standings, scores, or
+  records; provide clear schedule/team paths.
+- Reviewer and date: Codex, 2026-08-19.
+- Viewports or output formats checked: automated Chromium desktop/tablet/mobile reflow and 200% CDP
+  zoom; 1024px retained capture; private-LAN synthetic journey.
+- Automated checks: E2E/axe and the 5/5 LAN journey passed; navigation/focus, headings, 44px targets,
+  reduced motion, overflow, and browser-error checks passed.
+- Screenshot/output evidence:
+  [league home tablet 1024](evidence/ui/2026-08-19-navigable-published-league/03-league-home-tablet-1024.png).
+- Checklist result: Needs changes.
+- Gaps, exceptions, and follow-up: Build remains Partial because the approved public contract has no
+  canonical field status, human-approved news, or standings required by PUB-01. The fixed-date seed
+  currently exercises the honest no-upcoming-games state rather than a live upcoming card. Real
+  screen-reader, desktop Ctrl-Plus, and physical-device/manual review remain unavailable.
+
+### WEB-PAGE-012 — Public schedule explorer
+
+- Guide specification and revision: PUB-03, reviewed 2026-08-19.
+- Requirements and constraints: published DTO fields only; league-timezone grouping; combined Date,
+  Team, Field, and Status controls; visible count/reset/empty states; safe directions; non-color status;
+  aligned desktop rows and single-DOM mobile cards.
+- Reviewer and date: Codex, 2026-08-19.
+- Viewports or output formats checked: retained 1440px, 1024px, and 393px captures plus automated
+  desktop/mobile/200% CDP reflow and private-LAN review.
+- Automated checks: web unit coverage verifies combined filters, reset, filtered-empty behavior,
+  chronological local dates, UTC/local-date separation, DST, safe-direction fallback, and semantic
+  final status. E2E 7/7, axe 4/4, and LAN 5/5 passed with headings/live regions, keyboard/focus, 44px
+  targets, reduced motion, overflow, and browser-error checks.
+- Screenshot/output evidence:
+  [schedule default desktop 1440](evidence/ui/2026-08-19-navigable-published-league/04-schedule-default-desktop-1440.png),
+  [schedule filtered tablet 1024](evidence/ui/2026-08-19-navigable-published-league/05-schedule-filtered-tablet-1024.png),
+  [schedule default mobile 393](evidence/ui/2026-08-19-navigable-published-league/06-schedule-default-mobile-393.png).
+- Checklist result: Needs changes.
+- Gaps, exceptions, and follow-up: Build remains Partial against PUB-03 because Division is absent from
+  the approved public DTO and mobile uses stacked persistent controls rather than the specified
+  collapsed filter control. The one-game live fixture cannot authentically produce a filtered-empty
+  screenshot because every offered value matches; focused unit coverage verifies that state. Real
+  screen-reader, desktop Ctrl-Plus, and physical-device/manual review remain unavailable.
+
+### WEB-PAGE-013 — Public team directory
+
+- Guide specification and revision: PUB-11, reviewed 2026-08-19.
+- Requirements and constraints: search only approved `publicName`; do not expose internal names,
+  affiliations, records, rosters, or new fields; provide count/reset/filtered-empty states and large
+  linked responsive cards.
+- Reviewer and date: Codex, 2026-08-19.
+- Viewports or output formats checked: retained 1440px, 1024px, and 393px default/filtered/empty
+  captures plus automated desktop/mobile/200% CDP reflow and private-LAN review.
+- Automated checks: component coverage verifies public-name-only search and reset/empty behavior; E2E
+  7/7, axe 4/4, and LAN 5/5 passed with live-region, keyboard/focus, target-size, reduced-motion,
+  overflow, long-content, and browser-error checks.
+- Screenshot/output evidence:
+  [teams default desktop 1440](evidence/ui/2026-08-19-navigable-published-league/07-teams-default-desktop-1440.png),
+  [teams filtered tablet 1024](evidence/ui/2026-08-19-navigable-published-league/08-teams-filtered-tablet-1024.png),
+  [teams filtered-empty mobile 393](evidence/ui/2026-08-19-navigable-published-league/09-teams-filtered-empty-mobile-393.png),
+  [teams default mobile 393](evidence/ui/2026-08-19-navigable-published-league/10-teams-default-mobile-393.png).
+- Checklist result: Needs changes.
+- Gaps, exceptions, and follow-up: Build remains Partial against PUB-11 because approved public DTOs do
+  not contain church affiliation, Division, or records. Real screen-reader, desktop Ctrl-Plus, and
+  physical-device/manual review remain unavailable.
+
+### WEB-PAGE-014 — Public team detail
+
+- Guide specification and revision: PUB-12, reviewed 2026-08-19.
+- Requirements and constraints: approved team identity and matching published games only; determine
+  missing-team 404 before schedule loading; degrade schedule failure within its section; no invented
+  record, affiliation, roster, coach, score, or statistics; logical `h1` → `h2` → `h3` headings.
+- Reviewer and date: Codex, 2026-08-19.
+- Viewports or output formats checked: retained 1440px and 393px captures plus automated
+  desktop/tablet/mobile/200% CDP reflow and private-LAN review.
+- Automated checks: E2E verifies a published team detail and missing-team not-found behavior; E2E
+  7/7, axe 4/4, and LAN 5/5 passed with headings/live regions, keyboard/focus, target-size, overflow,
+  and browser-error checks. Code review confirms `teamSeasonId` matching and independent
+  schedule-unpublished/unavailable branches.
+- Screenshot/output evidence:
+  [team detail desktop 1440](evidence/ui/2026-08-19-navigable-published-league/11-team-detail-desktop-1440.png),
+  [team detail mobile 393](evidence/ui/2026-08-19-navigable-published-league/12-team-detail-mobile-393.png).
+- Checklist result: Needs changes.
+- Gaps, exceptions, and follow-up: Build remains Partial against PUB-12 because record, approved roster,
+  statistics, affiliation, and tabbed subviews are unavailable in the approved public contract. The
+  unavailable-section branches have neither targeted route-test nor retained screenshot evidence.
+  Real screen-reader, desktop Ctrl-Plus, and physical-device/manual review remain unavailable.
+
+### WEB-FORM-006 — Public schedule filters
+
+- Guide specification and revision: PUB-03 plus Section 6 form behavior, reviewed 2026-08-19.
+- Requirements and constraints: persistent programmatic labels; combined Date/Team/Field/Status
+  filtering; chronological league-local dates; visible polite atomic count; 44px controls; explicit
+  reset and filtered-empty recovery; no unapproved Division field.
+- Reviewer and date: Codex, 2026-08-19.
+- Viewports or output formats checked: automated desktop/tablet/mobile and 200% CDP reflow; retained
+  schedule captures at 1440px, 1024px, and 393px.
+- Automated checks: focused component coverage plus E2E 7/7, axe 4/4, and LAN 5/5 passed; keyboard,
+  focus-visible, live-region, reduced-motion, target-size, and overflow checks passed.
+- Screenshot/output evidence:
+  [default desktop 1440](evidence/ui/2026-08-19-navigable-published-league/04-schedule-default-desktop-1440.png),
+  [filtered tablet 1024](evidence/ui/2026-08-19-navigable-published-league/05-schedule-filtered-tablet-1024.png),
+  [default mobile 393](evidence/ui/2026-08-19-navigable-published-league/06-schedule-default-mobile-393.png).
+- Checklist result: Needs changes.
+- Gaps, exceptions, and follow-up: The bounded implemented form intentionally omits Division because no
+  approved public field exists, and the mobile presentation does not use PUB-03's collapsed filter
+  control. Filtered-empty is unit-tested but lacks an authentic live screenshot. Real screen-reader,
+  desktop Ctrl-Plus, and physical-device/manual review remain unavailable.
+
+### WEB-FORM-007 — Public team-name search
+
+- Guide specification and revision: PUB-11 plus Section 6 form behavior, reviewed 2026-08-19.
+- Requirements and constraints: persistent label; search only normalized approved `publicName`; visible
+  polite atomic count; 44px search/reset controls; explicit reset and filtered-empty recovery; no
+  internal-name, affiliation, Division, or record search.
+- Reviewer and date: Codex, 2026-08-19.
+- Viewports or output formats checked: automated desktop/tablet/mobile and 200% CDP reflow; retained
+  default, filtered, and filtered-empty team captures at 1440px, 1024px, and 393px.
+- Automated checks: focused component coverage plus E2E 7/7, axe 4/4, and LAN 5/5 passed; keyboard,
+  focus-visible, live-region, reduced-motion, target-size, long-content, and overflow checks passed.
+- Screenshot/output evidence:
+  [default desktop 1440](evidence/ui/2026-08-19-navigable-published-league/07-teams-default-desktop-1440.png),
+  [filtered tablet 1024](evidence/ui/2026-08-19-navigable-published-league/08-teams-filtered-tablet-1024.png),
+  [filtered-empty mobile 393](evidence/ui/2026-08-19-navigable-published-league/09-teams-filtered-empty-mobile-393.png),
+  [default mobile 393](evidence/ui/2026-08-19-navigable-published-league/10-teams-default-mobile-393.png).
+- Checklist result: Needs changes.
+- Gaps, exceptions, and follow-up: The implemented bounded search intentionally omits unavailable
+  affiliation/Division controls. Real screen-reader, desktop Ctrl-Plus, and physical-device/manual
+  review remain unavailable.
+
+### WEB-NAV-002 — Contextual public-league navigation
+
+- Guide specification and revision: PUB-21, PUB-01, and Modern Field Sections 5–6, reviewed 2026-08-19.
+- Requirements and constraints: semantic Home/Schedule/Teams/Staff sign-in destinations; current page
+  visible without color alone; current published-season context; 44px targets; compact sticky desktop
+  navigation; logical mobile disclosure that closes after route navigation.
+- Reviewer and date: Codex, 2026-08-19.
+- Viewports or output formats checked: automated desktop/tablet/mobile and 200% CDP reflow; retained
+  desktop and open-menu mobile captures; complete private-LAN root-to-team journey.
+- Automated checks: focused navigation coverage plus E2E 7/7, axe 4/4, and LAN 5/5 passed. Keyboard
+  activation, focus-visible styling, route-current state, post-navigation mobile closure, reduced
+  motion, minimum targets, overflow, and browser errors were checked.
+- Screenshot/output evidence:
+  [root desktop 1440](evidence/ui/2026-08-19-navigable-published-league/01-root-desktop-1440.png),
+  [root mobile menu 393](evidence/ui/2026-08-19-navigable-published-league/02-root-mobile-menu-393.png),
+  [league context tablet 1024](evidence/ui/2026-08-19-navigable-published-league/03-league-home-tablet-1024.png).
+- Checklist result: Needs changes.
+- Gaps, exceptions, and follow-up: Real screen-reader, desktop Ctrl-Plus, and physical-device/manual
+  review remain unavailable.
+
+### WEB-DOMAIN-005 — Public schedule results
+
+- Guide specification and revision: PUB-03 and Modern Field Sections 4–6, reviewed 2026-08-19.
+- Requirements and constraints: one semantic collection grouped by league-local date; aligned desktop
+  fields and stacked mobile cards without duplicated accessible game content; exact non-color status
+  wording; safe HTTP/HTTPS directions with text fallback; logical reusable heading levels.
+- Reviewer and date: Codex, 2026-08-19.
+- Viewports or output formats checked: automated desktop/tablet/mobile and 200% CDP reflow; retained
+  schedule captures at 1440px, 1024px, and 393px plus team-detail captures at 1440px and 393px.
+- Automated checks: focused component coverage verifies timezone/DST grouping, chronological ordering,
+  one rendered game instance, exact `Official Final`, safe directions, invalid-date/timezone fallback,
+  and reusable `h3` grouping. E2E 7/7, axe 4/4, and LAN 5/5 passed.
+- Screenshot/output evidence:
+  [schedule desktop 1440](evidence/ui/2026-08-19-navigable-published-league/04-schedule-default-desktop-1440.png),
+  [schedule tablet 1024](evidence/ui/2026-08-19-navigable-published-league/05-schedule-filtered-tablet-1024.png),
+  [schedule mobile 393](evidence/ui/2026-08-19-navigable-published-league/06-schedule-default-mobile-393.png),
+  [team detail desktop 1440](evidence/ui/2026-08-19-navigable-published-league/11-team-detail-desktop-1440.png),
+  [team detail mobile 393](evidence/ui/2026-08-19-navigable-published-league/12-team-detail-mobile-393.png).
+- Checklist result: Needs changes.
+- Gaps, exceptions, and follow-up: Real screen-reader output and physical/manual visual review remain
+  unavailable. The live fixture exercises one game; multi-game/date/status behavior is demonstrated by
+  focused unit fixtures rather than retained screenshots.
+
+### WEB-SHELL-001 — Public header, footer, and site icon
+
+- Guide specification and revision: Modern Field Sections 2 and 4–6 plus PUB-21, reviewed 2026-08-19.
+- Requirements and constraints: locally bundled Roboto Flex, compact sticky header, semantic responsive
+  navigation, 44px controls, visible focus/current state, reduced-motion support, and a recognizable
+  locally rendered site icon.
+- Reviewer and date: Codex, 2026-08-19.
+- Viewports or output formats checked: automated desktop/tablet/mobile and 200% CDP reflow, retained
+  1440px/1024px/393px public captures, and the private-LAN synthetic journey.
+- Automated checks: web unit tests passed 40/40, E2E passed 7/7, axe passed 4/4, and LAN passed 5/5.
+  Keyboard/focus, mobile-menu closure, reduced motion, minimum targets, overflow, CSP/hydration,
+  compressed static assets, browser errors, and `/icon` as `200 image/png` were verified.
+- Screenshot/output evidence:
+  [root desktop 1440](evidence/ui/2026-08-19-navigable-published-league/01-root-desktop-1440.png),
+  [root mobile menu 393](evidence/ui/2026-08-19-navigable-published-league/02-root-mobile-menu-393.png),
+  [league home tablet 1024](evidence/ui/2026-08-19-navigable-published-league/03-league-home-tablet-1024.png).
+- Checklist result: Needs changes.
+- Gaps, exceptions, and follow-up: Real screen-reader, desktop Ctrl-Plus, and physical-device/manual
+  review remain unavailable; retained images are implementation evidence rather than a visual-
+  regression baseline.
 
 ### WEB-SHELL-002 — Administration shell
 

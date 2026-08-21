@@ -1,7 +1,12 @@
 import { render, screen, within } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { SiteHeader, StatusBadge } from './site-shell';
+
+const { usePathnameMock } = vi.hoisted(() => ({ usePathnameMock: vi.fn() }));
+vi.mock('next/navigation', () => ({ usePathname: usePathnameMock }));
+
+beforeEach(() => usePathnameMock.mockReturnValue('/'));
 
 describe('StatusBadge', () => {
   it.each([
@@ -19,10 +24,8 @@ describe('StatusBadge', () => {
   ])('maps %s to the finite semantic class %s', (value, expectedClass) => {
     render(<StatusBadge value={value} />);
 
-    expect(screen.getByText(value.toLowerCase().replaceAll('_', ' '))).toHaveClass(
-      'status',
-      expectedClass,
-    );
+    const label = value === 'FINAL' ? 'Official Final' : value.toLowerCase().replaceAll('_', ' ');
+    expect(screen.getByText(label)).toHaveClass('status', expectedClass);
   });
 
   it('renders an unknown status visibly with the neutral class only', () => {
@@ -44,9 +47,10 @@ describe('SiteHeader', () => {
     expect(trigger).toHaveAttribute('aria-controls', 'mobile-primary-navigation');
     expect(navigation).toHaveAttribute('id', 'mobile-primary-navigation');
     expect(navigation).toHaveAttribute('aria-label', 'Mobile primary');
-    expect(
-      within(navigation as HTMLElement).getByRole('link', { name: 'League features' }),
-    ).toHaveAttribute('href', '/#league-features');
+    expect(within(navigation as HTMLElement).getByRole('link', { name: /Home/u })).toHaveAttribute(
+      'href',
+      '/',
+    );
     expect(
       within(navigation as HTMLElement).getByRole('link', { name: 'Staff sign in' }),
     ).toHaveAttribute('href', '/sign-in');

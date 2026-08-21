@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
+import { PublicLeagueNavigation } from './public-league-navigation';
+
 type StatusClassName =
   | 'status-danger'
   | 'status-success'
@@ -33,17 +35,6 @@ const STATUS_CLASS_BY_VALUE: Readonly<Record<string, StatusClassName>> = {
   postponed: 'status-warning',
 };
 
-function PrimaryNavigationLinks() {
-  return (
-    <>
-      <Link href="/#league-features">League features</Link>
-      <Link className="button secondary" href="/sign-in">
-        Staff sign in
-      </Link>
-    </>
-  );
-}
-
 export function SiteHeader() {
   return (
     <header className="site-header">
@@ -54,21 +45,7 @@ export function SiteHeader() {
           </span>
           <span>League Hub</span>
         </Link>
-        <nav aria-label="Primary" className="site-nav desktop-site-nav">
-          <PrimaryNavigationLinks />
-        </nav>
-        <details className="mobile-nav">
-          <summary aria-controls="mobile-primary-navigation" className="mobile-nav-trigger">
-            Menu
-          </summary>
-          <nav
-            aria-label="Mobile primary"
-            className="mobile-nav-panel"
-            id="mobile-primary-navigation"
-          >
-            <PrimaryNavigationLinks />
-          </nav>
-        </details>
+        <PublicLeagueNavigation />
       </div>
     </header>
   );
@@ -110,7 +87,11 @@ export function PageHeading({
 export function StatusBadge({ value }: { readonly value: string }) {
   const normalized = value.trim().toLowerCase();
   const statusClass = STATUS_CLASS_BY_VALUE[normalized] ?? 'status-neutral';
-  const label = normalized ? normalized.replaceAll(/[_-]+/g, ' ') : 'unknown';
+  const label = ['final', 'official_final', 'official-final'].includes(normalized)
+    ? 'Official Final'
+    : normalized
+      ? normalized.replaceAll(/[_-]+/g, ' ')
+      : 'unknown';
 
   return <span className={`status ${statusClass}`}>{label}</span>;
 }

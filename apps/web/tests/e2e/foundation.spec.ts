@@ -28,6 +28,12 @@ test('landing page explains the verified publication boundary', async ({ page })
       'Draft seasons and private participant information never appear on public pages.',
     ),
   ).toBeVisible();
+  const icon = page.locator('link[rel="icon"]');
+  await expect(icon).toHaveAttribute('href', /\/icon/u);
+  await expect(icon).toHaveAttribute('type', 'image/png');
+  const iconResponse = await page.request.get((await icon.getAttribute('href')) ?? '/icon');
+  expect(iconResponse.status()).toBe(200);
+  expect(iconResponse.headers()['content-type']).toContain('image/png');
   await page.getByRole('link', { name: 'Staff sign in' }).first().click();
   await expect(page).toHaveURL(/\/sign-in$/);
   await expect(page.getByLabel('Email address')).toBeVisible();
@@ -98,14 +104,17 @@ test('gateway applies unique script nonces and permits Next hydration', async ({
   await page.goto('/leagues/meade-county-demo/church-softball/seasons/spring-2026/schedule', {
     waitUntil: 'networkidle',
   });
-  await expect(page.getByText('Demo Away Team')).toBeVisible();
-  await expect(page.getByText('Demo Home Team')).toBeVisible();
+  const publicSchedule = page.getByRole('region', { name: 'Published game schedule' });
+  await expect(publicSchedule.getByRole('article').first()).toContainText('Demo Away Team');
+  await expect(publicSchedule.getByRole('article').first()).toContainText('Demo Home Team');
   await expect(page.getByText('Loading league information…')).toHaveCount(0);
   expect(cspErrors).toEqual([]);
   expect(pageErrors).toEqual([]);
 });
 
-test('admin creates a private team, publishes it, and sees its audit trail', async ({ page }) => {
+test('admin publishes a private team, verifies its audit trail, and withdraws it', async ({
+  page,
+}) => {
   const password = getDemoPassword();
   test.skip(!password, 'Run the environment initializer to create synthetic demo credentials.');
 
@@ -118,8 +127,9 @@ test('admin creates a private team, publishes it, and sees its audit trail', asy
 
   await page.goto(publicSchedulePath);
   await expect(page.getByRole('heading', { level: 1, name: 'Schedule' })).toBeVisible();
-  await expect(page.getByText('Demo Away Team')).toBeVisible();
-  await expect(page.getByText('Demo Home Team')).toBeVisible();
+  const publicSchedule = page.getByRole('region', { name: 'Published game schedule' });
+  await expect(publicSchedule.getByRole('article').first()).toContainText('Demo Away Team');
+  await expect(publicSchedule.getByRole('article').first()).toContainText('Demo Home Team');
 
   await page.goto('/sign-in');
   await page.getByLabel('Email address').fill('admin@demo.invalid');
@@ -158,21 +168,61 @@ test('admin creates a private team, publishes it, and sees its audit trail', asy
   await page.goto(publicTeamsPath);
   await expect(page.getByText(publicName, { exact: true })).toHaveCount(0);
 
-  await page.goto(teamAdminPath);
-  await page.getByRole('button', { name: 'Publish team' }).click();
-  await expect(page.getByText('Team published with its approved public name.')).toBeVisible();
+  let publicationWasObserved = false;
+  try {
+    await page.goto(teamAdminPath);
+    await page.getByRole('button', { name: 'Publish team' }).click();
+    await expect(page.getByText('Team published with its approved public name.')).toBeVisible();
+    publicationWasObserved = true;
 
-  await page.goto(publicTeamsPath);
-  await expect(page.getByRole('heading', { level: 2, name: publicName })).toBeVisible();
+    await page.goto(publicTeamsPath);
+    await expect(page.getByRole('heading', { level: 2, name: publicName })).toBeVisible();
 
-  await page.goto(`${adminBasePath}/audit`);
-  await expect(page.getByRole('heading', { level: 1, name: 'Audit history' })).toBeVisible();
-  const auditRow = page
-    .getByRole('row')
-    .filter({ hasText: teamSeasonId ?? 'missing-team-id' })
-    .filter({ hasText: 'team.published' });
-  await expect(auditRow).toContainText('team.published');
-  await expect(auditRow).toContainText('WEB');
+    await page.goto(`${adminBasePath}/audit`);
+    await expect(page.getByRole('heading', { level: 1, name: 'Audit history' })).toBeVisible();
+    const publishAuditRow = page
+      .getByRole('row')
+      .filter({ hasText: teamSeasonId ?? 'missing-team-id' })
+      .filter({ hasText: 'team.published' });
+    await expect(publishAuditRow).toContainText('team.published');
+    await expect(publishAuditRow).toContainText('WEB');
+  } finally {
+    await page.goto(teamAdminPath);
+    const publicationToggle = page.getByRole('button', {
+      name: /^(?:Publish team|Withdraw public team)$/u,
+    });
+    await expect(publicationToggle).toBeVisible();
+    if ((await publicationToggle.textContent())?.trim() === 'Withdraw public team') {
+      await publicationToggle.click();
+      await expect(
+        page.getByText('Team withdrawn from public view. History was retained.'),
+      ).toBeVisible();
+      publicationWasObserved = true;
+    }
+
+    if (publicationWasObserved) {
+      await expect(page.getByRole('button', { name: 'Publish team' })).toBeVisible();
+      await expect(page.getByText('draft', { exact: true })).toBeVisible();
+
+      await page.goto(publicTeamsPath);
+      await expect(page.getByRole('heading', { level: 2, name: publicName })).toHaveCount(0);
+
+      const withdrawnTeamResponse = await page.goto(`${publicTeamsPath}/${slug}`);
+      expect([200, 404]).toContain(withdrawnTeamResponse?.status());
+      await expect(
+        page.getByRole('heading', { level: 1, name: 'This page is not published.' }),
+      ).toBeVisible();
+      await expect(page.getByText('Temporarily unavailable', { exact: true })).toHaveCount(0);
+
+      await page.goto(`${adminBasePath}/audit`);
+      const withdrawAuditRow = page
+        .getByRole('row')
+        .filter({ hasText: teamSeasonId ?? 'missing-team-id' })
+        .filter({ hasText: 'team.withdrawn' });
+      await expect(withdrawAuditRow).toContainText('team.withdrawn');
+      await expect(withdrawAuditRow).toContainText('WEB');
+    }
+  }
 });
 
 test('@a11y static entry pages have no detectable WCAG A/AA violations', async ({ page }) => {

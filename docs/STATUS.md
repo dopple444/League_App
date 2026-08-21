@@ -8,10 +8,10 @@ Last updated: 2026-08-19
 - Scoring clarified as live-first with immediate connected broadcasts and outage-safe offline continuation/submission/authorized attestation.
 - Codex repository guidance and autonomous execution runbook complete.
 - The canonical GitHub repository is `dopple444/League_App`; this `main` changeset captures the Milestones 0–1 application foundation.
-- The foundation contains the monorepo scaffold and a working web/mobile vertical slice. Local static, database, restore, browser, accessibility, and fresh-stack checks pass; clean-clone verification, source inputs, outbox delivery, security remediation, native-device review, and page-level style work remain pending.
+- The foundation contains the monorepo scaffold and a working web/mobile vertical slice. The public web journey is now navigable from the runtime-configured root gateway through league home, schedule, team directory, and team detail. Local static, database, restore, browser, accessibility, and fresh-stack checks pass; clean-clone verification, source inputs, outbox delivery, security remediation, and real assistive-technology/physical-device review remain pending.
 - The League App UI Style Guide is now the visual reference, with a separate artifact register governing page, form, component, and generated-output review.
-- The shared Modern Field token package and base web/native primitives are implemented. DS-TOKEN-001 passed its foundation review; web/native consuming artifacts remain marked **Needs changes** until responsive visual, assistive-technology, and device evidence is recorded, and page-level style work remains.
-- The local Compose stack is stopped. Fresh generated credentials and recreated synthetic volumes are ready for the next `pnpm stack:up`; no old diagnostic credential remains in use.
+- The shared Modern Field token package and base web/native primitives are implemented. DS-TOKEN-001 passed its foundation review. The changed public pages now have retained responsive synthetic screenshots and automated interaction/accessibility evidence but remain **Needs changes** until real screen-reader, desktop Ctrl-Plus, and physical-device/manual review is recorded.
+- All nine local Compose services are healthy and the gateway is available for private-LAN synthetic testing on port `8088`. This is a temporary local test deployment, not production and not authorization for public-internet exposure.
 - No production infrastructure, credentials, real data, messages, payments, or app-store resources have been changed.
 
 ## Active milestone
@@ -20,12 +20,12 @@ Milestone 0 — discovery, traceability, and repository foundation.
 
 ## Next action
 
-Modernize/prune the production container images and track the two upstream-blocked Metro advisories, then implement the database outbox relay. Continue page-level Modern Field work and capture retained responsive/native assistive-technology evidence before marking consuming artifacts compliant.
+Modernize/prune the production container images and track the unresolved dependency advisories, then implement the database outbox relay. Obtain the five authorized source files and complete real screen-reader, desktop Ctrl-Plus, and physical-device/manual review before promoting the affected UI artifacts or any release gate.
 
 ## Known blockers / production gates
 
 - Five authorized source files are absent, so source-specific mappings and authentic waiver content/render hashes cannot be completed.
-- Metro's transitive `image-size@1.2.1` has two high-severity denial-of-service advisories and no published patched version; current pinned Compose images also contain fixable high/critical packages.
+- The refreshed dependency lane fails on two high-severity transitive `image-size` advisories plus one moderate finding; the Python dependency audit is clean. The refreshed container lane also fails on fixable high/critical findings across the Compose images.
 - The mutation layer writes transactional outbox rows, but no relay currently enqueues and advances them through delivery lifecycle states.
 - Final waiver/minor workflow and retention require Kentucky counsel, insurer, and Parks/Fiscal Court approval.
 - Real messaging/provider consent configuration is not selected or approved.
@@ -72,6 +72,46 @@ Codex must append dated entries here after each milestone, including exact comma
 - `pnpm stack:up` passed with all nine long-running services healthy. `pnpm db:migrate:verify` passed forward apply plus repeat no-op; `pnpm db:seed:verify` passed idempotent seed runs against main and test; integration passed 3/3, tenancy 4/4, authorization 1/1, and `pnpm db:restore:verify` passed with matching restored object counts and clean temporary-database removal.
 - `pnpm test:e2e` passed 4/4 through the real gateway: public schedule, sign-in validation, private draft denial, team publication, and attributable audit history. `pnpm test:a11y` passed 2/2 on desktop Chromium and Pixel 7 emulation. `pnpm stack:smoke` passed gateway, web, API, worker, and scheduler.
 - `pnpm security:dependencies` reports exactly two high `image-size` advisories (`GHSA-w3rx-r6r6-pgpr`, `GHSA-5p2g-fcmc-qvqq`) and one moderate transitive `uuid` advisory, and exits nonzero because of the two high findings. Python dependency audit passes after pytest 9.0.3, and a scoped `@prisma/config>deepmerge-ts` 8.0.1 override removed that high advisory after Prisma/database/API regression testing.
-- `pnpm security:containers` successfully scanned every running Compose image and failed on real fixable high/critical findings before the final clean rebuild. The ignored local Trivy reports contain that per-image detail; a post-rebuild scan with the stack running remains required, and release remains blocked until base/third-party images are refreshed and application images are pruned to runtime dependencies.
+- The initial `pnpm security:containers` audit scanned every running Compose image and failed on real
+  fixable high/critical findings before the final clean rebuild. A refreshed post-rebuild result is
+  recorded below; ignored local Trivy reports and their stale counts are not current evidence. Release
+  remains blocked until base/third-party images are refreshed and application images are pruned to
+  runtime dependencies.
 - Rotated all generated local credentials after diagnostics. Removed only the four reproducible synthetic Compose volumes, regenerated `.env`, rebuilt all images, reapplied migrations, reseeded, reran smoke/E2E/accessibility checks, and stopped the stack with fresh synthetic volumes preserved. The removed data was synthetic and is fully recoverable from migrations and seed fixtures.
 - `pnpm verify` was not reported as passing because its dependency/container lanes remain red. Milestone acceptance is separately gated by missing authorized source content, the incomplete outbox relay, native-device/manual evidence, and clean-clone verification of this foundation.
+
+### 2026-08-19 — Navigable published-league closeout
+
+- Implemented PUB-21 as a runtime-dynamic root gateway to one validated, explicitly configured
+  featured league. The root never enumerates, searches, guesses, or selects the first tenant; absent,
+  invalid, withdrawn, and unavailable configurations use neutral fallback states. Recorded this as
+  ADR-022.
+- Added contextual Home/Schedule/Teams navigation, bounded published upcoming-game presentation,
+  combined Date/Team/Field/Status schedule filtering with league-timezone grouping and responsive
+  cards, approved-public-name team search, and team-specific published schedules with independent
+  schedule-unavailable handling. No public DTO, mutation, database schema, legal content, delivery
+  effect, or private-data boundary was expanded.
+- `pnpm format:check`, `TURBO_CONCURRENCY=2 pnpm lint`,
+  `TURBO_CONCURRENCY=2 pnpm typecheck`, `pnpm contracts:check`,
+  `TURBO_CONCURRENCY=2 pnpm test:unit`, `TURBO_CONCURRENCY=2 pnpm build`, and
+  `pnpm import:check` passed. The web unit suite passed 40/40.
+- The rebuilt nine-service stack is healthy. `pnpm stack:smoke` passed 5/5, `pnpm test:e2e` passed
+  7/7, and `pnpm test:a11y` passed 4/4. A separate private-LAN Playwright journey passed 5/5 against
+  the private LAN test origin on port `8088` across root, league home, schedule, team directory, and
+  team detail.
+- Automated Chromium review passed keyboard/focus traversal, mobile-menu closure, 200% CDP
+  zoom/reflow, reduced-motion behavior, 44-by-44-pixel minimum targets, logical heading order, polite
+  atomic live regions, and no-console/page-error checks. The root is runtime dynamic, and `/icon`
+  returned `200 image/png`.
+- Retained 12 synthetic screenshots under
+  `docs/evidence/ui/2026-08-19-navigable-published-league/` at 1440px, 1024px, and 393px. The artifact
+  register links each exact file. Real screen-reader, desktop browser Ctrl-Plus, and physical-device/
+  manual review remain unavailable, so every changed consuming artifact remains **Needs changes**.
+- `pnpm security:dependencies` was refreshed and **failed** on two high-severity transitive
+  `image-size` findings plus one moderate finding; the Python audit is clean.
+  `pnpm security:containers` was refreshed and **failed** on fixable high/critical findings across
+  Compose images. Stale ignored JSON counts are not used as current evidence, and `pnpm verify` is not
+  reported as passing.
+- Five authorized sources remain absent, and the transactional outbox relay remains incomplete. The
+  private-LAN stack and this synthetic public-read increment are not production-ready and did not
+  touch production infrastructure, real data, external messages, payments, or app-store resources.
