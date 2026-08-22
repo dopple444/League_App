@@ -10,13 +10,15 @@ services:
   gateway:
     <<: *service-defaults
     image: nginxinc/nginx-unprivileged:1.30.4-alpine@sha256:44e36330f74d4f3a1d4e222acca9e23b401fb87811a7597024502bb759c4dd49
+    labels:
+      org.league-app.lan-test-enabled: ${GATEWAY_LAN_TEST_ENABLED:-false}
     depends_on:
       api:
         condition: service_healthy
       web:
         condition: service_healthy
     ports:
-      - 127.0.0.1:${GATEWAY_PORT:-8080}:8080
+      - ${GATEWAY_BIND_ADDRESS:-127.0.0.1}:${GATEWAY_PORT:-8080}:8080
     read_only: true
     tmpfs:
       - /tmp
@@ -73,7 +75,8 @@ services:
     environment:
       API_PORT: 3001
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Run pnpm env:init}
-      BETTER_AUTH_URL: http://localhost:${GATEWAY_PORT:-8080}
+      BETTER_AUTH_URL: http://${GATEWAY_HOST:-localhost}:${GATEWAY_PORT:-8080}
+      PRIVILEGED_MFA_REQUIRED: ${PRIVILEGED_MFA_REQUIRED:-false}
       DATABASE_URL: ${RUNTIME_DATABASE_URL:?Run pnpm env:init}
       LOG_LEVEL: ${LOG_LEVEL:-info}
       MOBILE_ORIGIN: ${MOBILE_ORIGIN:-league-companion://}
@@ -85,7 +88,7 @@ services:
       S3_REGION: ${S3_REGION:-us-east-1}
       S3_SECRET_KEY: ${S3_SECRET_KEY:?Run pnpm env:init}
       SCHEDULER_URL: http://scheduler:8000
-      WEB_ORIGIN: http://localhost:${GATEWAY_PORT:-8080}
+      WEB_ORIGIN: http://${GATEWAY_HOST:-localhost}:${GATEWAY_PORT:-8080}
     depends_on:
       migrate:
         condition: service_completed_successfully

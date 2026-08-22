@@ -74,14 +74,16 @@ separate requirements and Production Gates are satisfied.
 - The current checkpoint extends the transactional-outbox release foundation with tenant-scoped
   venue/field and league administration plus the runtime, CI, test, and security hardening required
   to preserve that increment safely.
-- The local nine-service Compose stack is healthy behind `127.0.0.1:8088`. Public root, league home,
-  schedule, directory, and team detail are responsive and navigable; remote testing requires secure
-  forwarding because the gateway is not directly exposed to the LAN or public internet.
+- The local nine-service Compose stack is healthy at `192.168.2.45:8088` under an explicit
+  private-address LAN-test opt-in. Public root, league home, schedule, directory, and team detail are
+  responsive and navigable. This synthetic trusted-LAN exception is plain HTTP, is not an
+  internet/hosted topology, and leaves every data/support port loopback-only.
 - Issued synthetic staff can select an existing organization, create/update versioned league basics,
   create/publish seasons and teams, and create/update versioned venues and nested fields through
-  tenant-scoped browser workbenches. There is still no customer/operator tenant-provisioning
-  workflow, privileged invitation/MFA flow, date-specific field availability, or manual schedule
-  authoring UI/API.
+  tenant-scoped browser workbenches. The TOTP/recovery-code, bounded-session, authentication-rate,
+  and privileged-mutation MFA foundation is implemented. There is still no customer/operator
+  tenant-provisioning or invitation/pending-membership workflow, date-specific field availability,
+  or manual schedule authoring UI/API.
 - The PostgreSQL-authoritative transactional outbox now claims, enqueues, processes, retries,
   recovers, and visibly completes/fails events with metadata-only BullMQ jobs and generation fencing.
   Default, worker-restart, Redis-restart, and isolated restore rehearsals pass. Real external-effect
@@ -93,7 +95,8 @@ separate requirements and Production Gates are satisfied.
   advisories on the `apps/mobile` to `metro@0.84.4` build-tool path, rejects scope or lockfile-graph
   drift, and expires fail-closed on 2026-09-15.
 - There is no hosted-beta deployment overlay, real HTTPS origin, external secrets mechanism,
-  privileged MFA/rate limiting, off-site backup schedule, or beta monitoring/alerting configuration.
+  shared atomic multi-replica auth limiter, off-site backup schedule, or beta monitoring/alerting
+  configuration. Hosted reverse-proxy/trusted-origin enforcement remains unproved.
 - The authorized source workbooks/rules/waiver packet remain absent. No legal or source-derived
   feature may be represented as complete.
 
@@ -160,8 +163,9 @@ failure, credential compromise, data incident, and restore/rollback.
 - [ ] 2026-08-22 through 2026-08-28 — Transactional outbox lifecycle and owned web/API/worker/scheduler
       runtime hardening are complete. Resolve or formally gate dependency and third-party image
       findings, complete clean-clone evidence, and pass the remaining foundation release matrix.
-- [ ] 2026-08-27 through 2026-09-02 — Implement privileged auth controls, invitation acceptance, and
-      assisted Organization/League/administrator provisioning with audit and cross-tenant denial.
+- [ ] 2026-08-27 through 2026-09-02 — MFA/session/rate-limit foundations completed 2026-08-22;
+      implement invitation acceptance and assisted Organization/League/administrator provisioning
+      with audit, pending activation, and cross-tenant denial.
 - [ ] 2026-09-01 through 2026-09-06 — Venue/field administration is complete. Implement date-specific
       slot availability and manual schedule create/edit/validate/publish/revise flows plus public
       readback and basic export.
@@ -262,8 +266,8 @@ isolated restore before migration. No real-data migration or destructive repair 
 - Hosted infrastructure, domain/DNS, recurring cost, and live credentials require explicit user
   approval. The implementation can prepare manifests/runbooks but cannot complete that external step
   autonomously.
-- Privileged MFA and invitation flows may require Better Auth extension work. They must be proven
-  behind the reverse proxy before hosted exposure.
+- Better Auth's TOTP/recovery lifecycle is locally proven. Operator invitation sequencing, hosted
+  reverse-proxy enforcement, and a shared atomic limiter for multiple API replicas remain risks.
 - An upstream-unpublished Expo build-tool advisory cannot be silently waived. Excluding native builds
   from the hosted runtime plus an owned expiring exception may support browser beta only.
 - The five missing source files prevent authentic rule/import/waiver completion. If they are not
@@ -309,3 +313,9 @@ isolated restore before migration. No real-data migration or destructive repair 
   API tenancy/authorization/outbox suites, browser and accessibility journeys, production web/native
   builds, dependency audit, and the complete hosted-runtime container scan pass. The pushed Node
   24.19.0 clean-checkout workflow remains the final preservation check.
+- 2026-08-22 — Completed the privileged MFA foundation: Better Auth TOTP and one-time recovery
+  codes, bounded sessions, targeted authentication throttling, account posture, a pre-tenant
+  privileged-mutation gate, enrollment/challenge pages, and revocation of older sessions when MFA is
+  enrolled. Local Compose deliberately leaves the mandatory policy false for shared synthetic
+  fixtures. Platform Operator provisioning, invitation acceptance, pending membership activation,
+  hosted proxy proof, and a shared multi-replica limiter remain next.

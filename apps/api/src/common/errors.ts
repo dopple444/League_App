@@ -16,6 +16,15 @@ export class AuthenticationRequiredError extends Error {
   }
 }
 
+export class MfaEnrollmentRequiredError extends Error {
+  readonly code = 'MFA_ENROLLMENT_REQUIRED';
+
+  constructor() {
+    super('Multi-factor authentication must be enrolled before this administrative change.');
+    this.name = 'MfaEnrollmentRequiredError';
+  }
+}
+
 export class InvalidIdempotencyKeyError extends Error {
   readonly code = 'INVALID_IDEMPOTENCY_KEY';
 

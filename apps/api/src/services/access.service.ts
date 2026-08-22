@@ -7,6 +7,7 @@ import type { TenantDatabase, TenantTransaction } from '@league/database';
 import {
   AuthorizationDeniedError,
   hasPermission,
+  isRoleEffective,
   type AuthorizationContext,
   type Permission,
 } from '@league/domain';
@@ -47,7 +48,11 @@ export class AccessService {
               name: organization.name,
               timezone: organization.timezone,
               permissions: [
-                ...new Set(authorization.roles.flatMap((role) => role.permissions)),
+                ...new Set(
+                  authorization.roles
+                    .filter((role) => isRoleEffective(role, authorization.evaluatedAt))
+                    .flatMap((role) => role.permissions),
+                ),
               ].sort(),
               leagues: organization.leagues.map((league) => ({
                 leagueId: league.id,

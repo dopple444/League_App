@@ -70,6 +70,14 @@ export const openApiDocument: Readonly<Record<string, unknown>> = {
         responses: { '200': response(ref('OrganizationMembershipList')), ...errors },
       },
     },
+    '/api/v1/me/security': {
+      get: {
+        operationId: 'getMySecurityPosture',
+        tags: ['Identity'],
+        security: secure,
+        responses: { '200': response(ref('SecurityPosture')), ...errors },
+      },
+    },
     '/api/v1/organizations/{organizationId}/leagues': {
       parameters: [path('organizationId')],
       get: {
@@ -348,6 +356,15 @@ export const openApiDocument: Readonly<Record<string, unknown>> = {
         type: 'object',
         required: ['items'],
         properties: { items: { type: 'array', items: ref('OrganizationMembership') } },
+      },
+      SecurityPosture: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['mfaEnabled', 'mfaRequired'],
+        properties: {
+          mfaEnabled: { type: 'boolean' },
+          mfaRequired: { type: 'boolean' },
+        },
       },
       CreateLeagueInput: {
         type: 'object',

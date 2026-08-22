@@ -17,7 +17,7 @@ import {
 } from '../helpers/database.js';
 
 function actor(id: string, email: string): AuthenticatedUser {
-  return { id, email, name: 'Synthetic League Administrator' };
+  return { id, email, name: 'Synthetic League Administrator', twoFactorEnabled: true };
 }
 
 function mutationContext(

@@ -37,6 +37,7 @@ export default defineConfig({
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? 'github' : 'list',
+  timeout: 90_000,
   use: {
     baseURL: gatewayBaseUrl,
     ...(localChromiumExecutable

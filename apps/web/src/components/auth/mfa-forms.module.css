@@ -1,0 +1,82 @@
+.step {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  margin: 0;
+}
+
+.qrWrap {
+  align-items: center;
+  background: var(--color-background-surface-muted);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  display: flex;
+  justify-content: center;
+  min-height: 14rem;
+  padding: 1rem;
+}
+
+.qrImage {
+  height: auto;
+  max-width: 13rem;
+  width: 100%;
+}
+
+.manualKey {
+  background: var(--color-background-surface-muted);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: var(--font-size-sm);
+  letter-spacing: 0.08em;
+  overflow-wrap: anywhere;
+  padding: 0.8rem;
+  user-select: all;
+}
+
+.recoveryCodes {
+  background: var(--color-background-surface-muted);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  display: grid;
+  gap: 0.5rem 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  list-style: none;
+  margin: 0;
+  padding: 1rem;
+}
+
+.recoveryCodes code {
+  font-size: var(--font-size-sm);
+  user-select: all;
+}
+
+.checkField {
+  align-items: start;
+  display: grid;
+  gap: 0.7rem;
+  grid-template-columns: 1.5rem minmax(0, 1fr);
+}
+
+.checkField input {
+  height: 1.25rem;
+  margin: 0.2rem 0 0;
+  width: 1.25rem;
+}
+
+.checkField label {
+  font-weight: 700;
+}
+
+.checkField p {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  margin: 0.25rem 0 0;
+}
+
+@media (max-width: 30rem) {
+  .recoveryCodes {
+    grid-template-columns: 1fr;
+  }
+}

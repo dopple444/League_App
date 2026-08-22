@@ -18,6 +18,7 @@ import type {
   PublicSeasonDto,
   PublicTeamDto,
   SeasonAdminDto,
+  SecurityPostureDto,
   TeamAdminDto,
   UpdateFieldInput,
   UpdateLeagueInput,
@@ -40,6 +41,7 @@ export type PublicSeason = PublicSeasonDto;
 export type PublicLeague = PublicLeagueHomeDto;
 export type PublicTeam = PublicTeamDto;
 export type PublicScheduleGame = PublicGameDto;
+export type SecurityPosture = SecurityPostureDto;
 export type {
   CreateFieldInput,
   CreateLeagueInput,
@@ -58,6 +60,25 @@ export interface PublicCollection<T> {
   readonly league: PublicLeagueHomeDto['league'];
   readonly season: PublicSeasonDto;
   readonly items: readonly T[];
+}
+
+export interface AuthSignInResult {
+  readonly twoFactorRedirect?: boolean;
+  readonly twoFactorMethods?: readonly string[];
+  readonly user?: {
+    readonly twoFactorEnabled?: boolean;
+  };
+}
+
+export interface AuthSessionResult {
+  readonly user: {
+    readonly twoFactorEnabled?: boolean;
+  };
+}
+
+export interface MfaEnrollmentResult {
+  readonly totpURI: string;
+  readonly backupCodes: readonly string[];
 }
 
 export class ApiError extends Error {
@@ -122,7 +143,7 @@ export class LeagueApiClient {
     }
   }
 
-  private async authRequest(path: string, body: unknown): Promise<unknown> {
+  private async authRequest<TResult>(path: string, body: unknown): Promise<TResult> {
     const resolvedBaseUrl = typeof this.baseUrl === 'function' ? this.baseUrl() : this.baseUrl;
     let response: Response;
     try {
@@ -137,10 +158,10 @@ export class LeagueApiClient {
     }
     const responseBody = (await response.json().catch(() => ({}))) as Partial<ErrorEnvelope>;
     if (!response.ok) throw new ApiError(response.status, responseBody);
-    return responseBody;
+    return responseBody as TResult;
   }
 
-  signIn(email: string, password: string): Promise<unknown> {
+  signIn(email: string, password: string): Promise<AuthSignInResult> {
     return this.authRequest('/api/auth/sign-in/email', { email, password });
   }
 
@@ -148,8 +169,30 @@ export class LeagueApiClient {
     return this.authRequest('/api/auth/sign-out', {});
   }
 
+  enableMfa(password: string): Promise<MfaEnrollmentResult> {
+    return this.authRequest('/api/auth/two-factor/enable', { password });
+  }
+
+  verifyTotp(code: string): Promise<unknown> {
+    return this.authRequest('/api/auth/two-factor/verify-totp', {
+      code,
+      trustDevice: false,
+    });
+  }
+
+  verifyBackupCode(code: string): Promise<unknown> {
+    return this.authRequest('/api/auth/two-factor/verify-backup-code', {
+      code,
+      trustDevice: false,
+    });
+  }
+
   async getOrganizations(): Promise<readonly OrganizationSummary[]> {
     return (await this.call(() => this.generated().listMyOrganizations())).items;
+  }
+
+  getSecurityPosture(): Promise<SecurityPosture> {
+    return this.call(() => this.generated().getMySecurityPosture());
   }
 
   async getLeagues(organizationId: string): Promise<readonly LeagueAdmin[]> {

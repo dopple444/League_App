@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   createLeagueAuth,
+  privilegedMfaRequired,
   SyntheticHeaderSessionResolver,
   validatedTrustedOrigins,
 } from '../src/index.js';
@@ -22,6 +23,7 @@ describe('SyntheticHeaderSessionResolver', () => {
     });
     await expect(resolver.resolve(headers)).resolves.toMatchObject({
       id: '00000000-0000-4000-8000-000000000010',
+      twoFactorEnabled: true,
     });
   });
 });
@@ -45,5 +47,27 @@ describe('createLeagueAuth', () => {
     });
 
     expect(auth.options.advanced?.database?.generateId).toBe('uuid');
+    expect(auth.options.session).toMatchObject({
+      expiresIn: 28_800,
+      freshAge: 900,
+      updateAge: 3_600,
+    });
+    expect(auth.options.rateLimit).toMatchObject({ enabled: true, storage: 'memory' });
+    expect(auth.options.plugins?.map((plugin) => plugin.id)).toContain('two-factor');
+  });
+});
+
+describe('privilegedMfaRequired', () => {
+  it('defaults closed in production and allows an explicit local override', () => {
+    expect(privilegedMfaRequired('production', undefined)).toBe(true);
+    expect(privilegedMfaRequired('development', undefined)).toBe(false);
+    expect(privilegedMfaRequired('production', 'false')).toBe(false);
+    expect(privilegedMfaRequired('development', 'true')).toBe(true);
+  });
+
+  it('rejects ambiguous configuration', () => {
+    expect(() => privilegedMfaRequired('production', 'yes')).toThrow(
+      'PRIVILEGED_MFA_REQUIRED must be true or false',
+    );
   });
 });

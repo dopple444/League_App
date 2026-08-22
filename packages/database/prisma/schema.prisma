@@ -48,18 +48,35 @@ enum GameStatus {
 }
 
 model User {
-  id            String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name          String
-  email         String                   @unique
-  emailVerified Boolean                  @default(false) @map("email_verified")
-  image         String?
-  createdAt     DateTime                 @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt     DateTime                 @updatedAt @map("updated_at") @db.Timestamptz(3)
-  sessions      Session[]
-  accounts      Account[]
-  memberships   OrganizationMembership[]
+  id               String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name             String
+  email            String                   @unique
+  emailVerified    Boolean                  @default(false) @map("email_verified")
+  twoFactorEnabled Boolean                  @default(false) @map("two_factor_enabled")
+  image            String?
+  createdAt        DateTime                 @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime                 @updatedAt @map("updated_at") @db.Timestamptz(3)
+  sessions         Session[]
+  accounts         Account[]
+  twoFactors       TwoFactor[]
+  memberships      OrganizationMembership[]
 
   @@map("auth_user")
+}
+
+model TwoFactor {
+  id                      String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  secret                  String
+  backupCodes             String    @map("backup_codes")
+  userId                  String    @map("user_id") @db.Uuid
+  verified                Boolean   @default(true)
+  failedVerificationCount Int       @default(0) @map("failed_verification_count")
+  lockedUntil             DateTime? @map("locked_until") @db.Timestamptz(3)
+  user                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([secret])
+  @@index([userId])
+  @@map("auth_two_factor")
 }
 
 model Session {

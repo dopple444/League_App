@@ -18,6 +18,7 @@ import type {
   PublicTeamListDto,
   RevokeRoleAssignmentInput,
   RoleAssignmentDto,
+  SecurityPostureDto,
   SeasonAdminDto,
   SeasonAdminListDto,
   TeamAdminDto,
@@ -130,6 +131,10 @@ export class LeagueApiClient {
 
   listMyOrganizations(): Promise<OrganizationMembershipListDto> {
     return this.request('/api/v1/me/organizations');
+  }
+
+  getMySecurityPosture(): Promise<SecurityPostureDto> {
+    return this.request('/api/v1/me/security');
   }
 
   listLeagues(organizationId: string): Promise<LeagueAdminListDto> {

@@ -31,8 +31,10 @@ export const signIn = async (page: Page, password: string): Promise<void> => {
       );
     }
 
-    const retryAfter = Number(response.headers()['x-retry-after']);
-    const retryDelaySeconds = Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter : 10;
+    const retryAfter = Number(
+      response.headers()['retry-after'] ?? response.headers()['x-retry-after'],
+    );
+    const retryDelaySeconds = Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter : 61;
     await page.waitForTimeout(retryDelaySeconds * 1_000 + 250);
   }
 };

@@ -1598,12 +1598,13 @@ The source does not provide explicit mockup filenames for PUB-01, ADM-31, MOB-13
 
 #### SYS-01 - Sign in
 
-- **Route and roles:** `/auth/sign-in` | All Users.
-- **Primary goal and action:** Authenticate users securely with email/password, magic link, or passkey credentials.
+- **Route and roles:** `/sign-in` | Users with an issued controlled-beta account.
+- **Primary goal and action:** Authenticate an issued user securely with email and password, then continue to MFA challenge, MFA enrollment, or organization selection as required.
 - **Layout and target viewport:** Centered Auth Shell | Desktop (1440) / Mobile (393).
 - **Above the fold:** Clean Meade County Church Softball League typography and wordmark header. A focused, 420px authentication card centered in the viewport.
-- **Main content:** Email input, Password input (with show/hide eye toggle), "Remember Me" checkbox, "Forgot Password?" link, and a full-width primary "Sign In" button. Secondary button: "Sign in with Magic Link".
-- **Components:** Centered Auth Card, Form Inputs, Checkbox, Button Primary, Button Secondary.
+- **Main content:** Persistent Email and Password labels, password-manager-compatible autocomplete, one full-width primary "Sign in" action, validation summary, enumeration-safe credential error, throttled retry state, and issued-account/contact guidance. Magic link, passkey, open sign-up, and recovery actions remain absent until their provider flows are implemented and separately reviewed.
+- **Components:** Centered Auth Card, Form Inputs, Form Error Summary, Alert, Button Primary.
+- **Variants and states:** Initial, validation error, invalid credentials, rate limited with retry guidance, service unavailable, submitting, successful MFA challenge handoff, successful enrollment handoff, and successful organization-selection handoff.
 - **Mockup filenames:** `SYS-01-sign-in-desktop.png`, `SYS-01-sign-in-mobile.png`.
 
 #### SYS-02 - Invitation acceptance and account creation
@@ -1635,6 +1636,19 @@ The source does not provide explicit mockup filenames for PUB-01, ADM-31, MOB-13
 - **Main content:** A collection of state boards. Each features a large, friendly iconography system (e.g., a broken bat for 404, a locked gate for 403 Permission Denied). The text clearly explains the issue without technical jargon (e.g., "Maintenance: The league scheduler is currently running optimizations. Back in 15 minutes."). All states include a primary "Return to Dashboard" or "Contact Support" button.
 - **Components:** Large Icon/Illustration, Alert Header, Body Text, Button Primary.
 - **Mockup filenames:** `SYS-04-error-states-board-desktop.png`.
+
+#### SYS-06 - Privileged MFA enrollment and sign-in challenge
+
+- **Route and roles:** `/auth/enroll-mfa` for an authenticated issued account without required MFA; `/auth/two-factor` for a credential-verified user completing sign in.
+- **Primary goal and action:** Enroll or verify a time-based one-time-password factor before the user performs privileged controlled-beta administration.
+- **Layout and target viewport:** Centered Auth Shell | Desktop (1440), tablet/compact landscape (1024/720), and Mobile (393).
+- **Above the fold:** One descriptive page heading, a short security explanation, and an explicit step label. The sign-in challenge places its code field and Verify action above supporting recovery guidance.
+- **Main content:** **Enrollment:** confirm the current password; receive a QR code with an equivalent selectable manual setup key; enter a six-digit authenticator code that supports paste; display one-time recovery codes without logging or retaining them in client storage; require an acknowledgement that the codes were saved before continuing. Enrollment cannot be skipped when the server policy marks MFA required. **Challenge:** enter a six-digit authenticator code or switch to a single recovery-code input; successful verification continues to organization selection. Trust-this-device is not offered in the controlled beta.
+- **Components:** Centered Auth Card, Step Indicator, Password Input, QR Image with Text Alternative, Read-Only Manual Key, OTP Input, Recovery Code List, Checkbox, Button Primary, Button Secondary, Form Error Summary, Alert.
+- **Variants and states:** Loading, password rejected, setup generated, invalid/expired code, account temporarily locked, rate limited, recovery-code mode, service unavailable, submitting, completed, and unauthenticated/expired setup session. Errors preserve non-secret input where safe, move focus to the summary, use non-color cues, and never echo passwords, OTP values, recovery codes, or raw provider responses.
+- **Responsive and accessibility:** Persistent labels, `autocomplete="one-time-code"`, numeric mobile keyboard hints without preventing paste, 48px inputs, minimum 44px actions, visible focus, live status announcements, and no horizontal overflow at 200% zoom. The QR image has an adjacent manual-key alternative; recovery codes remain selectable text and are excluded from retained screenshots.
+- **Mockup filenames:** `SYS-06-mfa-enrollment-desktop.png`, `SYS-06-mfa-enrollment-mobile.png`, `SYS-06-mfa-challenge-desktop.png`, `SYS-06-mfa-challenge-mobile.png`.
+- **Boundary:** This flow secures an already issued identity. Invitation acceptance, pending-membership activation, account recovery, and assisted tenant provisioning remain separate flows. Local development may explicitly disable the mandatory policy for synthetic fixtures; production-like beta environments fail closed with the policy enabled.
 
 ### 8.6 Account and personal settings
 

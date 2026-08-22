@@ -34,11 +34,20 @@ export function SignInForm() {
 
     setSubmitting(true);
     try {
-      await browserApi.signIn(email, password);
-      router.replace('/admin/organizations');
+      const result = await browserApi.signIn(email, password);
+      if (result.twoFactorRedirect) {
+        router.replace('/auth/two-factor');
+      } else {
+        const posture = await browserApi.getSecurityPosture();
+        router.replace(
+          posture.mfaRequired && !posture.mfaEnabled ? '/auth/enroll-mfa' : '/admin/organizations',
+        );
+      }
       router.refresh();
     } catch (error) {
-      if (error instanceof ApiError && (error.status === 400 || error.status === 401)) {
+      if (error instanceof ApiError && error.status === 429) {
+        setRequestError('Too many sign-in attempts. Wait a minute, then try again.');
+      } else if (error instanceof ApiError && (error.status === 400 || error.status === 401)) {
         setRequestError('The email or password was not recognized.');
       } else {
         setRequestError(getApiErrorMessage(error));

@@ -7,22 +7,25 @@ Last updated: 2026-08-22
 - Product/research blueprint complete.
 - Scoring clarified as live-first with immediate connected broadcasts and outage-safe offline continuation/submission/authorized attestation.
 - Codex repository guidance and autonomous execution runbook complete.
-- The canonical GitHub repository is `dopple444/League_App`. This checkpoint adds venue/field and
-  league administration plus CI, runtime-image, and security-gate hardening to the transactional-
-  outbox release foundation.
+- The canonical GitHub repository is `dopple444/League_App`. This checkpoint adds the privileged MFA
+  foundation and trusted-LAN test access to the venue/field, league-administration, transactional-
+  outbox, CI, runtime-image, and security-gate foundation.
 - The foundation contains the monorepo scaffold and working web/mobile vertical slices. The public web
   journey is navigable from the runtime-configured root gateway through league home, schedule, team
   directory, and team detail. Issued synthetic league administrators can also manage tenant-scoped,
-  versioned leagues, venues, and fields through the browser. Local static, database, restore, browser,
-  accessibility, fresh-stack, outbox recovery, and hosted-runtime image checks have passed. A pushed
-  clean-checkout CI run, zero-membership onboarding/operator hardening, removal of the two temporary
+  versioned leagues, venues, and fields through the browser. Better Auth TOTP/recovery codes, bounded
+  sessions, targeted authentication throttling, identity-only security posture, and a pre-tenant
+  privileged-mutation MFA gate are implemented. Local static, database, restore, browser,
+  accessibility, fresh-stack, outbox recovery, and hosted-runtime checks have passed. A pushed
+  clean-checkout CI run, zero-membership invitation/operator hardening, removal of the two temporary
   security exceptions, source inputs, and real assistive-technology/physical-device review remain
   pending.
 - The League App UI Style Guide is now the visual reference, with a separate artifact register governing page, form, component, and generated-output review.
 - The shared Modern Field token package and base web/native primitives are implemented. DS-TOKEN-001 passed its foundation review. The changed public and administrative artifacts now have retained responsive synthetic screenshots and automated interaction/accessibility evidence but remain **Needs changes** until real screen-reader, desktop Ctrl-Plus/browser-zoom, and physical-device/manual review is recorded.
-- All nine local Compose services are healthy. The gateway is bound to `127.0.0.1:8088`; remote testing
-  requires the existing secure forwarding path. It is not exposed directly to the LAN or public
-  internet, is not a production deployment, and does not authorize public-internet exposure.
+- All nine local Compose services are healthy. For the requested remote-PC test, the gateway is
+  explicitly bound only to private address `192.168.2.45:8088`; every data/support port remains
+  loopback-only. This synthetic trusted-LAN path uses plain HTTP, is not a production or hosted-beta
+  deployment, and must not be router-forwarded or exposed to the public internet.
 - No production infrastructure, credentials, real data, messages, payments, or app-store resources have been changed.
 - The 2026-09-15 target is now defined as Beta 0: a controlled, invitation-only, browser-first hosted
   beta using synthetic/practice data. It covers assisted league setup, validated manual schedule
@@ -31,14 +34,15 @@ Last updated: 2026-08-22
 
 ## Active milestone
 
-Beta 0 zero-membership onboarding, operator hardening, and privileged authentication controls,
-followed by field availability and manual schedule authoring.
+Beta 0 zero-membership invitation/operator onboarding, followed by field availability and manual
+schedule authoring. The privileged MFA foundation is complete.
 
 ## Next action
 
-Implement the zero-membership path through operator-issued invitation acceptance, privileged MFA/
-session/rate-limit controls, and audited Organization/League/administrator provisioning. Then build
-date-specific field availability and the validated manual schedule create/edit/publish/revise workflow.
+Implement the zero-membership path through a separately permissioned and audited Platform Operator,
+Organization/League/administrator provisioning, invitation acceptance, pending membership, and MFA-
+gated activation. Then build date-specific field availability and the validated manual schedule
+create/edit/publish/revise workflow.
 In parallel, keep the broader container/dependency, clean-clone, and hosted-environment gates visible
 rather than treating the local runtime evidence as deployment approval.
 
@@ -53,8 +57,10 @@ rather than treating the local runtime evidence as deployment approval.
   zero fixable HIGH/CRITICAL findings. MinIO, its one-shot client, and Mailpit remain local-development
   only under `SEC-EXC-002` through 2026-09-14 and are prohibited from the hosted-beta topology; the
   exception fails closed on 2026-09-15.
-- Zero-membership onboarding, operator-issued invitation acceptance, MFA/session controls,
-  authentication/write rate limits, and hardened assisted tenant provisioning are not yet implemented.
+- Zero-membership invitations, pending activation, separately authorized operator provisioning, and
+  mandatory-MFA fixture/UAT are not yet implemented. Authentication limiting is process-local and
+  must become a shared atomic limiter before multiple API replicas; hosted proxy/trusted-origin
+  behavior remains a release gate.
 - Venue and field administration is implemented, but date-specific availability and manual schedule
   create/edit/validate/publish/revise remain incomplete.
 - Final waiver/minor workflow and retention require Kentucky counsel, insurer, and Parks/Fiscal Court approval.
@@ -266,3 +272,32 @@ Codex must append dated entries here after each milestone, including exact comma
   image constraints, dependency audit, and blocking container scan passed locally. The host uses
   Node 22, so the strict pinned Node 24.19.0 toolchain check and clean-checkout proof remain assigned
   to the pushed GitHub Actions run.
+
+### 2026-08-22 — Privileged MFA foundation and trusted-LAN test access
+
+- Added additive migration `20260822000100_privileged_mfa`, Better Auth TOTP enrollment and one-time
+  recovery codes, an eight-hour session with hourly refresh/fifteen-minute freshness, targeted auth
+  throttling, account-level failed-factor lockout, and revocation of older sessions when enrollment
+  creates the newly verified replacement. Local Compose explicitly sets
+  `PRIVILEGED_MFA_REQUIRED=false` for the shared unenrolled synthetic staff fixture; this is not
+  hosted-beta mandatory-MFA proof.
+- Added identity-only `GET /api/v1/me/security`, stable pre-tenant `MFA_ENROLLMENT_REQUIRED` mutation
+  denial, sign-in factor handoff, guarded `/auth/enroll-mfa`, `/auth/two-factor`, recovery-code entry,
+  and effective-role permission filtering so revoked/expired assignments are not reported. Factor
+  secrets and recovery codes remain out of URLs, persistence, logs, and retained screenshots.
+- Focused and release suites passed: auth 6/6, database 12/12, API unit 13/13, web 72/72, integration
+  15/15, tenancy 4/4, authorization 1/1, outbox 4/4, browser 10/10, and automated accessibility 6/6.
+  `pnpm db:migrate:verify`, main migration deploy, `pnpm db:seed:verify`, full lint/typecheck/unit/build,
+  format, generated contracts, Compose policy, and `pnpm stack:smoke` passed. The dependency gate
+  passed with its exact two Metro-path High exceptions and the blocking runtime scan reported zero
+  fixable High/Critical findings; the three development-only images remain report-only under
+  `SEC-EXC-002` through 2026-09-14.
+- At the customer's request, local `.env` opts the gateway into only `192.168.2.45:8088`. The
+  repository default remains loopback, the verifier rejects `0.0.0.0` and private binds without the
+  explicit flag, and every data/support port remains loopback-only. This plain-HTTP path is for
+  synthetic data on the trusted `192.168.2.0/24` LAN only; it must not be router-forwarded or treated
+  as production/TLS evidence.
+- WEB-PAGE-017/018 and WEB-FORM-011/012 are **Implemented / Needs changes**. Real screen-reader,
+  desktop Ctrl-Plus, and physical-device review remain open. The next slice is separately authorized
+  Platform Operator provisioning plus invitation acceptance, pending membership, and MFA-gated
+  activation; hosted proxy proof and a shared limiter remain release gates.

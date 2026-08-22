@@ -1,10 +1,11 @@
-import type { AuthenticatedUser } from '@league/auth';
+import { privilegedMfaRequired, type AuthenticatedUser } from '@league/auth';
 import { type Prisma, type TenantDatabase, type TenantTransaction } from '@league/database';
 import { IdempotencyConflictError, requestFingerprint, type Permission } from '@league/domain';
 import { Inject, Injectable } from '@nestjs/common';
 import type { z } from 'zod';
 
 import type { RequestMetadata } from '../common/request.js';
+import { MfaEnrollmentRequiredError } from '../common/errors.js';
 import { TENANT_DATABASE } from '../common/tokens.js';
 import { AccessService } from './access.service.js';
 
@@ -58,6 +59,12 @@ export class MutationService {
     readonly operation: (transaction: TenantTransaction) => Promise<TResult>;
   }): Promise<TResult> {
     const { context } = options;
+    if (
+      privilegedMfaRequired(process.env.NODE_ENV, process.env.PRIVILEGED_MFA_REQUIRED) &&
+      !context.user.twoFactorEnabled
+    ) {
+      throw new MfaEnrollmentRequiredError();
+    }
     const fingerprint = requestFingerprint(options.fingerprintPayload);
     const responseStatus = options.responseStatus ?? 200;
 

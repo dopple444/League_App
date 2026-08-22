@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import { signInAndOpenAdministration } from './auth';
+import { signIn, signInAndOpenAdministration } from './auth';
 
 const getDemoPassword = (): string | undefined => {
   if (process.env.DEMO_ADMIN_PASSWORD) return process.env.DEMO_ADMIN_PASSWORD;
@@ -49,6 +49,28 @@ test('sign-in reports labeled validation errors', async ({ page }) => {
   ).toContainText('Enter a valid email address.');
   await expect(page.getByLabel('Email address')).toHaveAttribute('aria-invalid', 'true');
   await expect(page.getByLabel('Password')).toHaveAttribute('aria-invalid', 'true');
+});
+
+test('MFA entry pages expose labeled, paste-compatible validation states', async ({ page }) => {
+  const password = getDemoPassword();
+  test.skip(!password, 'Run the environment initializer to create synthetic demo credentials.');
+  await signIn(page, password ?? '');
+
+  await page.goto('/auth/enroll-mfa');
+  await expect(
+    page.getByRole('heading', { level: 1, name: 'Protect administrative access' }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Start authenticator setup' }).click();
+  await expect(page.getByLabel('Current password')).toHaveAttribute('aria-invalid', 'true');
+
+  await page.goto('/auth/two-factor');
+  const code = page.getByLabel('Six-digit authenticator code');
+  await expect(code).toHaveAttribute('autocomplete', 'one-time-code');
+  await expect(code).toHaveAttribute('inputmode', 'numeric');
+  await page.getByRole('button', { name: 'Verify and continue' }).click();
+  await expect(code).toHaveAttribute('aria-invalid', 'true');
+  await page.getByRole('button', { name: 'Use a recovery code' }).click();
+  await expect(page.getByLabel('Recovery code')).toBeVisible();
 });
 
 test('gateway applies unique script nonces and permits Next hydration', async ({
@@ -220,6 +242,8 @@ test('@a11y static entry pages have no detectable WCAG A/AA violations', async (
   for (const path of [
     '/',
     '/sign-in',
+    '/auth/enroll-mfa',
+    '/auth/two-factor',
     '/leagues/meade-county-demo/church-softball/seasons/spring-2026/schedule',
   ]) {
     await page.goto(path);

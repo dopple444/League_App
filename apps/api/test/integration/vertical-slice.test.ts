@@ -24,6 +24,7 @@ describe.skipIf(!databaseTestsEnabled)('Milestone 1 authoritative vertical slice
         id: adminId,
         name: 'Synthetic League Administrator',
         email: 'admin@demo.invalid',
+        twoFactorEnabled: true,
       };
       const access = new AccessService(database);
       const mutations = new MutationService(database, access);
@@ -114,7 +115,12 @@ describe.skipIf(!databaseTestsEnabled)('Milestone 1 authoritative vertical slice
       const unique = randomUUID();
       const context: MutationContext = {
         organizationId: fixtureIds.organizationA,
-        user: { id: adminId, name: 'Synthetic Admin', email: 'admin@demo.invalid' },
+        user: {
+          id: adminId,
+          name: 'Synthetic Admin',
+          email: 'admin@demo.invalid',
+          twoFactorEnabled: true,
+        },
         idempotencyKey: `rollback-${unique}`,
         metadata: { requestId: `rollback-request-${unique}`, source: 'API' },
       };

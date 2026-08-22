@@ -19,6 +19,13 @@ export const errorEnvelopeSchema = z.object({
 
 export type ErrorEnvelope = z.infer<typeof errorEnvelopeSchema>;
 
+export const securityPostureSchema = z.object({
+  mfaEnabled: z.boolean(),
+  mfaRequired: z.boolean(),
+});
+
+export type SecurityPostureDto = z.infer<typeof securityPostureSchema>;
+
 export const expectedVersionSchema = z.object({
   expectedVersion: z.number().int().positive(),
 });

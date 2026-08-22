@@ -13,19 +13,27 @@ export function OrganizationPicker() {
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     let active = true;
-    void browserApi
-      .getOrganizations()
-      .then((organizations) => {
-        if (active) setItems(organizations);
-      })
-      .catch((reason: unknown) => {
+    const loadOrganizations = async () => {
+      try {
+        const posture = await browserApi.getSecurityPosture();
+        if (!active) return;
+        if (posture.mfaRequired && !posture.mfaEnabled) {
+          router.replace('/auth/enroll-mfa');
+          return;
+        }
+        const organizations = await browserApi.getOrganizations();
+        if (!active) return;
+        setItems(organizations);
+      } catch (reason: unknown) {
         if (!active) return;
         if (reason instanceof ApiError && reason.status === 401) {
           router.replace('/sign-in');
         } else {
           setError('We could not load your organizations. Please try again.');
         }
-      });
+      }
+    };
+    void loadOrganizations();
     return () => {
       active = false;
     };

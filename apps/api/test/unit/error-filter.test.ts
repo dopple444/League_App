@@ -7,6 +7,7 @@ import {
   DuplicateFacilityNameError,
   DuplicateLeagueSlugError,
   InactiveLeagueError,
+  MfaEnrollmentRequiredError,
   PublishedLeagueSlugLockedError,
 } from '../../src/common/errors.js';
 
@@ -42,5 +43,20 @@ describe('administration conflict error envelopes', () => {
     expect(reply.send).toHaveBeenCalledWith(
       expect.objectContaining({ code, requestId: 'request-venue-conflict' }),
     );
+  });
+});
+
+describe('privileged MFA error envelope', () => {
+  it('maps missing enrollment to a stable non-sensitive HTTP 403', () => {
+    const { argumentsHost, reply } = host();
+
+    new ApiErrorFilter().catch(new MfaEnrollmentRequiredError(), argumentsHost);
+
+    expect(reply.status).toHaveBeenCalledWith(403);
+    expect(reply.send).toHaveBeenCalledWith({
+      code: 'MFA_ENROLLMENT_REQUIRED',
+      message: 'Multi-factor authentication must be enrolled before this administrative change.',
+      requestId: 'request-venue-conflict',
+    });
   });
 });

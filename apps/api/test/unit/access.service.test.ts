@@ -5,12 +5,13 @@ import { describe, expect, it, vi } from 'vitest';
 import { AccessService } from '../../src/services/access.service.js';
 
 describe('AccessService organization summaries', () => {
-  it('maps active and inactive league lifecycle state into the membership response', async () => {
+  it('maps league lifecycle state and only effective permissions into the membership response', async () => {
     const organizationId = '00000000-0000-4000-8000-000000000001';
     const user: AuthenticatedUser = {
       id: '00000000-0000-4000-8000-000000000002',
       name: 'League Administrator',
       email: 'admin@example.invalid',
+      twoFactorEnabled: true,
     };
     const transaction = {
       organization: {
@@ -35,7 +36,41 @@ describe('AccessService organization summaries', () => {
         }),
       },
       organizationMembership: {
-        findUnique: vi.fn().mockResolvedValue({ status: 'ACTIVE', roleAssignments: [] }),
+        findUnique: vi.fn().mockResolvedValue({
+          status: 'ACTIVE',
+          roleAssignments: [
+            {
+              roleId: 'active-role',
+              validFrom: new Date('2020-01-01T00:00:00.000Z'),
+              expiresAt: null,
+              revokedAt: null,
+              role: {
+                authorityKind: 'OPERATIONS',
+                permissions: [{ permission: 'league:read' }],
+              },
+            },
+            {
+              roleId: 'revoked-role',
+              validFrom: new Date('2020-01-01T00:00:00.000Z'),
+              expiresAt: null,
+              revokedAt: new Date('2025-01-01T00:00:00.000Z'),
+              role: {
+                authorityKind: 'OFFICER',
+                permissions: [{ permission: 'league:update' }],
+              },
+            },
+            {
+              roleId: 'expired-role',
+              validFrom: new Date('2020-01-01T00:00:00.000Z'),
+              expiresAt: new Date('2025-01-01T00:00:00.000Z'),
+              revokedAt: null,
+              role: {
+                authorityKind: 'AUDIT',
+                permissions: [{ permission: 'audit:read' }],
+              },
+            },
+          ],
+        }),
       },
     };
     const database = {
@@ -65,5 +100,6 @@ describe('AccessService organization summaries', () => {
         active: false,
       },
     ]);
+    expect(result.items[0]?.permissions).toEqual(['league:read']);
   });
 });

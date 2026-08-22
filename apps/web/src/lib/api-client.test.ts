@@ -39,6 +39,47 @@ describe('LeagueApiClient SDK adapter', () => {
     expect(new Headers(init?.headers).get('X-Client-Source')).toBe('WEB');
   });
 
+  it('uses Better Auth factor endpoints without placing secrets in URLs', async () => {
+    const fetcher = vi.fn<typeof fetch>(async (input) => {
+      const path = new URL(String(input)).pathname;
+      return jsonResponse(
+        path.endsWith('/enable')
+          ? { totpURI: 'otpauth://totp/example?secret=hidden', backupCodes: ['hidden-code'] }
+          : { status: true },
+      );
+    });
+    const client = new LeagueApiClient('https://league.example', fetcher);
+
+    await client.enableMfa('not-a-real-secret');
+    await client.verifyTotp('123456');
+    await client.verifyBackupCode('recovery-code');
+
+    expect(fetcher.mock.calls.map(([request]) => new URL(String(request)).pathname)).toEqual([
+      '/api/auth/two-factor/enable',
+      '/api/auth/two-factor/verify-totp',
+      '/api/auth/two-factor/verify-backup-code',
+    ]);
+    for (const [request, init] of fetcher.mock.calls) {
+      expect(String(request)).not.toContain('not-a-real-secret');
+      expect(String(request)).not.toContain('123456');
+      expect(String(request)).not.toContain('recovery-code');
+      expect(init?.method).toBe('POST');
+    }
+  });
+
+  it('reads the authenticated MFA policy through the generated SDK', async () => {
+    const fetcher = vi.fn<typeof fetch>(async () =>
+      jsonResponse({ mfaEnabled: false, mfaRequired: true }),
+    );
+    const client = new LeagueApiClient('https://league.example', fetcher);
+
+    await expect(client.getSecurityPosture()).resolves.toEqual({
+      mfaEnabled: false,
+      mfaRequired: true,
+    });
+    expect(String(fetcher.mock.calls[0]?.[0])).toContain('/api/v1/me/security');
+  });
+
   it('routes tenant reads through the generated SDK', async () => {
     const fetcher = vi.fn<typeof fetch>(async () => jsonResponse({ items: [] }));
     const client = new LeagueApiClient('https://league.example', fetcher);

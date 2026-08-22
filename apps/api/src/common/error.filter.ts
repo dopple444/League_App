@@ -13,6 +13,7 @@ import {
   DuplicateLeagueSlugError,
   InactiveLeagueError,
   InvalidIdempotencyKeyError,
+  MfaEnrollmentRequiredError,
   PublishedLeagueSlugLockedError,
   ResourceNotFoundError,
 } from './errors.js';
@@ -61,6 +62,9 @@ export class ApiErrorFilter implements ExceptionFilter {
   private knownError(exception: unknown): { status: number; code: string; message: string } | null {
     if (exception instanceof AuthenticationRequiredError) {
       return { status: 401, code: exception.code, message: exception.message };
+    }
+    if (exception instanceof MfaEnrollmentRequiredError) {
+      return { status: 403, code: exception.code, message: exception.message };
     }
     if (exception instanceof AuthorizationDeniedError) {
       return { status: 403, code: exception.code, message: exception.message };

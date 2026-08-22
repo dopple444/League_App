@@ -1,6 +1,6 @@
 # UI artifact register
 
-Last updated: 2026-08-21
+Last updated: 2026-08-22
 
 Visual authority: [`LEAGUE_APP_UI_STYLE_GUIDE.md`](LEAGUE_APP_UI_STYLE_GUIDE.md)
 
@@ -51,6 +51,8 @@ The guide was introduced after the initial UI was implemented. The shared Modern
 | WEB-PAGE-014  | Public team detail `/leagues/{organizationSlug}/{leagueSlug}/seasons/{seasonSlug}/teams/{teamSlug}` | Web page            | `apps/web/src/app/leagues/[organizationSlug]/[leagueSlug]/seasons/[seasonSlug]/teams/[teamSlug]/page.tsx` | PUB-12                                           | Partial     | Needs changes | [WEB-PAGE-014](#web-page-014--public-team-detail)                            |
 | WEB-PAGE-015  | Venues and fields `/admin/{organizationId}/venues`                                                 | Web page            | `apps/web/src/app/admin/[organizationId]/venues/page.tsx`                                                  | ADM-26                                           | Implemented | Needs changes | [WEB-PAGE-015](#web-page-015--venues-and-fields)                              |
 | WEB-PAGE-016  | League basics `/admin/{organizationId}/leagues`                                                   | Web page            | `apps/web/src/app/admin/[organizationId]/leagues/page.tsx`                                                 | ADM-63                                           | Implemented | Needs changes | [WEB-PAGE-016](#web-page-016--league-basics)                                  |
+| WEB-PAGE-017  | Privileged MFA enrollment `/auth/enroll-mfa`                                                     | Web page            | `apps/web/src/app/auth/enroll-mfa/page.tsx`                                                               | SYS-06                                           | Implemented | Needs changes | —                                                                            |
+| WEB-PAGE-018  | MFA sign-in challenge `/auth/two-factor`                                                         | Web page            | `apps/web/src/app/auth/two-factor/page.tsx`                                                               | SYS-06                                           | Implemented | Needs changes | —                                                                            |
 | WEB-STATE-001 | Global loading state                                                                                | Web system state    | `apps/web/src/app/loading.tsx`                                                                            | SYS-04                                           | Implemented | Needs changes | —             |
 | WEB-STATE-002 | Global error and service-unavailable states                                                         | Web system state    | `apps/web/src/app/error.tsx`; `apps/web/src/components/site-shell.tsx`                                    | SYS-04                                           | Implemented | Needs changes | —             |
 | WEB-STATE-003 | Not-found state                                                                                     | Web system state    | `apps/web/src/app/not-found.tsx`                                                                          | SYS-04                                           | Implemented | Needs changes | —             |
@@ -75,6 +77,8 @@ The guide was introduced after the initial UI was implemented. The shared Modern
 | WEB-FORM-008 | Create or edit venue                 | Web form    | `apps/web/src/components/admin/venue-field-manager.tsx` | ADM-62                                    | Implemented | Needs changes | [WEB-FORM-008](#web-form-008--create-or-edit-venue) |
 | WEB-FORM-009 | Create or edit field                 | Web form    | `apps/web/src/components/admin/venue-field-manager.tsx` | ADM-62                                    | Implemented | Needs changes | [WEB-FORM-009](#web-form-009--create-or-edit-field) |
 | WEB-FORM-010 | Create or edit league                | Web form    | `apps/web/src/components/admin/league-manager.tsx`      | ADM-63                                    | Implemented | Needs changes | [WEB-FORM-010](#web-form-010--create-or-edit-league)   |
+| WEB-FORM-011 | Privileged MFA enrollment            | Web form    | `apps/web/src/components/auth/mfa-enrollment-form.tsx`  | SYS-06                                    | Implemented | Needs changes | —                                                      |
+| WEB-FORM-012 | MFA sign-in challenge                | Web form    | `apps/web/src/components/auth/mfa-challenge-form.tsx`   | SYS-06                                    | Implemented | Needs changes | —                                                      |
 | MOB-FORM-001 | Sign in                              | Native form | `apps/mobile/app/(auth)/sign-in.tsx`                   | MOB-01                                    | Implemented | Needs changes | —             |
 
 ## Current shared-foundation baseline

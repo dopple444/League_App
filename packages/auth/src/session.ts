@@ -4,6 +4,7 @@ export interface AuthenticatedUser {
   readonly id: string;
   readonly name: string;
   readonly email: string;
+  readonly twoFactorEnabled: boolean;
 }
 
 export interface SessionResolver {
@@ -23,6 +24,7 @@ export class BetterAuthSessionResolver implements SessionResolver {
       id: session.user.id,
       name: session.user.name,
       email: session.user.email,
+      twoFactorEnabled: session.user.twoFactorEnabled === true,
     };
   }
 }
@@ -44,6 +46,7 @@ export class SyntheticHeaderSessionResolver implements SessionResolver {
       id,
       name: 'Synthetic Test User',
       email: 'synthetic-user@example.invalid',
+      twoFactorEnabled: true,
     };
   }
 }

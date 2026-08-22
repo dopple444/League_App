@@ -6,6 +6,23 @@ const fail = (message) => {
   throw new Error(`Compose networking check failed: ${message}`);
 };
 
+const isPrivateIpv4Address = (value) => {
+  const octets = String(value)
+    .split('.')
+    .map((octet) => Number.parseInt(octet, 10));
+  if (
+    octets.length !== 4 ||
+    octets.some((octet) => !Number.isInteger(octet) || octet < 0 || octet > 255)
+  ) {
+    return false;
+  }
+  return (
+    octets[0] === 10 ||
+    (octets[0] === 172 && octets[1] >= 16 && octets[1] <= 31) ||
+    (octets[0] === 192 && octets[1] === 168)
+  );
+};
+
 if (config.networks?.core?.internal !== true) {
   fail('the core network must remain internal');
 }
@@ -65,6 +82,11 @@ for (const [serviceName, expectedPorts] of Object.entries(expectedDiagnosticPort
 for (const [serviceName, service] of Object.entries(config.services ?? {})) {
   for (const port of service.ports ?? []) {
     if (port.host_ip !== '127.0.0.1') {
+      const trustedLanGateway =
+        serviceName === 'gateway' &&
+        service.labels?.['org.league-app.lan-test-enabled'] === 'true' &&
+        isPrivateIpv4Address(port.host_ip);
+      if (trustedLanGateway) continue;
       fail(`${serviceName} has a published port that is not loopback-only`);
     }
   }

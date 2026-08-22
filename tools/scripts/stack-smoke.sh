@@ -9,7 +9,9 @@ if [[ ! -f "${env_file}" ]]; then
 fi
 
 configured_gateway_port="$(awk -F= '$1 == "GATEWAY_PORT" { value = substr($0, index($0, "=") + 1) } END { print value }' "${env_file}" | tr -d '\r')"
+configured_gateway_host="$(awk -F= '$1 == "GATEWAY_HOST" { value = substr($0, index($0, "=") + 1) } END { print value }' "${env_file}" | tr -d '\r')"
 gateway_port="${GATEWAY_PORT:-${configured_gateway_port:-8080}}"
+gateway_host="${GATEWAY_HOST:-${configured_gateway_host:-127.0.0.1}}"
 if [[ ! "${gateway_port}" =~ ^[0-9]+$ ]]; then
   echo "GATEWAY_PORT must be an integer from 1 through 65535." >&2
   exit 1
@@ -23,7 +25,7 @@ if ((${#gateway_port} > 5)) || ((10#${gateway_port} < 1 || 10#${gateway_port} > 
   echo "GATEWAY_PORT must be an integer from 1 through 65535." >&2
   exit 1
 fi
-gateway_url="${GATEWAY_URL:-http://127.0.0.1:${gateway_port}}"
+gateway_url="${GATEWAY_URL:-http://${gateway_host}:${gateway_port}}"
 
 check_url() {
   local label="$1"

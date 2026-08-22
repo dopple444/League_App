@@ -21,9 +21,15 @@ export function AdminShell({
 
   useEffect(() => {
     let active = true;
-    void browserApi
-      .getOrganizations()
-      .then((items) => {
+    const loadOrganization = async () => {
+      try {
+        const posture = await browserApi.getSecurityPosture();
+        if (!active) return;
+        if (posture.mfaRequired && !posture.mfaEnabled) {
+          router.replace('/auth/enroll-mfa');
+          return;
+        }
+        const items = await browserApi.getOrganizations();
         if (!active) return;
         const match = items.find((item) => item.organizationId === organizationId);
         if (!match) {
@@ -31,15 +37,16 @@ export function AdminShell({
           return;
         }
         setOrganization(match);
-      })
-      .catch((reason: unknown) => {
+      } catch (reason: unknown) {
         if (!active) return;
         if (reason instanceof ApiError && reason.status === 401) {
           router.replace('/sign-in');
           return;
         }
         setError('We could not verify your organization access.');
-      });
+      }
+    };
+    void loadOrganization();
     return () => {
       active = false;
     };
@@ -80,6 +87,9 @@ export function AdminShell({
             </li>
             <li>
               <Link href={`${basePath}/audit`}>Audit history</Link>
+            </li>
+            <li>
+              <Link href="/auth/enroll-mfa">Account security</Link>
             </li>
             <li>
               <Link href="/admin/organizations">Switch organization</Link>

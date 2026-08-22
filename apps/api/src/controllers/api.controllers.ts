@@ -1,4 +1,5 @@
 import type { AuthenticatedUser } from '@league/auth';
+import { privilegedMfaRequired } from '@league/auth';
 import {
   createFieldSchema,
   createLeagueSchema,
@@ -10,6 +11,7 @@ import {
   identifierSchema,
   openApiDocument,
   revokeRoleAssignmentSchema,
+  securityPostureSchema,
   slugSchema,
   updateSeasonSchema,
   updateTeamSchema,
@@ -70,6 +72,15 @@ export class MeController {
   @Get('organizations')
   organizations(@Req() request: ApiRequest) {
     return this.access.listOrganizations(user(request), requestMetadata(request));
+  }
+
+  @Get('security')
+  security(@Req() request: ApiRequest) {
+    const currentUser = user(request);
+    return securityPostureSchema.parse({
+      mfaEnabled: currentUser.twoFactorEnabled,
+      mfaRequired: privilegedMfaRequired(process.env.NODE_ENV, process.env.PRIVILEGED_MFA_REQUIRED),
+    });
   }
 }
 

@@ -156,3 +156,10 @@ Priority meanings: **MUST** is required before first production season; **SHOULD
 - **OPS-011 MUST** — Incident response covers credential compromise, data breach, lost device, misdirected message, corrupt official game, and restore.
 - **OPS-012 MUST** — Mobile and store privacy declarations are generated from an inventory of first- and third-party data collection.
 - **OPS-013 MUST** — Production actions and external sends remain explicit approval gates during AI-assisted development.
+
+## Controlled-beta onboarding
+
+- **ONB-001 MUST** — Controlled-beta tenant creation is performed only by an explicitly authorized Platform Operator through an idempotent, reason-required command that creates the Organization, initial League, default League Administrator role, and pending invitation with attributable audit history. Platform authority is separate from tenant membership.
+- **ONB-002 MUST** — Administrator invitations are address-bound, time-limited, revocable, single-use, and stored with only a cryptographic token digest. Inspection and acceptance reveal only the allowlisted invitation context and never provide tenant or account enumeration.
+- **ONB-003 MUST** — Accepting an administrator invitation creates a pending membership and exact role assignment, but the membership is neither discoverable nor effective for tenant administration until the invited identity completes required MFA enrollment. Activation is an attributable, audited transition.
+- **ONB-004 MUST** — Controlled beta keeps public sign-up and self-service tenant creation disabled. Zero-membership users receive invitation/contact guidance without a first-tenant fallback or cross-tenant directory.
