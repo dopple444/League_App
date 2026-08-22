@@ -79,6 +79,7 @@ export class GovernanceService {
       permission: permissions.roleAssign,
       fingerprintPayload: { operation: 'role-assignment.create', input },
       responseSchema: roleAssignmentSchema,
+      responseStatus: 201,
       operation: async (transaction) => {
         const [membership, role] = await Promise.all([
           transaction.organizationMembership.findUnique({

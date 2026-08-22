@@ -53,6 +53,7 @@ export class AccessService {
                 leagueId: league.id,
                 slug: league.slug,
                 name: league.name,
+                active: league.active,
               })),
             };
           },

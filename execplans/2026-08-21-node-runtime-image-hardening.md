@@ -86,9 +86,9 @@ not fail because pnpm, the workspace, schema, or migration files are absent.
 - [x] Convert the shared Node Dockerfile to build/package/runtime stages.
 - [x] Build web, API, and worker under distinct hardening tags without changing the Compose images.
 - [x] Pass static validation and per-image runtime-content/identity checks.
-- [ ] Prove web/API/worker entry-point startup reaches the expected dependency boundary and prove the
+- [x] Prove web/API/worker entry-point startup reaches the expected dependency boundary and prove the
       API migration command resolves its packaged Prisma assets.
-- [ ] Run fresh vulnerability scans when the scanner/cache is available; report exact findings and
+- [x] Run fresh vulnerability scans when the scanner/cache is available; report exact findings and
       leave the broader release gate open for any remaining image or third-party findings.
 
 ## Verification and acceptance
@@ -176,3 +176,23 @@ runtime artifact.
   worker size regression mean the size goal is only partially met. A dedicated migrator image,
   further production dependency packing, entry-point startup probes, and fresh vulnerability scans
   remain required; this checkpoint does not close the runtime security gate.
+- 2026-08-21 UTC — Replaced the local Compose application images and found two clean-start packaging
+  defects before acceptance: repository-package pruning matched `dist/src` as if it were a source
+  directory, and Next standalone tracing omitted an ESM file from `@swc/helpers`. Pruning now targets
+  exact `@league` package roots, compiled package entry points are asserted, and the web package
+  explicitly retains the complete SWC helper runtime. The standalone web service now binds
+  `0.0.0.0` inside the container, which is enforced by Compose validation.
+- 2026-08-21 UTC — The rebuilt images passed all static/runtime verifiers and real startup: API,
+  migrator, web, and worker became healthy in a fresh-volume nine-service stack; migrations, seed,
+  gateway smoke, relay restart recovery, and restore verification passed. Current image sizes are
+  approximately web 97.4 MB, API 326.5 MB, and worker 183.9 MB.
+- 2026-08-21 UTC — A fresh Trivy scan using the 2026-08-21 13:05 UTC database reports 0 HIGH and 0
+  CRITICAL findings in web, API/migrator, and worker. The broader Compose scan remains red on the
+  Python scheduler and pinned third-party gateway/data/local-mail images, so this application-image
+  plan is complete without claiming the overall hosted-beta container gate is complete.
+- 2026-08-21 UTC — Follow-up remediation produced a clean scheduler image, refreshed the gateway and
+  Redis to clean immutable pins, and hardened the pinned PostgreSQL image by removing its unused
+  root-only privilege helper before running as `postgres`. Every hosted-beta-eligible image now
+  passes the fixable High/Critical scan. The exact local-only MinIO, one-shot MinIO client, and
+  Mailpit images remain report-only under `SEC-EXC-002` through 2026-09-14 and may not be deployed in
+  the hosted-beta topology.

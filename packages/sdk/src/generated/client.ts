@@ -1,10 +1,16 @@
 /* This file is generated from packages/contracts/src/openapi.ts. */
 import type {
   AuditEventListDto,
+  CreateFieldInput,
+  CreateLeagueInput,
   CreateRoleAssignmentInput,
   CreateSeasonInput,
   CreateTeamInput,
+  CreateVenueInput,
   ErrorEnvelope,
+  FieldAdminDto,
+  LeagueAdminDto,
+  LeagueAdminListDto,
   OrganizationMembershipListDto,
   PublicationDto,
   PublicLeagueHomeDto,
@@ -16,8 +22,13 @@ import type {
   SeasonAdminListDto,
   TeamAdminDto,
   TeamAdminListDto,
+  UpdateFieldInput,
+  UpdateLeagueInput,
   UpdateSeasonInput,
   UpdateTeamInput,
+  UpdateVenueInput,
+  VenueAdminDto,
+  VenueAdminListDto,
 } from '@league/contracts';
 
 export type * from '@league/contracts';
@@ -119,6 +130,37 @@ export class LeagueApiClient {
 
   listMyOrganizations(): Promise<OrganizationMembershipListDto> {
     return this.request('/api/v1/me/organizations');
+  }
+
+  listLeagues(organizationId: string): Promise<LeagueAdminListDto> {
+    return this.request(`/api/v1/organizations/${segment(organizationId)}/leagues`);
+  }
+
+  createLeague(
+    organizationId: string,
+    input: CreateLeagueInput,
+    options: MutationOptions,
+  ): Promise<LeagueAdminDto> {
+    return this.mutation(
+      `/api/v1/organizations/${segment(organizationId)}/leagues`,
+      'POST',
+      input,
+      options,
+    );
+  }
+
+  updateLeague(
+    organizationId: string,
+    leagueId: string,
+    input: UpdateLeagueInput,
+    options: MutationOptions,
+  ): Promise<LeagueAdminDto> {
+    return this.mutation(
+      `/api/v1/organizations/${segment(organizationId)}/leagues/${segment(leagueId)}`,
+      'PATCH',
+      input,
+      options,
+    );
   }
 
   listSeasons(organizationId: string): Promise<SeasonAdminListDto> {
@@ -241,6 +283,66 @@ export class LeagueApiClient {
       `/api/v1/organizations/${segment(organizationId)}/seasons/${segment(seasonId)}/teams/${segment(teamSeasonId)}/publication`,
       'DELETE',
       { expectedVersion },
+      options,
+    );
+  }
+
+  listVenues(organizationId: string): Promise<VenueAdminListDto> {
+    return this.request(`/api/v1/organizations/${segment(organizationId)}/venues`);
+  }
+
+  createVenue(
+    organizationId: string,
+    input: CreateVenueInput,
+    options: MutationOptions,
+  ): Promise<VenueAdminDto> {
+    return this.mutation(
+      `/api/v1/organizations/${segment(organizationId)}/venues`,
+      'POST',
+      input,
+      options,
+    );
+  }
+
+  updateVenue(
+    organizationId: string,
+    venueId: string,
+    input: UpdateVenueInput,
+    options: MutationOptions,
+  ): Promise<VenueAdminDto> {
+    return this.mutation(
+      `/api/v1/organizations/${segment(organizationId)}/venues/${segment(venueId)}`,
+      'PATCH',
+      input,
+      options,
+    );
+  }
+
+  createField(
+    organizationId: string,
+    venueId: string,
+    input: CreateFieldInput,
+    options: MutationOptions,
+  ): Promise<FieldAdminDto> {
+    return this.mutation(
+      `/api/v1/organizations/${segment(organizationId)}/venues/${segment(venueId)}/fields`,
+      'POST',
+      input,
+      options,
+    );
+  }
+
+  updateField(
+    organizationId: string,
+    venueId: string,
+    fieldId: string,
+    input: UpdateFieldInput,
+    options: MutationOptions,
+  ): Promise<FieldAdminDto> {
+    return this.mutation(
+      `/api/v1/organizations/${segment(organizationId)}/venues/${segment(venueId)}/fields/${segment(fieldId)}`,
+      'PATCH',
+      input,
       options,
     );
   }

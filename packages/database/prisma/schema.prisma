@@ -87,11 +87,11 @@ model Account {
   idToken               String?   @map("id_token")
   accessTokenExpiresAt  DateTime? @map("access_token_expires_at") @db.Timestamptz(3)
   refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at") @db.Timestamptz(3)
-  scope                  String?
-  password               String?
-  createdAt              DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt              DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
-  user                   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt             DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([providerId, accountId])
   @@index([userId])
@@ -111,30 +111,30 @@ model Verification {
 }
 
 model Organization {
-  organizationId String                   @id @default(dbgenerated("gen_random_uuid()")) @map("organization_id") @db.Uuid
-  slug           String                   @unique
-  name           String
-  timezone       String
-  createdAt      DateTime                 @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt      DateTime                 @updatedAt @map("updated_at") @db.Timestamptz(3)
-  leagues        League[]
-  divisions      Division[]
-  seasons        Season[]
-  teams          Team[]
-  teamSeasons    TeamSeason[]
-  venues         Venue[]
-  fields         Field[]
-  memberships    OrganizationMembership[]
-  roles          Role[]
-  rolePermissions RolePermission[]
-  roleAssignments RoleAssignment[]
-  publications   PublicationSnapshot[]
-  scheduleVersions ScheduleVersion[]
-  games          Game[]
-  auditEvents    AuditEvent[]
-  securityEvents SecurityEvent[]
-  outboxEvents   OutboxEvent[]
-  idempotencyRecords IdempotencyRecord[]
+  organizationId       String                        @id @default(dbgenerated("gen_random_uuid()")) @map("organization_id") @db.Uuid
+  slug                 String                        @unique
+  name                 String
+  timezone             String
+  createdAt            DateTime                      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt            DateTime                      @updatedAt @map("updated_at") @db.Timestamptz(3)
+  leagues              League[]
+  divisions            Division[]
+  seasons              Season[]
+  teams                Team[]
+  teamSeasons          TeamSeason[]
+  venues               Venue[]
+  fields               Field[]
+  memberships          OrganizationMembership[]
+  roles                Role[]
+  rolePermissions      RolePermission[]
+  roleAssignments      RoleAssignment[]
+  publications         PublicationSnapshot[]
+  scheduleVersions     ScheduleVersion[]
+  games                Game[]
+  auditEvents          AuditEvent[]
+  securityEvents       SecurityEvent[]
+  outboxEvents         OutboxEvent[]
+  idempotencyRecords   IdempotencyRecord[]
   seasonConfigurations SeasonConfigurationRevision[]
 
   @@map("organization")
@@ -145,6 +145,8 @@ model League {
   organizationId String       @map("organization_id") @db.Uuid
   slug           String
   name           String
+  active         Boolean      @default(true)
+  version        Int          @default(1)
   createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt      DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
   organization   Organization @relation(fields: [organizationId], references: [organizationId], onDelete: Restrict)
@@ -171,23 +173,23 @@ model Division {
 }
 
 model Season {
-  id             String       @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String       @map("organization_id") @db.Uuid
-  leagueId       String       @map("league_id") @db.Uuid
-  slug           String
-  name           String
-  startDate      DateTime     @map("start_date") @db.Date
-  endDate        DateTime     @map("end_date") @db.Date
-  timezone       String
-  version        Int          @default(1)
-  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt      DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
-  organization   Organization @relation(fields: [organizationId], references: [organizationId], onDelete: Restrict)
-  league         League       @relation(fields: [organizationId, leagueId], references: [organizationId, id], onDelete: Restrict)
-  configurations SeasonConfigurationRevision[]
-  teamSeasons    TeamSeason[]
+  id               String                        @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId   String                        @map("organization_id") @db.Uuid
+  leagueId         String                        @map("league_id") @db.Uuid
+  slug             String
+  name             String
+  startDate        DateTime                      @map("start_date") @db.Date
+  endDate          DateTime                      @map("end_date") @db.Date
+  timezone         String
+  version          Int                           @default(1)
+  createdAt        DateTime                      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime                      @updatedAt @map("updated_at") @db.Timestamptz(3)
+  organization     Organization                  @relation(fields: [organizationId], references: [organizationId], onDelete: Restrict)
+  league           League                        @relation(fields: [organizationId, leagueId], references: [organizationId, id], onDelete: Restrict)
+  configurations   SeasonConfigurationRevision[]
+  teamSeasons      TeamSeason[]
   scheduleVersions ScheduleVersion[]
-  games          Game[]
+  games            Game[]
 
   @@id([organizationId, id])
   @@unique([organizationId, leagueId, slug])
@@ -249,22 +251,33 @@ model Venue {
   id             String       @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String       @map("organization_id") @db.Uuid
   name           String
+  active         Boolean      @default(true)
+  version        Int          @default(1)
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
   organization   Organization @relation(fields: [organizationId], references: [organizationId], onDelete: Restrict)
   fields         Field[]
 
   @@id([organizationId, id])
+  @@unique([organizationId, name])
   @@map("venue")
 }
 
 model Field {
-  id             String       @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String       @map("organization_id") @db.Uuid
-  venueId        String       @map("venue_id") @db.Uuid
-  name           String
-  publicDirections String?    @map("public_directions")
-  organization   Organization @relation(fields: [organizationId], references: [organizationId], onDelete: Restrict)
-  venue          Venue        @relation(fields: [organizationId, venueId], references: [organizationId, id], onDelete: Restrict)
-  games          Game[]
+  id                String       @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId    String       @map("organization_id") @db.Uuid
+  venueId           String       @map("venue_id") @db.Uuid
+  name              String
+  publicDirections  String?      @map("public_directions")
+  hasLights         Boolean      @default(false) @map("has_lights")
+  fenceDistanceFeet Int?         @map("fence_distance_feet")
+  active            Boolean      @default(true)
+  version           Int          @default(1)
+  createdAt         DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+  organization      Organization @relation(fields: [organizationId], references: [organizationId], onDelete: Restrict)
+  venue             Venue        @relation(fields: [organizationId, venueId], references: [organizationId, id], onDelete: Restrict)
+  games             Game[]
 
   @@id([organizationId, id])
   @@unique([organizationId, venueId, name])
@@ -310,13 +323,13 @@ model Game {
 }
 
 model OrganizationMembership {
-  id             String           @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String           @map("organization_id") @db.Uuid
-  userId         String           @map("user_id") @db.Uuid
-  status         MembershipStatus @default(ACTIVE)
-  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
-  organization   Organization     @relation(fields: [organizationId], references: [organizationId], onDelete: Restrict)
-  user           User             @relation(fields: [userId], references: [id], onDelete: Restrict)
+  id              String           @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId  String           @map("organization_id") @db.Uuid
+  userId          String           @map("user_id") @db.Uuid
+  status          MembershipStatus @default(ACTIVE)
+  createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  organization    Organization     @relation(fields: [organizationId], references: [organizationId], onDelete: Restrict)
+  user            User             @relation(fields: [userId], references: [id], onDelete: Restrict)
   roleAssignments RoleAssignment[]
 
   @@id([organizationId, id])
@@ -326,12 +339,12 @@ model OrganizationMembership {
 }
 
 model Role {
-  id             String        @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String        @map("organization_id") @db.Uuid
+  id             String           @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String           @map("organization_id") @db.Uuid
   key            String
   name           String
-  authorityKind  AuthorityKind @map("authority_kind")
-  organization   Organization  @relation(fields: [organizationId], references: [organizationId], onDelete: Restrict)
+  authorityKind  AuthorityKind    @map("authority_kind")
+  organization   Organization     @relation(fields: [organizationId], references: [organizationId], onDelete: Restrict)
   permissions    RolePermission[]
   assignments    RoleAssignment[]
 
@@ -352,18 +365,18 @@ model RolePermission {
 }
 
 model RoleAssignment {
-  id             String                 @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String                 @map("organization_id") @db.Uuid
-  membershipId   String                 @map("membership_id") @db.Uuid
-  roleId         String                 @map("role_id") @db.Uuid
-  validFrom      DateTime               @map("valid_from") @db.Timestamptz(3)
-  expiresAt      DateTime?              @map("expires_at") @db.Timestamptz(3)
-  revokedAt      DateTime?              @map("revoked_at") @db.Timestamptz(3)
-  revokedByUserId String?               @map("revoked_by_user_id") @db.Uuid
-  version        Int                    @default(1)
-  organization   Organization           @relation(fields: [organizationId], references: [organizationId], onDelete: Restrict)
-  membership     OrganizationMembership @relation(fields: [organizationId, membershipId], references: [organizationId, id], onDelete: Restrict)
-  role           Role                   @relation(fields: [organizationId, roleId], references: [organizationId, id], onDelete: Restrict)
+  id              String                 @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId  String                 @map("organization_id") @db.Uuid
+  membershipId    String                 @map("membership_id") @db.Uuid
+  roleId          String                 @map("role_id") @db.Uuid
+  validFrom       DateTime               @map("valid_from") @db.Timestamptz(3)
+  expiresAt       DateTime?              @map("expires_at") @db.Timestamptz(3)
+  revokedAt       DateTime?              @map("revoked_at") @db.Timestamptz(3)
+  revokedByUserId String?                @map("revoked_by_user_id") @db.Uuid
+  version         Int                    @default(1)
+  organization    Organization           @relation(fields: [organizationId], references: [organizationId], onDelete: Restrict)
+  membership      OrganizationMembership @relation(fields: [organizationId, membershipId], references: [organizationId, id], onDelete: Restrict)
+  role            Role                   @relation(fields: [organizationId, roleId], references: [organizationId, id], onDelete: Restrict)
 
   @@id([organizationId, id])
   @@index([organizationId, membershipId])

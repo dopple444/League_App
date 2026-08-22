@@ -2,6 +2,9 @@ export const permissions = {
   auditRead: 'audit:read',
   membershipRead: 'membership:read',
   roleAssign: 'role:assign',
+  leagueRead: 'league:read',
+  leagueCreate: 'league:create',
+  leagueUpdate: 'league:update',
   seasonCreate: 'season:create',
   seasonRead: 'season:read',
   seasonUpdate: 'season:update',
@@ -10,6 +13,11 @@ export const permissions = {
   teamRead: 'team:read',
   teamUpdate: 'team:update',
   teamPublish: 'team:publish',
+  venueRead: 'venue:read',
+  venueCreate: 'venue:create',
+  venueUpdate: 'venue:update',
+  fieldCreate: 'field:create',
+  fieldUpdate: 'field:update',
 } as const;
 
 export type Permission = (typeof permissions)[keyof typeof permissions];

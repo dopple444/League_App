@@ -1293,6 +1293,28 @@ The source does not provide explicit mockup filenames for PUB-01, ADM-31, MOB-13
 - **Components:** Alert Banner, Tenant Data Table, Toggle Switch (Feature Entitlement).
 - **Mockup filenames:** `ADM-61-tenant-onboarding-concept-desktop.png`.
 
+#### ADM-62 - Venue and field create or edit forms
+
+- **Route and roles:** `/admin/{organizationId}/venues` embedded task panels | League Admin.
+- **Primary goal and action:** Add or update one venue or field without losing the surrounding venue-and-field context.
+- **Layout and target viewport:** Admin Workbench inline task panel | Desktop (1440), functional single-column reflow below 1024px.
+- **Above the fold:** The opened task panel repeats the action and record name, preserves a visible Cancel action, and places validation feedback before the fields.
+- **Main content:** **Venue form:** persistent label for venue name and explicit Active status. **Field form:** persistent labels for field name, optional public directions, lights availability, optional fence distance in feet, and Active status. Fence distance accepts whole feet only and shows its valid range. Public directions are plainly labeled as public-facing text. Create and save actions remain disabled while submitting; successful submission returns focus to the affected accordion row and announces the result. Stale-version, permission-denied, validation, and service errors use the shared form/system states without discarding entered values.
+- **Components:** Inline Task Panel, Form Error Summary, Text Input, Text Area, Numeric Input, Checkbox/Switch, Button Primary, Button Secondary.
+- **Mockup filenames:** `ADM-62-venue-form-desktop.png`, `ADM-62-field-form-desktop.png`, `ADM-62-field-form-mobile.png`.
+
+#### ADM-63 - League basics list and create or edit forms
+
+- **Route and roles:** `/admin/{organizationId}/leagues` | League Admin.
+- **Primary goal and action:** Create or maintain a league inside the administrator's currently selected organization without implying public tenant sign-up or cross-organization access.
+- **Layout and target viewport:** Admin Workbench | Desktop (1440), tablet (1024), and functional single-column mobile reflow (393).
+- **Above the fold:** “Leagues” header, a concise explanation of the organization boundary, and one primary “Add League” action.
+- **Main content:** A bounded, name-ordered collection of league cards showing name, URL slug, and a visible Active or Inactive status. Each card has a specific Edit action. Add and edit open one inline task panel with persistent Name, URL slug, and Active labels, validation before the controls, a visible Cancel action, and no loss of surrounding context. URL-slug guidance explains that lowercase letters, numbers, and single hyphens form the public path. Duplicate-slug, stale-version, permission, unavailable, loading, empty, and success states use the shared patterns. Successful changes announce the result and restore focus to the affected league card or initiating action.
+- **Components:** Page Heading, Responsive Card List, Status Badge, Inline Task Panel, Form Error Summary, Text Input, Checkbox/Switch, Button Primary, Button Secondary.
+- **Responsive and accessibility:** Cards and long names/slugs wrap without page-level horizontal overflow; controls retain persistent labels and minimum targets; active state is never color-only; task locking prevents competing mutations; native buttons and links preserve keyboard order and visible focus.
+- **Mockup filenames:** `ADM-63-league-basics-desktop.png`, `ADM-63-league-form-tablet.png`, `ADM-63-league-form-mobile.png`.
+- **Boundary:** This page manages leagues only within an already authorized organization. Controlled-beta operator provisioning, invitation acceptance, and MFA are separate security-gated flows; unrestricted customer tenant creation remains the post-MVP ADM-61 concept.
+
 ### 8.4 Android and iOS native application
 
 #### MOB-01 - Invitation, sign in, MFA, and role or organization switch

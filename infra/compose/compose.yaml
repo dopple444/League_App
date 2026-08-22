@@ -9,7 +9,7 @@ x-service-defaults: &service-defaults
 services:
   gateway:
     <<: *service-defaults
-    image: nginxinc/nginx-unprivileged:1.29.4-alpine@sha256:a6c4f61f456b85b8fdf7ec7ab28cc3e299440e6fb4a9dea520e5fd8fd440025e
+    image: nginxinc/nginx-unprivileged:1.30.4-alpine@sha256:44e36330f74d4f3a1d4e222acca9e23b401fb87811a7597024502bb759c4dd49
     depends_on:
       api:
         condition: service_healthy
@@ -45,6 +45,7 @@ services:
       API_INTERNAL_URL: http://api:3001
       FEATURED_PUBLIC_LEAGUE_SLUG: ${FEATURED_PUBLIC_LEAGUE_SLUG:-}
       FEATURED_PUBLIC_ORGANIZATION_SLUG: ${FEATURED_PUBLIC_ORGANIZATION_SLUG:-}
+      HOSTNAME: 0.0.0.0
       NEXT_PUBLIC_API_BASE_URL: ''
       NODE_ENV: production
     depends_on:
@@ -190,7 +191,10 @@ services:
 
   postgres:
     <<: *service-defaults
-    image: postgres:18.1-bookworm@sha256:cc9f4143a8d2fa8cf3749d0cb4d26ecf2d53a77a2ac807e9ebd67ae22426221a
+    image: league-app/postgres:local
+    build:
+      context: ../..
+      dockerfile: infra/docker/postgres.Dockerfile
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-league_app}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run pnpm env:init}
@@ -214,7 +218,7 @@ services:
 
   redis:
     <<: *service-defaults
-    image: redis:8.4.0-bookworm@sha256:c22af04bb576503bf16b3e34a1fd2fd82de0f765afd866d2e380145e0af30d78
+    image: redis:8.4.6-alpine3.22@sha256:12da49daa000c2be4d55118574f889c8cc298140ecf343d04f345c818f227823
     command: [redis-server, --appendonly, 'yes', --save, '60', '1', --loglevel, warning]
     ports:
       - 127.0.0.1:63790:6379
@@ -274,7 +278,7 @@ services:
 
   mailpit:
     <<: *service-defaults
-    image: axllent/mailpit:v1.27.10@sha256:b1f1be18af530d939a11ee8820b379e0c88eeec204d904bfad68862adced3a5a
+    image: axllent/mailpit:v1.30.7@sha256:d5ecbb067db3705fa953d79e1b7f81ef84038df67aba6c52825d8c02a1ea748a
     environment:
       MP_DATABASE: /data/mailpit.db
       MP_MAX_MESSAGES: 500

@@ -136,7 +136,7 @@ and job ID only—never payload, actor contact data, or raw exception/provider r
 - [x] Implement authoritative reload, stale-generation no-op, completion, and processor failure
       recovery.
 - [x] Extend dependency/backlog health without payload leakage or restart loops.
-- [ ] Prove unit, concurrent claim, duplicate, lease expiry, Redis loss, exhausted retry, tenant
+- [x] Prove unit, concurrent claim, duplicate, lease expiry, Redis loss, exhausted retry, tenant
       denial, migration, and restore behavior.
 - [x] Update assurance, decisions, status, and the controlled-beta plan with exact evidence.
 
@@ -233,3 +233,16 @@ intact for forward recovery. Never delete failed or stuck events to recover serv
   reclaim, stale fencing, terminal failure, and least-privilege grants. Database tests passed 3/3;
   worker/database lint, typecheck, and builds passed. A real relay-through-Redis completion/restart
   rehearsal and restore verification remain open before this plan is complete.
+- 2026-08-21 — Rotated the generated local credentials, recreated only the four synthetic Compose
+  volumes, rebuilt the application images, applied both migrations, and passed idempotent main/test
+  seed verification. Added `pnpm acceptance:outbox`, whose default, `worker-restart`, and
+  `redis-restart` modes authenticate through the loopback gateway, commit one real season mutation,
+  prove exactly one audit/outbox/idempotency record, wait for `COMPLETED`, replay without a duplicate,
+  and strictly validate metadata-only worker health. The Redis phase commits while Redis is stopped
+  and then proves recovery after restart without clearing its persistent volume.
+- 2026-08-21 — The live default, worker-restart, and Redis-restart rehearsals passed. A focused worker
+  log assertion found no season name or slug payload, while permitted event/organization/request/job
+  metadata remained visible. `pnpm db:restore:verify` now compares a repeatable-snapshot SHA-256 over
+  every outbox row's identity and lifecycle fields and passed after the retained rehearsal history.
+  `pnpm stack:smoke` passed all five probes. This plan's durable internal-receipt scope is complete;
+  real external handlers and an operator retry UI remain separately governed work.

@@ -17,7 +17,7 @@ import type { Prisma, TenantDatabase, TenantTransaction } from '@league/database
 import { assertExpectedVersion, nextPublicationRevision, permissions } from '@league/domain';
 import { Inject, Injectable } from '@nestjs/common';
 
-import { ResourceNotFoundError } from '../common/errors.js';
+import { InactiveLeagueError, ResourceNotFoundError } from '../common/errors.js';
 import type { RequestMetadata } from '../common/request.js';
 import { TENANT_DATABASE } from '../common/tokens.js';
 import { AccessService } from './access.service.js';
@@ -100,6 +100,7 @@ export class SeasonsService {
       permission: permissions.seasonCreate,
       fingerprintPayload: { operation: 'season.create', input },
       responseSchema: seasonAdminSchema,
+      responseStatus: 201,
       operation: async (transaction) => {
         const league = await transaction.league.findUnique({
           where: {
@@ -108,6 +109,9 @@ export class SeasonsService {
         });
         if (league === null) {
           throw new ResourceNotFoundError();
+        }
+        if (!league.active) {
+          throw new InactiveLeagueError();
         }
         const season = await transaction.season.create({
           data: {
@@ -253,6 +257,9 @@ export class SeasonsService {
               },
             }),
           ]);
+          if (!league.active) {
+            throw new InactiveLeagueError();
+          }
           await transaction.publicationSnapshot.updateMany({
             where: { resourceKind: 'SEASON', resourceId: seasonId, withdrawnAt: null },
             data: { withdrawnAt: new Date() },

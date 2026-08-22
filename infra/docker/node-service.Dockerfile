@@ -28,7 +28,7 @@ RUN case "${WORKSPACE}" in \
       *) echo "Unsupported WORKSPACE: ${WORKSPACE}" >&2; exit 64 ;; \
     esac \
     && pnpm install --frozen-lockfile --filter "${WORKSPACE}..." \
-    && pnpm --filter "${WORKSPACE}..." build \
+    && pnpm --workspace-concurrency=1 --filter "${WORKSPACE}..." build \
     && pnpm store prune
 
 FROM build AS package
@@ -40,6 +40,12 @@ RUN set -eux; \
     case "${WORKSPACE}" in \
       '@league/web') \
         cp -a apps/web/.next/standalone/. /app/.runtime/; \
+        for helper_source in node_modules/.pnpm/@swc+helpers@*/node_modules/@swc/helpers; do \
+          helper_relative="${helper_source#node_modules/.pnpm/}"; \
+          helper_target="/app/.runtime/node_modules/.pnpm/${helper_relative}"; \
+          mkdir -p "${helper_target}"; \
+          cp -a "${helper_source}/." "${helper_target}/"; \
+        done; \
         mkdir -p /app/.runtime/apps/web/.next; \
         cp -a apps/web/.next/static /app/.runtime/apps/web/.next/static; \
         if [ -d apps/web/public ]; then \
@@ -58,15 +64,19 @@ RUN set -eux; \
           "${app_root}/dist/test"; \
         find "${app_root}/dist" -type f \
           \( -name '*.d.ts' -o -name '*.d.ts.map' -o -name '*.js.map' \) -delete; \
-        find "${app_root}/node_modules/.pnpm" -type d \
-          \( \
-            -path '*/node_modules/@league/*/.turbo' \
-            -o -path '*/node_modules/@league/*/src' \
-            -o -path '*/node_modules/@league/*/test' \
-            -o -path '*/node_modules/@league/*/scripts' \
-            -o -path '*/node_modules/@league/*/prisma' \
-            -o -path '*/node_modules/@league/*/dist/test' \
-          \) -prune -exec rm -rf '{}' +; \
+        find "${app_root}/node_modules/.pnpm" \
+          -regextype posix-extended \
+          -type d \
+          -regex '.*/node_modules/@league/[^/]+$' \
+          -exec sh -eu -c 'for package_root do \
+            rm -rf \
+              "${package_root}/.turbo" \
+              "${package_root}/src" \
+              "${package_root}/test" \
+              "${package_root}/scripts" \
+              "${package_root}/prisma" \
+              "${package_root}/dist/test"; \
+          done' sh '{}' +; \
         find "${app_root}/node_modules/.pnpm" -type f \
           -path '*/node_modules/@league/*/dist/*' \
           \( -name '*.d.ts' -o -name '*.d.ts.map' -o -name '*.js.map' \) -delete; \

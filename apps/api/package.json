@@ -10,7 +10,7 @@
     "start": "node dist/src/main.js",
     "start:prod": "node dist/src/main.js",
     "test": "vitest run test/unit --exclude 'dist/**'",
-    "test:integration": "vitest run test/integration --exclude 'dist/**'",
+    "test:integration": "vitest run test/integration --exclude 'dist/**' --no-file-parallelism",
     "test:tenancy": "vitest run test/tenancy --exclude 'dist/**'",
     "test:authz": "vitest run test/authz --exclude 'dist/**'",
     "typecheck": "tsc -p tsconfig.json --noEmit"

@@ -18,6 +18,7 @@ export const fixtureIds = {
   seasonA: '00000000-0000-4000-8000-000000000201',
   seasonB: '00000000-0000-4000-8000-000000000202',
   teamSeasonA: '00000000-0000-4000-8000-000000000401',
+  venueA: '00000000-0000-4000-8000-000000000501',
 } as const;
 
 export async function userIdByEmail(

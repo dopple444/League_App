@@ -83,7 +83,51 @@ jobs:
       - name: Install pinned browser test runtime
         run: pnpm --filter @league/web exec playwright install --with-deps chromium
       - name: Start private local stack
+        id: integration_stack
         run: pnpm stack:up
+      - name: Diagnose failed application containers
+        if: failure() && steps.integration_stack.outcome == 'failure'
+        shell: bash
+        run: |
+          compose=(docker compose --env-file .env -f infra/compose/compose.yaml)
+
+          # Register synthetic secrets with the runner before emitting service logs.
+          # Do not print Compose configuration or container environments here.
+          if [[ -f .env ]]; then
+            while IFS='=' read -r name value; do
+              case "$name" in
+                *DATABASE_URL*|*PASSWORD*|*SECRET*|*TOKEN*|*KEY*)
+                  value="${value%$'\r'}"
+                  if [[ -n "$value" ]]; then
+                    echo "::add-mask::$value"
+                  fi
+                  ;;
+              esac
+            done < .env
+          fi
+
+          echo "::group::Compose service state"
+          "${compose[@]}" ps --all || true
+          echo "::endgroup::"
+
+          for service in web api worker scheduler migrate; do
+            should_log=false
+            while IFS= read -r container_id; do
+              [[ -n "$container_id" ]] || continue
+              state="$(docker inspect --format '{{.State.Status}}' "$container_id" 2>/dev/null || echo unknown)"
+              health="$(docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' "$container_id" 2>/dev/null || echo unknown)"
+              printf '%s container %s: state=%s health=%s\n' "$service" "$container_id" "$state" "$health"
+              if [[ "$state" != running || "$health" != healthy ]]; then
+                should_log=true
+              fi
+            done < <("${compose[@]}" ps --all --quiet "$service" 2>/dev/null || true)
+
+            if [[ "$should_log" == true ]]; then
+              echo "::group::Bounded ${service} logs"
+              "${compose[@]}" logs --no-color --timestamps --tail 120 "$service" 2>&1 || true
+              echo "::endgroup::"
+            fi
+          done
       - name: Verify migrations and seed
         run: pnpm db:migrate:verify && pnpm db:seed:verify
       - name: Run API and relay security suites
@@ -116,13 +160,16 @@ jobs:
       - name: Create explicit synthetic CI environment
         run: pnpm env:init:ci
       - name: Install dependencies
+        id: security_install
         run: pnpm install --frozen-lockfile && pnpm scheduler:sync --frozen
-      - name: Audit dependencies
-        run: pnpm security:dependencies
       - name: Build Compose images
         run: pnpm stack:up
       - name: Scan Compose images
         run: pnpm security:containers
+      # Keep the dependency gate independent of the container scan result.
+      - name: Audit dependencies
+        if: always() && steps.security_install.outcome == 'success'
+        run: pnpm security:dependencies
       - name: Stop local stack
         if: always()
         run: pnpm stack:down
@@ -139,6 +186,20 @@ jobs:
           INTEGRATION_RESULT: ${{ needs.integration.result }}
           SECURITY_RESULT: ${{ needs.security.result }}
         run: |
-          test "$QUALITY_RESULT" = success
-          test "$INTEGRATION_RESULT" = success
-          test "$SECURITY_RESULT" = success
+          failed=0
+
+          report_lane() {
+            local lane="$1"
+            local result="$2"
+            printf '%s: %s\n' "$lane" "$result"
+            if [[ "$result" != success ]]; then
+              echo "::error title=CI lane did not succeed::${lane} concluded ${result}."
+              return 1
+            fi
+          }
+
+          report_lane "Static checks and unit tests" "$QUALITY_RESULT" || failed=1
+          report_lane "Tenant, authorization, and browser checks" "$INTEGRATION_RESULT" || failed=1
+          report_lane "Dependency and container security" "$SECURITY_RESULT" || failed=1
+
+          exit "$failed"

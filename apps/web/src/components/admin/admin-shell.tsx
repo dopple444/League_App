@@ -70,7 +70,13 @@ export function AdminShell({
               <Link href={basePath}>Overview</Link>
             </li>
             <li>
+              <Link href={`${basePath}/leagues`}>Leagues</Link>
+            </li>
+            <li>
               <Link href={`${basePath}/seasons`}>Seasons and teams</Link>
+            </li>
+            <li>
+              <Link href={`${basePath}/venues`}>Venues and fields</Link>
             </li>
             <li>
               <Link href={`${basePath}/audit`}>Audit history</Link>

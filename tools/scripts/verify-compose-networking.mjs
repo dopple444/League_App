@@ -19,6 +19,10 @@ if (hostAccess.driver_opts?.['com.docker.network.bridge.host_binding_ipv4'] !== 
   fail('host-access must default published ports to 127.0.0.1');
 }
 
+if (config.services?.web?.environment?.HOSTNAME !== '0.0.0.0') {
+  fail('web must bind its standalone server to every container interface');
+}
+
 const expectedDiagnosticPorts = {
   postgres: [['5432', '54320']],
   redis: [['6379', '63790']],

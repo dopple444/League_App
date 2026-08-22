@@ -17,10 +17,24 @@ export default async function AdminOverviewPage({
       />
       <div className="grid">
         <article className="card">
+          <h2>Leagues</h2>
+          <p className="muted">Manage league names, public URL names, and active status.</p>
+          <Link className="button" href={`/admin/${organizationId}/leagues`}>
+            Manage leagues
+          </Link>
+        </article>
+        <article className="card">
           <h2>Seasons and teams</h2>
           <p className="muted">Manage the current season and its public team names.</p>
           <Link className="button" href={`/admin/${organizationId}/seasons`}>
             Manage seasons
+          </Link>
+        </article>
+        <article className="card">
+          <h2>Venues and fields</h2>
+          <p className="muted">Set up the places and field details used for scheduling.</p>
+          <Link className="button secondary" href={`/admin/${organizationId}/venues`}>
+            Manage facilities
           </Link>
         </article>
         <article className="card">

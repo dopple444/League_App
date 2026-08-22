@@ -37,8 +37,8 @@ Create a reproducible development foundation and prove one secure vertical slice
 - The Compose stack starts with all nine long-running services healthy. Gateway, web, API, worker, and scheduler smoke probes pass. Published PostgreSQL, Redis, MinIO, and Mailpit diagnostics bind only to loopback through a separate `host-access` bridge while the service-to-service `core` network remains internal.
 - The forward migration plus repeat no-op, idempotent seed run twice against both the main and test databases, API integration suite (3/3), tenant-isolation suite (4/4), and authorization suite (1/1) pass.
 - Explicit Nest injection tokens now make the native-ESM API dependency graph boot reliably; Better Auth generates UUID identifiers compatible with the PostgreSQL schema; and the worker declares the exact `ioredis` runtime dependency required by BullMQ and starts successfully.
-- Browser E2E (4/4), desktop/Pixel 7 automated accessibility (2/2), and clean restore now pass. Native-device/assistive-technology review, end-to-end outbox delivery, security remediation, the full `pnpm verify`, and the complete manual demo remain open.
-- The mutation layer inserts database outbox records, but the worker currently has no database relay/producer that enqueues them and advances their delivery lifecycle; outbox processing is therefore incomplete.
+- Browser E2E, desktop/Pixel 7 automated accessibility, clean restore, and end-to-end internal outbox delivery now pass. Native-device/assistive-technology review, broader third-party container remediation, the full `pnpm verify`, and the complete manual demo remain open.
+- The mutation layer atomically inserts database outbox records, and the PostgreSQL-authoritative worker relay now enqueues and advances them with metadata-only Redis jobs, generation fencing, bounded recovery, and terminal visibility.
 
 ## Proposed design
 
@@ -63,7 +63,7 @@ Create a reproducible development foundation and prove one secure vertical slice
 - [ ] Complete safe source-document mappings and authentic waiver baselines once all authorized inputs exist. Tooling and synthetic metadata exist; source-specific completion is blocked by the missing files.
 - [x] Verify the implemented Prisma schema, forward migrations, forced RLS policies, UUID-compatible synthetic two-tenant seed, memberships/RBAC, audited authoritative transactions, publication snapshots, and public-query boundaries.
 - [x] Verify the clean dump/restore path.
-- [ ] Complete and verify the end-to-end database outbox relay/processing lifecycle; transactional outbox insertion already passes integration coverage.
+- [x] Complete and verify the end-to-end database outbox relay/processing lifecycle; PostgreSQL remains authoritative across worker and Redis restart recovery.
 - [x] Verify OpenAPI/generated SDK alignment plus the browser admin/public vertical-slice flow and automated desktop/mobile-browser accessibility.
 - [ ] Finish page-level style review and native-device/assistive-technology evidence for the web and read-only Expo flows.
 - [ ] Remediate or explicitly gate dependency/container findings, run the remaining acceptance matrix and `pnpm verify`, complete the manual demo, and update all handoff documents.
@@ -89,7 +89,7 @@ Completed browser, restore, and fresh-environment evidence on 2026-08-19:
 - Generated local credentials were rotated. The four local-only synthetic volumes were removed, recreated from migrations, seeded idempotently, smoke-tested, and left stopped with fresh synthetic data.
 - Dependency scanning cleared the Python finding by pinning pytest 9.0.3 and cleared `deepmerge-ts` through the scoped Prisma override. Two high-severity Metro `image-size` advisories remain upstream-blocked because no patched package is published; the moderate Expo/xcode `uuid` advisory and fixable container-image findings also remain. Complete container-scan evidence predates the final clean rebuild, so a post-rebuild scan with the stack running remains required.
 
-This evidence does not complete native device or assistive-technology review, end-to-end outbox delivery, dependency/container remediation, the complete manual demo, or the full `pnpm verify` command.
+This evidence does not complete native device or assistive-technology review, dependency/third-party-container remediation, the complete manual demo, or the full `pnpm verify` command.
 
 Pending manual demo checklist: public seeded schedule; synthetic admin sign-in; organization selection; create/publish season and team; public visibility; attributable audit event; direct tenant-B resource denial; mobile read-only view and logout.
 
@@ -126,7 +126,7 @@ No production data exists. Migrations are forward-only and verified from an empt
 - The host runtime differs from pinned Node/Python patches; containers and CI provide parity, and local checks report the mismatch clearly.
 - Expo native emulator tooling is not installed. Component tests and platform exports are required now; store/native-device release checks remain later gates.
 - This foundation changeset captures the current source tree; clean-clone verification remains outstanding. Generated TypeScript, Playwright, scanner, Next.js, Expo, Prisma, and Python artifacts have explicit ignore/formatter exclusions where needed.
-- Database-backed tests prove idempotent authoritative writes with atomic audit/outbox insertion, rollback on recording failure, published-snapshot visibility, missing/wrong-tenant denial, composite tenant integrity, and Board/officer/auditor/revoked-role separation. Browser authentication/admin/public flow now passes; mobile logout and end-to-end outbox delivery still need explicit coverage.
+- Database-backed tests prove idempotent authoritative writes with atomic audit/outbox insertion, rollback on recording failure, published-snapshot visibility, missing/wrong-tenant denial, composite tenant integrity, and Board/officer/auditor/revoked-role separation. Browser authentication/admin/public flow and live outbox restart recovery now pass; mobile logout still needs explicit coverage.
 - Dependency acceptance is blocked by two high Metro `image-size` advisories with no published fixed release. The pre-rebuild container scan also reports fixable high/critical packages in all pinned application and third-party images; a post-rebuild scan, image refresh, and production-image pruning are required before release.
 - Automated foundation evidence does not replace browser viewport, emulator/physical-device, screen-reader, zoom/dynamic-type, or visual-regression review; the web/native consuming artifacts remain **Needs changes** until that evidence exists.
 
@@ -144,3 +144,7 @@ No production data exists. Migrations are forward-only and verified from an empt
 - 2026-08-19 — Fixed the gateway CSP hydration failure with unique response nonces, preserved static compression, made shared web/native fetch calls receiver-safe, and added explicit `WEB`/`MOBILE` audit attribution. Web unit tests passed 20/20, mobile tests passed 17/17, browser E2E passed 4/4, and desktop/Pixel 7 axe scans passed 2/2.
 - 2026-08-19 — Clean restore passed. The Python dependency audit passed after pytest 9.0.3; the scoped Prisma override removed the `deepmerge-ts` advisory after database/API validation. Security remains blocked by two unpublished-fix `image-size` advisories, one moderate transitive `uuid` advisory, and fixable findings in the pinned container images.
 - 2026-08-19 — Rotated generated local credentials, removed only the four reproducible synthetic Compose volumes, rebuilt all application images, reapplied migrations, reseeded both databases idempotently, reran smoke/E2E/accessibility checks, and stopped the stack with fresh synthetic volumes preserved.
+- 2026-08-21 — Completed the transactional relay and live loopback acceptance. Default, worker-restart,
+  and Redis-restart rehearsals each committed one real idempotent API mutation, retained exactly one
+  audit/outbox pair, reached `COMPLETED`, and exposed metadata-only health/log behavior. The isolated
+  restore now compares every outbox identity/lifecycle field from one repeatable source snapshot.

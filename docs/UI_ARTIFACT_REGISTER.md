@@ -1,6 +1,6 @@
 # UI artifact register
 
-Last updated: 2026-08-19
+Last updated: 2026-08-21
 
 Visual authority: [`LEAGUE_APP_UI_STYLE_GUIDE.md`](LEAGUE_APP_UI_STYLE_GUIDE.md)
 
@@ -49,6 +49,8 @@ The guide was introduced after the initial UI was implemented. The shared Modern
 | WEB-PAGE-012  | Public schedule explorer `/leagues/{organizationSlug}/{leagueSlug}/seasons/{seasonSlug}/schedule`  | Web page            | `apps/web/src/app/leagues/[organizationSlug]/[leagueSlug]/seasons/[seasonSlug]/schedule/page.tsx`         | PUB-03                                           | Partial     | Needs changes | [WEB-PAGE-012](#web-page-012--public-schedule-explorer)                      |
 | WEB-PAGE-013  | Public team directory `/leagues/{organizationSlug}/{leagueSlug}/seasons/{seasonSlug}/teams`        | Web page            | `apps/web/src/app/leagues/[organizationSlug]/[leagueSlug]/seasons/[seasonSlug]/teams/page.tsx`            | PUB-11                                           | Partial     | Needs changes | [WEB-PAGE-013](#web-page-013--public-team-directory)                         |
 | WEB-PAGE-014  | Public team detail `/leagues/{organizationSlug}/{leagueSlug}/seasons/{seasonSlug}/teams/{teamSlug}` | Web page            | `apps/web/src/app/leagues/[organizationSlug]/[leagueSlug]/seasons/[seasonSlug]/teams/[teamSlug]/page.tsx` | PUB-12                                           | Partial     | Needs changes | [WEB-PAGE-014](#web-page-014--public-team-detail)                            |
+| WEB-PAGE-015  | Venues and fields `/admin/{organizationId}/venues`                                                 | Web page            | `apps/web/src/app/admin/[organizationId]/venues/page.tsx`                                                  | ADM-26                                           | Implemented | Needs changes | [WEB-PAGE-015](#web-page-015--venues-and-fields)                              |
+| WEB-PAGE-016  | League basics `/admin/{organizationId}/leagues`                                                   | Web page            | `apps/web/src/app/admin/[organizationId]/leagues/page.tsx`                                                 | ADM-63                                           | Implemented | Needs changes | [WEB-PAGE-016](#web-page-016--league-basics)                                  |
 | WEB-STATE-001 | Global loading state                                                                                | Web system state    | `apps/web/src/app/loading.tsx`                                                                            | SYS-04                                           | Implemented | Needs changes | —             |
 | WEB-STATE-002 | Global error and service-unavailable states                                                         | Web system state    | `apps/web/src/app/error.tsx`; `apps/web/src/components/site-shell.tsx`                                    | SYS-04                                           | Implemented | Needs changes | —             |
 | WEB-STATE-003 | Not-found state                                                                                     | Web system state    | `apps/web/src/app/not-found.tsx`                                                                          | SYS-04                                           | Implemented | Needs changes | —             |
@@ -70,6 +72,9 @@ The guide was introduced after the initial UI was implemented. The shared Modern
 | WEB-FORM-005 | Edit and publish administrative team | Web form    | `apps/web/src/components/admin/team-editor.tsx`        | No exact match                            | Partial     | Spec needed   | —             |
 | WEB-FORM-006 | Public schedule filters              | Web form    | `apps/web/src/components/public-schedule.tsx`          | PUB-03                                    | Implemented | Needs changes | [WEB-FORM-006](#web-form-006--public-schedule-filters) |
 | WEB-FORM-007 | Public team-name search              | Web form    | `apps/web/src/components/public-team-directory.tsx`    | PUB-11                                    | Implemented | Needs changes | [WEB-FORM-007](#web-form-007--public-team-name-search) |
+| WEB-FORM-008 | Create or edit venue                 | Web form    | `apps/web/src/components/admin/venue-field-manager.tsx` | ADM-62                                    | Implemented | Needs changes | [WEB-FORM-008](#web-form-008--create-or-edit-venue) |
+| WEB-FORM-009 | Create or edit field                 | Web form    | `apps/web/src/components/admin/venue-field-manager.tsx` | ADM-62                                    | Implemented | Needs changes | [WEB-FORM-009](#web-form-009--create-or-edit-field) |
+| WEB-FORM-010 | Create or edit league                | Web form    | `apps/web/src/components/admin/league-manager.tsx`      | ADM-63                                    | Implemented | Needs changes | [WEB-FORM-010](#web-form-010--create-or-edit-league)   |
 | MOB-FORM-001 | Sign in                              | Native form | `apps/mobile/app/(auth)/sign-in.tsx`                   | MOB-01                                    | Implemented | Needs changes | —             |
 
 ## Current shared-foundation baseline
@@ -88,6 +93,8 @@ The guide was introduced after the initial UI was implemented. The shared Modern
 | WEB-DOMAIN-003 | Team list                                                            | Web data display             | `apps/web/src/components/admin/team-list.tsx`                                                           | No exact administrative mapping | Partial     | Spec needed   | —                                                                             |
 | WEB-DOMAIN-004 | Audit list                                                           | Web data display             | `apps/web/src/components/admin/audit-list.tsx`                                                          | ADM-56                          | Partial     | Needs changes | —                                                                             |
 | WEB-DOMAIN-005 | Public schedule results                                              | Web interaction/data display | `apps/web/src/components/public-schedule.tsx`                                                           | PUB-03                          | Implemented | Needs changes | [WEB-DOMAIN-005](#web-domain-005--public-schedule-results)                    |
+| WEB-DOMAIN-006 | Venue accordion and nested field table                              | Web interaction/data display | `apps/web/src/components/admin/venue-field-manager.tsx`                                                 | ADM-26                          | Implemented | Needs changes | [WEB-DOMAIN-006](#web-domain-006--venue-accordion-and-nested-field-table)     |
+| WEB-DOMAIN-007 | League card list and lifecycle status                               | Web interaction/data display | `apps/web/src/components/admin/league-manager.tsx`                                                       | ADM-63                          | Implemented | Needs changes | [WEB-DOMAIN-007](#web-domain-007--league-card-list-and-lifecycle-status)       |
 | MOB-PRIM-001   | Screen, heading, card, action, error, loading, and status primitives | Native component set         | `apps/mobile/app/_layout.tsx`; `apps/mobile/src/components/ui.tsx`                                      | Sections 4, 6, and 10           | Implemented | Needs changes | [MOB-PRIM-001](#mob-prim-001--native-ui-primitives-and-font-adapter)          |
 
 The unimplemented `PUB`, `TEAM`, `ADM`, `MOB`, `SYS`, `ACC`, `DOC`, and `COM` catalog remains in the style guide and is intentionally not duplicated here. Add its entries to this register when implementation starts.
@@ -270,6 +277,179 @@ The initial foundation ambiguities were resolved on 2026-08-18 in the style guid
   statistics, affiliation, and tabbed subviews are unavailable in the approved public contract. The
   unavailable-section branches have neither targeted route-test nor retained screenshot evidence.
   Real screen-reader, desktop Ctrl-Plus, and physical-device/manual review remain unavailable.
+
+### WEB-PAGE-015 — Venues and fields
+
+- Guide specification and revision: ADM-26 and Modern Field Sections 4–6, reviewed 2026-08-21.
+- Requirements and constraints: tenant-scoped administration route; one `h1`; native keyboard-
+  operable venue disclosure rows; nested fields; visible active/inactive text; bounded responsive
+  reflow; loading, empty, permission, conflict, success, and service-error handling; no destructive
+  deletion or public publication of directions.
+- Reviewer and date: Codex, 2026-08-21.
+- Viewports or output formats checked: automated Chromium at 1440px, 1024px, 393px, and 720px compact
+  landscape reflow; the authenticated accessibility journey ran in desktop and mobile projects.
+- Automated checks: the web component suite passed 49/49; the functional Playwright suite passed 8/8;
+  and the accessibility suite passed 6/6, including the venue journey 2/2 on desktop and mobile.
+  Browser coverage verified authenticated navigation, real create/update operations, audit history,
+  keyboard disclosure operation, 44px targets, long-content reflow, no horizontal page overflow, and
+  no console or page errors.
+- Screenshot/output evidence:
+  [expanded desktop 1440](evidence/ui/2026-08-21-venue-field-management/01-venues-expanded-desktop-1440.png),
+  [add-field form tablet 1024](evidence/ui/2026-08-21-venue-field-management/02-add-field-form-tablet-1024.png),
+  [add-field form mobile 393](evidence/ui/2026-08-21-venue-field-management/03-add-field-form-mobile-393.png).
+- Checklist result: Needs changes.
+- Gaps, exceptions, and follow-up: The retained captures were visually inspected and contain synthetic
+  demo data only. Real screen-reader, desktop Ctrl-Plus, and physical-device/manual review remain
+  unavailable. Field availability and schedule enforcement remain a separate planned slice.
+
+### WEB-FORM-008 — Create or edit venue
+
+- Guide specification and revision: ADM-62 plus Modern Field Section 6 form behavior, reviewed
+  2026-08-21.
+- Requirements and constraints: persistent required name label; explicit active state; inline create
+  and edit panels that preserve page context; client and authoritative server validation; disabled
+  competing actions during submission; success announcement and focus restoration; distinct duplicate-
+  name, stale-version, permission, and unavailable feedback.
+- Reviewer and date: Codex, 2026-08-21.
+- Viewports or output formats checked: automated Chromium at 1440px, 1024px, 393px, and 720px compact
+  landscape reflow; desktop and mobile accessibility projects exercised the containing workbench.
+- Automated checks: the web component suite passed 49/49, including required-state, validation,
+  duplicate-submission, mutation-pending, conflict, announcement, and focus coverage. The functional
+  Playwright suite passed 8/8 with a real venue create/update and audit check; axe passed 6/6 overall,
+  including the venue journey 2/2 on desktop and mobile.
+- Screenshot/output evidence:
+  [surrounding venue workbench desktop 1440](evidence/ui/2026-08-21-venue-field-management/01-venues-expanded-desktop-1440.png).
+- Checklist result: Needs changes.
+- Gaps, exceptions, and follow-up: The retained workbench capture was visually inspected and contains
+  synthetic demo data only, but it does not show a venue create/edit panel. A venue-form-specific
+  capture plus real screen-reader, desktop Ctrl-Plus, and physical-device/manual review remain
+  outstanding.
+
+### WEB-FORM-009 — Create or edit field
+
+- Guide specification and revision: ADM-62 plus Modern Field Section 6 form behavior, reviewed
+  2026-08-21.
+- Requirements and constraints: persistent labels for required name and optional directions/fence
+  distance; visible lights and active controls; 100–600 whole-foot validation when supplied; inline
+  venue context; duplicate-submission prevention; success/focus handling; and distinct duplicate-name,
+  stale-version, permission, and unavailable feedback. Directions remain plain text rather than
+  executable HTML or an unchecked link.
+- Reviewer and date: Codex, 2026-08-21.
+- Viewports or output formats checked: automated Chromium at 1440px, 1024px, 393px, and 720px compact
+  landscape reflow; the expanded field form ran in desktop and mobile accessibility projects.
+- Automated checks: the web component suite passed 49/49, including nullable attributes, invalid
+  directions association, stale-value retention, mutation-pending, announcement, and focus coverage.
+  The functional Playwright suite passed 8/8 with a real field create/update and audit check; axe
+  passed 6/6 overall, including the expanded venue/field form 2/2 on desktop and mobile. Automated
+  checks also verified 48px text inputs and 44px actions/toggles.
+- Screenshot/output evidence:
+  [add-field form tablet 1024](evidence/ui/2026-08-21-venue-field-management/02-add-field-form-tablet-1024.png),
+  [add-field form mobile 393](evidence/ui/2026-08-21-venue-field-management/03-add-field-form-mobile-393.png).
+- Checklist result: Needs changes.
+- Gaps, exceptions, and follow-up: The retained captures were visually inspected and contain synthetic
+  demo data only. Real screen-reader, desktop Ctrl-Plus, and physical-device/manual review remain
+  outstanding. Public directions publication stays out of scope until an allowlisted publication
+  contract exists.
+
+### WEB-DOMAIN-006 — Venue accordion and nested field table
+
+- Guide specification and revision: ADM-26 and Modern Field Sections 4–6, reviewed 2026-08-21.
+- Requirements and constraints: semantic native venue disclosures; name, non-color active state, and
+  field count in each summary; complete field details in a nested desktop table that reflows to readable
+  mobile cards; venue-local actions; safe wrapping for long names and directions; no duplicate
+  accessible rendering or page-level horizontal overflow.
+- Reviewer and date: Codex, 2026-08-21.
+- Viewports or output formats checked: automated Chromium at 1440px, 1024px, 393px, and 720px compact
+  landscape reflow; expanded content ran in desktop and mobile accessibility projects.
+- Automated checks: the web component suite passed 49/49 and covers disclosure/table content, plain-
+  text directions, active state, lights, fence distance, in-place refresh, and task locking. The
+  functional Playwright suite passed 8/8; axe passed 6/6 overall with the venue journey 2/2 on desktop
+  and mobile. Keyboard Enter operation, 44px summaries/actions, long-token wrapping, and zero
+  horizontal overflow were verified.
+- Screenshot/output evidence:
+  [expanded desktop 1440](evidence/ui/2026-08-21-venue-field-management/01-venues-expanded-desktop-1440.png),
+  [nested workbench tablet 1024](evidence/ui/2026-08-21-venue-field-management/02-add-field-form-tablet-1024.png),
+  [nested workbench mobile 393](evidence/ui/2026-08-21-venue-field-management/03-add-field-form-mobile-393.png).
+- Checklist result: Needs changes.
+- Gaps, exceptions, and follow-up: The retained captures were visually inspected and contain synthetic
+  demo data only. A dedicated collapsed-state capture and real screen-reader, desktop Ctrl-Plus, and
+  physical-device/manual review remain outstanding before Pass.
+
+### WEB-PAGE-016 — League basics
+
+- Guide specification and revision: ADM-63 and Modern Field Sections 4–6, reviewed 2026-08-21.
+- Requirements and constraints: explicit tenant-scoped administration route; one `h1`; responsive
+  league cards; visible non-color active/inactive status; one primary Add League action; inline task
+  context; loading, empty, permission, conflict, success, and service-error handling; no destructive
+  deletion or implicit organization selection.
+- Reviewer and date: Codex, 2026-08-21.
+- Viewports or output formats checked: automated Chromium at 1440px, 1024px, 393px, and 720px compact
+  landscape reflow; the authenticated accessibility journey ran in desktop and mobile projects.
+- Automated checks: API integration passed 14/14, the web unit suite passed 61/61, the functional
+  Playwright suite passed 9/9, the accessibility suite passed 6/6, and the synthetic evidence run
+  passed 1/1. Browser coverage verified authenticated navigation, dedicated synthetic create/update,
+  HTTP 201/200 responses, audit history, keyboard operation, 44px targets, long-token reflow, no
+  horizontal page overflow, and no console or page errors. The seeded `church-softball` public league
+  was not edited.
+- Screenshot/output evidence:
+  [league basics desktop 1440](evidence/ui/2026-08-21-league-management/01-league-basics-desktop-1440.png),
+  [league form tablet 1024](evidence/ui/2026-08-21-league-management/02-league-form-tablet-1024.png),
+  [league form mobile 393](evidence/ui/2026-08-21-league-management/03-league-form-mobile-393.png).
+- Checklist result: Needs changes.
+- Gaps, exceptions, and follow-up: The retained captures were visually inspected and contain synthetic
+  demo data only. Real screen-reader, desktop Ctrl-Plus/browser-zoom, and physical-device/manual review
+  remain unavailable. Zero-membership onboarding and operator provisioning/hardening are separate
+  incomplete flows; this page serves already authorized organization members.
+
+### WEB-FORM-010 — Create or edit league
+
+- Guide specification and revision: ADM-63 plus Modern Field Section 6 form behavior, reviewed
+  2026-08-21.
+- Requirements and constraints: persistent required labels; 160-character name and 2–80-character
+  lowercase-kebab slug validation; explicit Active state with associated help and a 44-by-44-pixel
+  label target; single-task and mutation locking; stable idempotency keys for unchanged ambiguous
+  retries; key rotation when payload or expected version changes; success announcement and focus
+  restoration; retained values and explicit latest-value loading after a stale-version conflict; and
+  distinct duplicate, published-slug-lock, inactive, permission, missing, and unavailable feedback.
+- Reviewer and date: Codex, 2026-08-21.
+- Viewports or output formats checked: automated Chromium at 1440px, 1024px, 393px, and 720px compact
+  landscape reflow; the expanded form ran in desktop and mobile accessibility projects.
+- Automated checks: API integration passed 14/14 and the web unit suite passed 61/61, including
+  strict validation, retry-key reuse/rotation, pending-state locking, explicit conflict recovery,
+  accessible help/error associations, announcements, and focus coverage. The functional Playwright
+  suite passed 9/9; axe passed 6/6 overall; and the synthetic evidence run passed 1/1. Automated checks
+  also verified 48px text inputs, 44px actions, and an Active label at least 44px in both dimensions.
+- Screenshot/output evidence:
+  [league form tablet 1024](evidence/ui/2026-08-21-league-management/02-league-form-tablet-1024.png),
+  [league form mobile 393](evidence/ui/2026-08-21-league-management/03-league-form-mobile-393.png).
+- Checklist result: Needs changes.
+- Gaps, exceptions, and follow-up: The retained synthetic form captures were visually inspected. Real
+  screen-reader, desktop Ctrl-Plus/browser-zoom, and physical-device/manual review remain outstanding
+  before Pass.
+
+### WEB-DOMAIN-007 — League card list and lifecycle status
+
+- Guide specification and revision: ADM-63 and Modern Field Sections 4–6, reviewed 2026-08-21.
+- Requirements and constraints: semantic list/card structure; deterministic name ordering; visible
+  name, public URL slug, and non-color active/inactive status; specifically named Edit actions; inline
+  edit context; safe long-token wrapping; responsive one-column reflow; and no page-level horizontal
+  overflow.
+- Reviewer and date: Codex, 2026-08-21.
+- Viewports or output formats checked: automated Chromium at 1440px, 1024px, 393px, and 720px compact
+  landscape reflow; league content ran in desktop and mobile accessibility projects.
+- Automated checks: API integration passed 14/14, the web unit suite passed 61/61, the functional
+  Playwright suite passed 9/9, axe passed 6/6, and the synthetic evidence run passed 1/1. Component
+  coverage verified ordering, status and slug presentation, task locking, list refresh, and focus
+  behavior. Browser checks verified the dedicated reusable league fixture, responsive reflow, safe
+  long-token wrapping, keyboard operation, and zero horizontal overflow.
+- Screenshot/output evidence:
+  [league cards desktop 1440](evidence/ui/2026-08-21-league-management/01-league-basics-desktop-1440.png),
+  [league workbench tablet 1024](evidence/ui/2026-08-21-league-management/02-league-form-tablet-1024.png),
+  [league workbench mobile 393](evidence/ui/2026-08-21-league-management/03-league-form-mobile-393.png).
+- Checklist result: Needs changes.
+- Gaps, exceptions, and follow-up: The retained captures were visually inspected and contain synthetic
+  demo data only. Real screen-reader, desktop Ctrl-Plus/browser-zoom, and physical-device/manual review
+  remain outstanding before Pass.
 
 ### WEB-FORM-006 — Public schedule filters
 

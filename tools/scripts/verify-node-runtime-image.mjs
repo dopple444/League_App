@@ -56,8 +56,18 @@ if (/^COPY (?:--[^ ]+ )*(?:apps|packages)(?: |\/)/mu.test(runtimeStage)) {
 requireText(dockerfile, 'apps/web/.next/standalone', 'web package must use Next standalone output');
 requireText(
   dockerfile,
+  'node_modules/.pnpm/@swc+helpers@*/node_modules/@swc/helpers',
+  'web package must retain the complete SWC helpers runtime',
+);
+requireText(
+  dockerfile,
   'deploy --prod --legacy',
   'API and worker must use production deploy output',
+);
+requireText(
+  dockerfile,
+  'pnpm --workspace-concurrency=1 --filter "${WORKSPACE}..." build',
+  'workspace builds must remain serialized to avoid exhausting constrained builders',
 );
 requireText(
   dockerfile,
@@ -143,7 +153,21 @@ test ! -e "/app/apps/${appName}/tsconfig.json"
 test ! -e "/app/apps/${appName}/.turbo"
 test -z "$(find /app -type d -name .turbo -print -quit)"
 if [ -d "/app/apps/${appName}/node_modules/.pnpm" ]; then
-  test -z "$(find "/app/apps/${appName}/node_modules/.pnpm" -type d \( -path '*/node_modules/@league/*/src' -o -path '*/node_modules/@league/*/test' -o -path '*/node_modules/@league/*/scripts' -o -path '*/node_modules/@league/*/prisma' -o -path '*/node_modules/@league/*/dist/test' \) -print -quit)"
+  find "/app/apps/${appName}/node_modules/.pnpm" \
+    -regextype posix-extended \
+    -type d \
+    -regex '.*/node_modules/@league/[^/]+$' \
+    -exec sh -eu -c 'for package_root do
+      for removed_path in .turbo src test scripts prisma dist/test; do
+        test ! -e "$package_root/$removed_path"
+      done
+    done' sh '{}' +
+fi
+if [ -d "/app/apps/${appName}/node_modules/@league" ]; then
+  for package_root in "/app/apps/${appName}/node_modules/@league"/*; do
+    test -f "$package_root/package.json"
+    test -f "$package_root/dist/src/index.js"
+  done
 fi
 for dev_tool in tsc tsx vitest; do
   test ! -e "/app/apps/${appName}/node_modules/.bin/$dev_tool"
@@ -155,6 +179,7 @@ done
     workspaceRuntimeCheck = String.raw`
 test -f /app/apps/web/server.js
 test -d /app/apps/web/.next/static
+test -n "$(find /app/node_modules/.pnpm -path '*/@swc/helpers/esm/_interop_require_default.js' -print -quit)"
 ! command -v pnpm >/dev/null 2>&1
 ! command -v corepack >/dev/null 2>&1
 `;

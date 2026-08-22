@@ -27,6 +27,9 @@ const allOperationalPermissions = [
   'audit:read',
   'membership:read',
   'role:assign',
+  'league:read',
+  'league:create',
+  'league:update',
   'season:create',
   'season:read',
   'season:update',
@@ -35,6 +38,11 @@ const allOperationalPermissions = [
   'team:read',
   'team:update',
   'team:publish',
+  'venue:read',
+  'venue:create',
+  'venue:update',
+  'field:create',
+  'field:update',
 ] as const;
 
 interface SeedIdentity {
@@ -84,8 +92,9 @@ async function seedOrganizationA(
           organizationId: ids.organizationA,
           slug: 'church-softball',
           name: 'Church Softball',
+          active: true,
         },
-        update: { name: 'Church Softball' },
+        update: { slug: 'church-softball', name: 'Church Softball', active: true },
       });
 
       const roleDefinitions = [
@@ -246,8 +255,13 @@ async function seedOrganizationA(
 
       await tx.venue.upsert({
         where: { organizationId_id: { organizationId: ids.organizationA, id: ids.venue } },
-        create: { id: ids.venue, organizationId: ids.organizationA, name: 'Synthetic Ballpark' },
-        update: {},
+        create: {
+          id: ids.venue,
+          organizationId: ids.organizationA,
+          name: 'Synthetic Ballpark',
+          active: true,
+        },
+        update: { name: 'Synthetic Ballpark', active: true },
       });
       await tx.field.upsert({
         where: { organizationId_id: { organizationId: ids.organizationA, id: ids.field } },
@@ -257,8 +271,17 @@ async function seedOrganizationA(
           venueId: ids.venue,
           name: 'Demo Field 1',
           publicDirections: 'Use the signed public entrance.',
+          hasLights: true,
+          fenceDistanceFeet: 300,
+          active: true,
         },
-        update: {},
+        update: {
+          name: 'Demo Field 1',
+          publicDirections: 'Use the signed public entrance.',
+          hasLights: true,
+          fenceDistanceFeet: 300,
+          active: true,
+        },
       });
       await tx.scheduleVersion.upsert({
         where: { organizationId_id: { organizationId: ids.organizationA, id: ids.schedule } },
@@ -416,8 +439,9 @@ async function seedOrganizationB(
           organizationId: ids.organizationB,
           slug: 'softball',
           name: 'Softball',
+          active: true,
         },
-        update: {},
+        update: { slug: 'softball', name: 'Softball', active: true },
       });
       await tx.role.upsert({
         where: { organizationId_id: { organizationId: ids.organizationB, id: ids.officerRoleB } },

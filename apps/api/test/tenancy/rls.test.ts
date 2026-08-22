@@ -14,6 +14,8 @@ describe.skipIf(!databaseTestsEnabled)('PostgreSQL tenant isolation', () => {
     const { prisma, database } = testDatabase();
     try {
       await expect(prisma.season.findMany()).rejects.toThrow();
+      await expect(prisma.league.findMany()).rejects.toThrow();
+      await expect(prisma.venue.findMany()).rejects.toThrow();
       const adminId = await userIdByEmail(prisma, 'admin@demo.invalid');
       await expect(
         database.withTenant(
@@ -29,6 +31,44 @@ describe.skipIf(!databaseTestsEnabled)('PostgreSQL tenant isolation', () => {
                 organizationId_id: {
                   organizationId: fixtureIds.organizationA,
                   id: fixtureIds.seasonB,
+                },
+              },
+            }),
+        ),
+      ).resolves.toBeNull();
+      await expect(
+        database.withTenant(
+          {
+            organizationId: fixtureIds.organizationB,
+            userId: adminId,
+            requestId: 'tenancy-league-read',
+            source: 'API',
+          },
+          async (transaction) =>
+            transaction.league.findUnique({
+              where: {
+                organizationId_id: {
+                  organizationId: fixtureIds.organizationB,
+                  id: fixtureIds.leagueA,
+                },
+              },
+            }),
+        ),
+      ).resolves.toBeNull();
+      await expect(
+        database.withTenant(
+          {
+            organizationId: fixtureIds.organizationB,
+            userId: adminId,
+            requestId: 'tenancy-facility-read',
+            source: 'API',
+          },
+          async (transaction) =>
+            transaction.venue.findUnique({
+              where: {
+                organizationId_id: {
+                  organizationId: fixtureIds.organizationB,
+                  id: fixtureIds.venueA,
                 },
               },
             }),

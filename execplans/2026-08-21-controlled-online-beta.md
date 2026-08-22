@@ -71,23 +71,27 @@ separate requirements and Production Gates are satisfied.
 
 ## Current-state findings
 
-- `main` contains the pushed secure foundation at `439f609` plus local checkpoint `b41d214` for the
-  navigable public-league experience. The latter is intentionally not pushed without external-write
-  approval.
-- The local nine-service Compose stack is healthy. Public root, league home, schedule, directory, and
-  team detail are responsive and navigable; web unit, E2E, axe, and private-LAN journeys pass.
-- Issued synthetic staff can select an existing organization and create/publish seasons and teams,
-  but there is no customer/operator tenant-provisioning workflow, venue/field administration, or
-  manual schedule authoring UI/API.
-- Mutations insert `outbox_event` rows transactionally, and BullMQ has a processor, but no database
-  relay claims/enqueues rows or advances `PENDING`, `PROCESSING`, `COMPLETED`, and `FAILED` states.
-- The current Node Dockerfile is a one-stage build containing source/build tooling and more dependency
-  surface than a hosted runtime should carry. The refreshed security gates have nonzero high/critical
-  findings.
-- Python dependencies are clean and the scoped Prisma override removes the `deepmerge-ts` finding.
-  Two high `image-size` findings are in the Expo/Metro build-tool path with no compatible published
-  patch recorded; they are not an online web/API runtime dependency but still require an owned,
-  expiring exception or a compatible upstream release.
+- The current checkpoint extends the transactional-outbox release foundation with tenant-scoped
+  venue/field and league administration plus the runtime, CI, test, and security hardening required
+  to preserve that increment safely.
+- The local nine-service Compose stack is healthy behind `127.0.0.1:8088`. Public root, league home,
+  schedule, directory, and team detail are responsive and navigable; remote testing requires secure
+  forwarding because the gateway is not directly exposed to the LAN or public internet.
+- Issued synthetic staff can select an existing organization, create/update versioned league basics,
+  create/publish seasons and teams, and create/update versioned venues and nested fields through
+  tenant-scoped browser workbenches. There is still no customer/operator tenant-provisioning
+  workflow, privileged invitation/MFA flow, date-specific field availability, or manual schedule
+  authoring UI/API.
+- The PostgreSQL-authoritative transactional outbox now claims, enqueues, processes, retries,
+  recovers, and visibly completes/fails events with metadata-only BullMQ jobs and generation fencing.
+  Default, worker-restart, Redis-restart, and isolated restore rehearsals pass. Real external-effect
+  handlers remain excluded from this beta foundation.
+- Every hosted-beta-eligible application, gateway, database, and cache image passes the fixable
+  HIGH/CRITICAL gate. The exact pinned MinIO, MinIO-client, and Mailpit development-only images remain
+  report-only under `SEC-EXC-002` and are prohibited from the hosted-beta topology.
+- Python dependencies are clean. `SEC-EXC-001` accepts only the two named `image-size@1.2.1`
+  advisories on the `apps/mobile` to `metro@0.84.4` build-tool path, rejects scope or lockfile-graph
+  drift, and expires fail-closed on 2026-09-15.
 - There is no hosted-beta deployment overlay, real HTTPS origin, external secrets mechanism,
   privileged MFA/rate limiting, off-site backup schedule, or beta monitoring/alerting configuration.
 - The authorized source workbooks/rules/waiver packet remain absent. No legal or source-derived
@@ -153,13 +157,14 @@ failure, credential compromise, data incident, and restore/rollback.
 - [ ] 2026-08-21 through 2026-08-24 — Approve this controlled-beta contract, inventory deployed
       vulnerabilities, define clean-clone CI evidence, and record the hosting/domain/tester/source
       decisions required by the first Production Gate.
-- [ ] 2026-08-22 through 2026-08-28 — Complete the transactional outbox lifecycle, prune/harden
-      runtime images, resolve or formally gate dependency findings, and pass the foundation release
-      matrix.
+- [ ] 2026-08-22 through 2026-08-28 — Transactional outbox lifecycle and owned web/API/worker/scheduler
+      runtime hardening are complete. Resolve or formally gate dependency and third-party image
+      findings, complete clean-clone evidence, and pass the remaining foundation release matrix.
 - [ ] 2026-08-27 through 2026-09-02 — Implement privileged auth controls, invitation acceptance, and
       assisted Organization/League/administrator provisioning with audit and cross-tenant denial.
-- [ ] 2026-09-01 through 2026-09-06 — Implement venue/field/slot and manual schedule
-      create/edit/validate/publish/revise flows plus public readback and basic export.
+- [ ] 2026-09-01 through 2026-09-06 — Venue/field administration is complete. Implement date-specific
+      slot availability and manual schedule create/edit/validate/publish/revise flows plus public
+      readback and basic export.
 - [ ] 2026-09-04 through 2026-09-09 — Prepare the isolated hosted-beta overlay, TLS/trusted-origin
       configuration, secrets interface, backup/restore, monitoring, and deploy/rollback runbooks.
 - [ ] 2026-09-09 through 2026-09-11 — Pass clean-clone CI, vulnerability, tenancy, authorization,
@@ -281,3 +286,26 @@ isolated restore before migration. No real-data migration or destructive repair 
   tested the transactional relay, and built verified non-root production-artifact images under
   distinct tags. Through-stack Redis/restart/restore evidence, further API/worker package pruning,
   fresh scans, credential rotation, and a clean-clone run remain before the Aug 28 gate is complete.
+- 2026-08-21 — Rotated the synthetic local credentials, rebuilt/reseeded the stack, and completed the
+  default, worker-restart, and Redis-restart outbox acceptance rehearsals plus the strengthened
+  repeatable-snapshot restore check. The durable internal-receipt outbox scope is complete.
+- 2026-08-21 — Hardened and runtime-verified the web, API/migrator, worker, and scheduler images. Their
+  latest targeted scans report 0 HIGH and 0 CRITICAL findings. The broader Compose gate remains red
+  on pinned third-party images, and the JavaScript dependency gate remains red on two high
+  `image-size` advisories and one moderate `uuid` advisory.
+- 2026-08-21 — Implemented tenant-scoped venue/field administration with additive schema,
+  permissions, generated contracts, optimistic concurrency, deterministic idempotency, audit/outbox
+  records, responsive browser forms, and focused database/API/browser coverage. The next slice is
+  privileged onboarding/authentication, followed by field availability and validated manual
+  scheduling. The local gateway remains loopback-only at `127.0.0.1:8088`, with remote testing
+  available only through secure forwarding.
+- 2026-08-21 — Remediated the failed CI runtime package pruning and refreshed the hosted-eligible
+  runtime boundary. Application, gateway, PostgreSQL, and Redis images now pass the fixable
+  High/Critical gate; exact local-development MinIO and Mailpit images remain visible under the
+  fail-closed `SEC-EXC-002` exception and are prohibited from hosted beta. The dependency gate now
+  accepts only the two scoped Metro `image-size` advisories under `SEC-EXC-001`, with independent
+  lockfile reachability enforcement. Both exceptions expire on 2026-09-15.
+- 2026-08-22 — Completed the local CI-equivalent checkpoint: fresh-stack migration/seed/restore,
+  API tenancy/authorization/outbox suites, browser and accessibility journeys, production web/native
+  builds, dependency audit, and the complete hosted-runtime container scan pass. The pushed Node
+  24.19.0 clean-checkout workflow remains the final preservation check.

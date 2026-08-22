@@ -1,3 +1,19 @@
+FROM python:3.14.7-slim-bookworm@sha256:23c59390fc717bf09f9336908199a0ae75d9c4264bf296123f94ad772fea3b52 AS build
+
+ENV PATH=/opt/venv/bin:$PATH
+
+RUN python -m venv /opt/venv
+
+WORKDIR /build
+COPY services/scheduler/requirements.runtime.lock ./requirements.runtime.lock
+RUN pip install --disable-pip-version-check --no-cache-dir --requirement requirements.runtime.lock \
+    && rm -rf \
+        /opt/venv/bin/pip \
+        /opt/venv/bin/pip3 \
+        /opt/venv/bin/pip3.14 \
+        /opt/venv/lib/python3.14/site-packages/pip \
+        /opt/venv/lib/python3.14/site-packages/pip-26.2.1.dist-info
+
 FROM python:3.14.7-slim-bookworm@sha256:23c59390fc717bf09f9336908199a0ae75d9c4264bf296123f94ad772fea3b52 AS runtime
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -7,12 +23,17 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 RUN groupadd --system --gid 10001 league \
     && useradd --system --uid 10001 --gid league --home-dir /nonexistent --shell /usr/sbin/nologin league \
-    && python -m venv /opt/venv
+    && rm -rf \
+        /usr/local/bin/pip \
+        /usr/local/bin/pip3 \
+        /usr/local/bin/pip3.14 \
+        /usr/local/lib/python3.14/ensurepip \
+        /usr/local/lib/python3.14/site-packages/pip \
+        /usr/local/lib/python3.14/site-packages/pip-26.2.1.dist-info
 
 WORKDIR /app
-COPY services/scheduler/requirements.runtime.lock ./requirements.runtime.lock
-RUN pip install --disable-pip-version-check --no-cache-dir --requirement requirements.runtime.lock
-COPY services/scheduler/src ./src
+COPY --from=build --chown=league:league /opt/venv /opt/venv
+COPY --chown=league:league services/scheduler/src ./src
 
 USER 10001:10001
 EXPOSE 8000

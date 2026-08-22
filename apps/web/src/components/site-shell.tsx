@@ -19,6 +19,7 @@ type StatusClassName =
 const STATUS_CLASS_BY_VALUE: Readonly<Record<string, StatusClassName>> = {
   canceled: 'status-danger',
   error: 'status-danger',
+  active: 'status-success',
   published: 'status-success',
   scheduled: 'status-info',
   live: 'status-live',
@@ -26,6 +27,7 @@ const STATUS_CLASS_BY_VALUE: Readonly<Record<string, StatusClassName>> = {
   official_final: 'status-official-final',
   'official-final': 'status-official-final',
   offline: 'status-offline',
+  inactive: 'status-neutral',
   pending_sync: 'status-pending-sync',
   'pending-sync': 'status-pending-sync',
   synchronizing: 'status-synchronizing',

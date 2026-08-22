@@ -9,7 +9,11 @@ import { ZodError } from 'zod';
 
 import {
   AuthenticationRequiredError,
+  DuplicateFacilityNameError,
+  DuplicateLeagueSlugError,
+  InactiveLeagueError,
   InvalidIdempotencyKeyError,
+  PublishedLeagueSlugLockedError,
   ResourceNotFoundError,
 } from './errors.js';
 import type { ApiRequest } from './request.js';
@@ -63,6 +67,18 @@ export class ApiErrorFilter implements ExceptionFilter {
     }
     if (exception instanceof ResourceNotFoundError) {
       return { status: 404, code: exception.code, message: exception.message };
+    }
+    if (exception instanceof DuplicateLeagueSlugError) {
+      return { status: 409, code: exception.code, message: exception.message };
+    }
+    if (
+      exception instanceof PublishedLeagueSlugLockedError ||
+      exception instanceof InactiveLeagueError
+    ) {
+      return { status: 409, code: exception.code, message: exception.message };
+    }
+    if (exception instanceof DuplicateFacilityNameError) {
+      return { status: 409, code: exception.code, message: exception.message };
     }
     if (
       exception instanceof VersionConflictError ||

@@ -1,8 +1,11 @@
 import type { AuthenticatedUser } from '@league/auth';
 import {
+  createFieldSchema,
+  createLeagueSchema,
   createRoleAssignmentSchema,
   createSeasonSchema,
   createTeamSchema,
+  createVenueSchema,
   expectedVersionSchema,
   identifierSchema,
   openApiDocument,
@@ -10,6 +13,9 @@ import {
   slugSchema,
   updateSeasonSchema,
   updateTeamSchema,
+  updateFieldSchema,
+  updateLeagueSchema,
+  updateVenueSchema,
 } from '@league/contracts';
 import {
   Body,
@@ -30,10 +36,12 @@ import { PublicRoute } from '../common/public.decorator.js';
 import { type ApiRequest, requestMetadata, requireIdempotencyKey } from '../common/request.js';
 import { AccessService } from '../services/access.service.js';
 import { GovernanceService } from '../services/governance.service.js';
+import { LeaguesService } from '../services/leagues.service.js';
 import type { MutationContext } from '../services/mutation.service.js';
 import { PublicService } from '../services/public.service.js';
 import { SeasonsService } from '../services/seasons.service.js';
 import { TeamsService } from '../services/teams.service.js';
+import { VenuesService } from '../services/venues.service.js';
 
 function user(request: ApiRequest): AuthenticatedUser {
   if (request.user === undefined) {
@@ -62,6 +70,49 @@ export class MeController {
   @Get('organizations')
   organizations(@Req() request: ApiRequest) {
     return this.access.listOrganizations(user(request), requestMetadata(request));
+  }
+}
+
+@Controller('api/v1/organizations/:organizationId/leagues')
+export class LeaguesController {
+  constructor(@Inject(LeaguesService) private readonly leagues: LeaguesService) {}
+
+  @Get()
+  list(@Param('organizationId') organizationId: string, @Req() request: ApiRequest) {
+    return this.leagues.list(
+      identifierSchema.parse(organizationId),
+      user(request),
+      requestMetadata(request),
+    );
+  }
+
+  @Post()
+  @HttpCode(201)
+  create(
+    @Param('organizationId') organizationId: string,
+    @Headers('idempotency-key') idempotencyKey: string | undefined,
+    @Body() bodyValue: unknown,
+    @Req() request: ApiRequest,
+  ) {
+    return this.leagues.create(
+      mutationContext(request, organizationId, idempotencyKey),
+      createLeagueSchema.parse(bodyValue),
+    );
+  }
+
+  @Patch(':leagueId')
+  update(
+    @Param('organizationId') organizationId: string,
+    @Param('leagueId') leagueId: string,
+    @Headers('idempotency-key') idempotencyKey: string | undefined,
+    @Body() bodyValue: unknown,
+    @Req() request: ApiRequest,
+  ) {
+    return this.leagues.update(
+      mutationContext(request, organizationId, idempotencyKey),
+      identifierSchema.parse(leagueId),
+      updateLeagueSchema.parse(bodyValue),
+    );
   }
 }
 
@@ -220,6 +271,80 @@ export class TeamsController {
       identifierSchema.parse(seasonId),
       identifierSchema.parse(teamSeasonId),
       expectedVersionSchema.parse(bodyValue),
+    );
+  }
+}
+
+@Controller('api/v1/organizations/:organizationId/venues')
+export class VenuesController {
+  constructor(@Inject(VenuesService) private readonly venues: VenuesService) {}
+
+  @Get()
+  list(@Param('organizationId') organizationId: string, @Req() request: ApiRequest) {
+    return this.venues.list(
+      identifierSchema.parse(organizationId),
+      user(request),
+      requestMetadata(request),
+    );
+  }
+
+  @Post()
+  createVenue(
+    @Param('organizationId') organizationId: string,
+    @Headers('idempotency-key') idempotencyKey: string | undefined,
+    @Body() bodyValue: unknown,
+    @Req() request: ApiRequest,
+  ) {
+    return this.venues.createVenue(
+      mutationContext(request, organizationId, idempotencyKey),
+      createVenueSchema.parse(bodyValue),
+    );
+  }
+
+  @Patch(':venueId')
+  updateVenue(
+    @Param('organizationId') organizationId: string,
+    @Param('venueId') venueId: string,
+    @Headers('idempotency-key') idempotencyKey: string | undefined,
+    @Body() bodyValue: unknown,
+    @Req() request: ApiRequest,
+  ) {
+    return this.venues.updateVenue(
+      mutationContext(request, organizationId, idempotencyKey),
+      identifierSchema.parse(venueId),
+      updateVenueSchema.parse(bodyValue),
+    );
+  }
+
+  @Post(':venueId/fields')
+  createField(
+    @Param('organizationId') organizationId: string,
+    @Param('venueId') venueId: string,
+    @Headers('idempotency-key') idempotencyKey: string | undefined,
+    @Body() bodyValue: unknown,
+    @Req() request: ApiRequest,
+  ) {
+    return this.venues.createField(
+      mutationContext(request, organizationId, idempotencyKey),
+      identifierSchema.parse(venueId),
+      createFieldSchema.parse(bodyValue),
+    );
+  }
+
+  @Patch(':venueId/fields/:fieldId')
+  updateField(
+    @Param('organizationId') organizationId: string,
+    @Param('venueId') venueId: string,
+    @Param('fieldId') fieldId: string,
+    @Headers('idempotency-key') idempotencyKey: string | undefined,
+    @Body() bodyValue: unknown,
+    @Req() request: ApiRequest,
+  ) {
+    return this.venues.updateField(
+      mutationContext(request, organizationId, idempotencyKey),
+      identifierSchema.parse(venueId),
+      identifierSchema.parse(fieldId),
+      updateFieldSchema.parse(bodyValue),
     );
   }
 }

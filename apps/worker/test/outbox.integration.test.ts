@@ -12,43 +12,43 @@ const testMigratorDatabaseUrl =
 const databaseTestsEnabled = testDatabaseUrl !== undefined && testDatabaseUrl.length > 0;
 const migratorTestsEnabled =
   testMigratorDatabaseUrl !== undefined && testMigratorDatabaseUrl.length > 0;
-const organizations = {
-  a: '00000000-0000-4000-8000-000000000001',
-  b: '00000000-0000-4000-8000-000000000002',
-} as const;
-
 describe.skipIf(!databaseTestsEnabled)('transactional outbox relay database lifecycle', () => {
   it('discovers metadata only and denies wrong-tenant row access', async () => {
     const context = integrationDatabase();
     const marker = `outbox-discovery-${randomUUID()}`;
+    const organizations: string[] = [];
     try {
-      const eventId = await createEvent(context.database, organizations.a, marker);
-      await createEvent(context.database, organizations.b, marker);
+      const organizationA = await createOrganization(context.database, `${marker}-a`);
+      organizations.push(organizationA);
+      const organizationB = await createOrganization(context.database, `${marker}-b`);
+      organizations.push(organizationB);
+      const eventId = await createEvent(context.database, organizationA, marker);
+      await createEvent(context.database, organizationB, marker);
 
       const discovered = await context.database.listDueOutboxOrganizationIds(100);
-      expect(discovered).toEqual(expect.arrayContaining([organizations.a, organizations.b]));
+      expect(discovered).toEqual(expect.arrayContaining([organizationA, organizationB]));
       expect(discovered.every((value) => typeof value === 'string')).toBe(true);
 
       await context.database.withTenant(
-        workerContext(organizations.b, `${marker}-wrong-tenant`),
+        workerContext(organizationB, `${marker}-wrong-tenant`),
         async (transaction) => {
           await expect(
             transaction.outboxEvent.findUnique({
               where: {
-                organizationId_id: { organizationId: organizations.a, id: eventId },
+                organizationId_id: { organizationId: organizationA, id: eventId },
               },
             }),
           ).resolves.toBeNull();
           await expect(
             transaction.outboxEvent.updateMany({
-              where: { organizationId: organizations.a, id: eventId },
+              where: { organizationId: organizationA, id: eventId },
               data: { status: 'FAILED' },
             }),
           ).resolves.toMatchObject({ count: 0 });
         },
       );
     } finally {
-      await cleanup(context.database, marker);
+      await cleanupOrganizations(context.database, organizations);
       await context.prisma.$disconnect();
     }
   });
@@ -57,30 +57,32 @@ describe.skipIf(!databaseTestsEnabled)('transactional outbox relay database life
     const first = integrationDatabase();
     const second = integrationDatabase();
     const marker = `outbox-fencing-${randomUUID()}`;
+    let organizationId: string | undefined;
     try {
-      const eventId = await createEvent(first.database, organizations.a, marker);
+      organizationId = await createOrganization(first.database, marker);
+      const eventId = await createEvent(first.database, organizationId, marker);
       const firstRepository = new OutboxRepository(first.database);
       const secondRepository = new OutboxRepository(second.database);
       const claimOptions = { batchSize: 1, leaseMs: 60_000, maxDispatchAttempts: 10 };
 
       const concurrent = await Promise.all([
-        firstRepository.claimDue(organizations.a, claimOptions),
-        secondRepository.claimDue(organizations.a, claimOptions),
+        firstRepository.claimDue(organizationId, claimOptions),
+        secondRepository.claimDue(organizationId, claimOptions),
       ]);
       const firstGeneration = concurrent.flatMap((result) => result.events);
       expect(firstGeneration).toHaveLength(1);
       expect(firstGeneration[0]).toMatchObject({ dispatchAttempt: 1, eventId });
 
       await first.database.withTenant(
-        workerContext(organizations.a, `${marker}-expire`),
+        workerContext(organizationId, `${marker}-expire`),
         async (transaction) => {
           await transaction.outboxEvent.updateMany({
-            where: { organizationId: organizations.a, id: eventId },
+            where: { organizationId, id: eventId },
             data: { availableAt: new Date(0) },
           });
         },
       );
-      const reclaimed = await secondRepository.claimDue(organizations.a, claimOptions);
+      const reclaimed = await secondRepository.claimDue(organizationId, claimOptions);
       expect(reclaimed.events).toHaveLength(1);
       expect(reclaimed.events[0]).toMatchObject({ dispatchAttempt: 2, eventId });
 
@@ -90,7 +92,7 @@ describe.skipIf(!databaseTestsEnabled)('transactional outbox relay database life
       await expect(secondRepository.complete(current)).resolves.toBe(true);
       await expect(secondRepository.complete(current)).resolves.toBe(false);
     } finally {
-      await cleanup(first.database, marker);
+      await cleanupOrganizations(first.database, organizationId ? [organizationId] : []);
       await Promise.all([first.prisma.$disconnect(), second.prisma.$disconnect()]);
     }
   });
@@ -98,11 +100,13 @@ describe.skipIf(!databaseTestsEnabled)('transactional outbox relay database life
   it('moves an exhausted due generation to visible terminal failure', async () => {
     const context = integrationDatabase();
     const marker = `outbox-terminal-${randomUUID()}`;
+    let organizationId: string | undefined;
     try {
       const healthBefore = await context.database.outboxRelayHealth();
-      const eventId = await createEvent(context.database, organizations.a, marker, 2);
+      organizationId = await createOrganization(context.database, marker);
+      const eventId = await createEvent(context.database, organizationId, marker, 2);
       const repository = new OutboxRepository(context.database);
-      const claimed = await repository.claimDue(organizations.a, {
+      const claimed = await repository.claimDue(organizationId, {
         batchSize: 1,
         leaseMs: 60_000,
         maxDispatchAttempts: 2,
@@ -110,12 +114,12 @@ describe.skipIf(!databaseTestsEnabled)('transactional outbox relay database life
 
       expect(claimed).toEqual({ events: [], exhausted: 1 });
       await context.database.withTenant(
-        workerContext(organizations.a, `${marker}-verify`),
+        workerContext(organizationId, `${marker}-verify`),
         async (transaction) => {
           await expect(
             transaction.outboxEvent.findUniqueOrThrow({
               where: {
-                organizationId_id: { organizationId: organizations.a, id: eventId },
+                organizationId_id: { organizationId, id: eventId },
               },
               select: { status: true },
             }),
@@ -126,7 +130,7 @@ describe.skipIf(!databaseTestsEnabled)('transactional outbox relay database life
         failed: healthBefore.failed + 1,
       });
     } finally {
-      await cleanup(context.database, marker);
+      await cleanupOrganizations(context.database, organizationId ? [organizationId] : []);
       await context.prisma.$disconnect();
     }
   });
@@ -224,14 +228,31 @@ async function createEvent(
   });
 }
 
-async function cleanup(database: TenantDatabase, requestIdPrefix: string): Promise<void> {
-  for (const organizationId of Object.values(organizations)) {
+async function createOrganization(database: TenantDatabase, marker: string): Promise<string> {
+  const organizationId = randomUUID();
+  await database.withTenant(workerContext(organizationId, `${marker}-setup`), (transaction) =>
+    transaction.organization.create({
+      data: {
+        organizationId,
+        slug: `synthetic-outbox-${randomUUID()}`,
+        name: 'Synthetic Outbox Integration Organization',
+        timezone: 'UTC',
+      },
+    }),
+  );
+  return organizationId;
+}
+
+async function cleanupOrganizations(
+  database: TenantDatabase,
+  organizationIds: readonly string[],
+): Promise<void> {
+  for (const organizationId of organizationIds) {
     await database.withTenant(
-      workerContext(organizationId, `${requestIdPrefix}-cleanup`),
+      workerContext(organizationId, `outbox-integration-${randomUUID()}-cleanup`),
       async (transaction) => {
-        await transaction.outboxEvent.deleteMany({
-          where: { requestId: { startsWith: requestIdPrefix } },
-        });
+        await transaction.outboxEvent.deleteMany({ where: { organizationId } });
+        await transaction.organization.delete({ where: { organizationId } });
       },
     );
   }

@@ -36,6 +36,7 @@ describe('permission policy', () => {
 
     expect(hasPermission(boardOnly, permissions.auditRead)).toBe(true);
     expect(hasPermission(boardOnly, permissions.seasonCreate)).toBe(false);
+    expect(hasPermission(boardOnly, permissions.venueRead)).toBe(false);
   });
 
   it('ignores revoked and expired roles', () => {
@@ -61,6 +62,44 @@ describe('permission policy', () => {
     });
 
     expect(hasPermission(inactive, permissions.seasonCreate)).toBe(false);
+  });
+
+  it('keeps facility permissions independently assignable', () => {
+    const facilityReader = context({
+      roles: [
+        {
+          roleId: 'facility-reader',
+          authorityKind: 'OPERATIONS',
+          permissions: [permissions.venueRead],
+          validFrom: new Date('2026-01-01T00:00:00.000Z'),
+          expiresAt: null,
+          revokedAt: null,
+        },
+      ],
+    });
+
+    expect(hasPermission(facilityReader, permissions.venueRead)).toBe(true);
+    expect(hasPermission(facilityReader, permissions.venueCreate)).toBe(false);
+    expect(hasPermission(facilityReader, permissions.fieldCreate)).toBe(false);
+  });
+
+  it('keeps league read and mutation permissions independently assignable', () => {
+    const leagueReader = context({
+      roles: [
+        {
+          roleId: 'league-reader',
+          authorityKind: 'OPERATIONS',
+          permissions: [permissions.leagueRead],
+          validFrom: new Date('2026-01-01T00:00:00.000Z'),
+          expiresAt: null,
+          revokedAt: null,
+        },
+      ],
+    });
+
+    expect(hasPermission(leagueReader, permissions.leagueRead)).toBe(true);
+    expect(hasPermission(leagueReader, permissions.leagueCreate)).toBe(false);
+    expect(hasPermission(leagueReader, permissions.leagueUpdate)).toBe(false);
   });
 });
 

@@ -1,17 +1,28 @@
 # Project status
 
-Last updated: 2026-08-21
+Last updated: 2026-08-22
 
 ## Current state
 
 - Product/research blueprint complete.
 - Scoring clarified as live-first with immediate connected broadcasts and outage-safe offline continuation/submission/authorized attestation.
 - Codex repository guidance and autonomous execution runbook complete.
-- The canonical GitHub repository is `dopple444/League_App`; this `main` changeset captures the Milestones 0–1 application foundation.
-- The foundation contains the monorepo scaffold and a working web/mobile vertical slice. The public web journey is now navigable from the runtime-configured root gateway through league home, schedule, team directory, and team detail. Local static, database, restore, browser, accessibility, and fresh-stack checks pass; clean-clone verification, through-stack outbox recovery, security remediation, source inputs, and real assistive-technology/physical-device review remain pending.
+- The canonical GitHub repository is `dopple444/League_App`. This checkpoint adds venue/field and
+  league administration plus CI, runtime-image, and security-gate hardening to the transactional-
+  outbox release foundation.
+- The foundation contains the monorepo scaffold and working web/mobile vertical slices. The public web
+  journey is navigable from the runtime-configured root gateway through league home, schedule, team
+  directory, and team detail. Issued synthetic league administrators can also manage tenant-scoped,
+  versioned leagues, venues, and fields through the browser. Local static, database, restore, browser,
+  accessibility, fresh-stack, outbox recovery, and hosted-runtime image checks have passed. A pushed
+  clean-checkout CI run, zero-membership onboarding/operator hardening, removal of the two temporary
+  security exceptions, source inputs, and real assistive-technology/physical-device review remain
+  pending.
 - The League App UI Style Guide is now the visual reference, with a separate artifact register governing page, form, component, and generated-output review.
-- The shared Modern Field token package and base web/native primitives are implemented. DS-TOKEN-001 passed its foundation review. The changed public pages now have retained responsive synthetic screenshots and automated interaction/accessibility evidence but remain **Needs changes** until real screen-reader, desktop Ctrl-Plus, and physical-device/manual review is recorded.
-- All nine local Compose services are healthy and the gateway is available for private-LAN synthetic testing on port `8088`. This is a temporary local test deployment, not production and not authorization for public-internet exposure.
+- The shared Modern Field token package and base web/native primitives are implemented. DS-TOKEN-001 passed its foundation review. The changed public and administrative artifacts now have retained responsive synthetic screenshots and automated interaction/accessibility evidence but remain **Needs changes** until real screen-reader, desktop Ctrl-Plus/browser-zoom, and physical-device/manual review is recorded.
+- All nine local Compose services are healthy. The gateway is bound to `127.0.0.1:8088`; remote testing
+  requires the existing secure forwarding path. It is not exposed directly to the LAN or public
+  internet, is not a production deployment, and does not authorize public-internet exposure.
 - No production infrastructure, credentials, real data, messages, payments, or app-store resources have been changed.
 - The 2026-09-15 target is now defined as Beta 0: a controlled, invitation-only, browser-first hosted
   beta using synthetic/practice data. It covers assisted league setup, validated manual schedule
@@ -20,22 +31,32 @@ Last updated: 2026-08-21
 
 ## Active milestone
 
-Beta 0 release foundation — transactional outbox and runtime hardening.
+Beta 0 zero-membership onboarding, operator hardening, and privileged authentication controls,
+followed by field availability and manual schedule authoring.
 
 ## Next action
 
-Rotate the exposed synthetic local environment credentials, rebuild/reseed the local stack with the
-new relay and migration, and prove API-mutation-to-Redis-to-completion plus Redis/worker restart and
-restore recovery. Further deduplicate/prune the API/worker runtime packages and freshly scan every
-deployed image before starting assisted beta provisioning and privileged-auth controls.
+Implement the zero-membership path through operator-issued invitation acceptance, privileged MFA/
+session/rate-limit controls, and audited Organization/League/administrator provisioning. Then build
+date-specific field availability and the validated manual schedule create/edit/publish/revise workflow.
+In parallel, keep the broader container/dependency, clean-clone, and hosted-environment gates visible
+rather than treating the local runtime evidence as deployment approval.
 
 ## Known blockers / production gates
 
 - Five authorized source files are absent, so source-specific mappings and authentic waiver content/render hashes cannot be completed.
-- The refreshed dependency lane fails on two high-severity transitive `image-size` advisories plus one moderate finding; the Python dependency audit is clean. The refreshed container lane also fails on fixable high/critical findings across the Compose images.
-- The transactional relay, lifecycle, migration, and isolated PostgreSQL tests are implemented, but
-  the active LAN stack still runs the prior worker image. A fresh-stack Redis/worker-loss rehearsal
-  and restore check remain before the outbox plan can be marked complete.
+- The dependency lane passes under `SEC-EXC-001`, which accepts only two upstream-unpatched
+  `image-size@1.2.1` advisories on the mobile Metro build path through 2026-09-14. The exception fails
+  closed on 2026-09-15; the one Moderate `uuid` finding is below the High/Critical gate, and the
+  Python dependency audit is clean.
+- Fresh scans of the web, API/migrator, worker, scheduler, gateway, PostgreSQL, and Redis images report
+  zero fixable HIGH/CRITICAL findings. MinIO, its one-shot client, and Mailpit remain local-development
+  only under `SEC-EXC-002` through 2026-09-14 and are prohibited from the hosted-beta topology; the
+  exception fails closed on 2026-09-15.
+- Zero-membership onboarding, operator-issued invitation acceptance, MFA/session controls,
+  authentication/write rate limits, and hardened assisted tenant provisioning are not yet implemented.
+- Venue and field administration is implemented, but date-specific availability and manual schedule
+  create/edit/validate/publish/revise remain incomplete.
 - Final waiver/minor workflow and retention require Kentucky counsel, insurer, and Parks/Fiscal Court approval.
 - Real messaging/provider consent configuration is not selected or approved.
 - Real payment provider/acquirer/PCI responsibility is not selected or approved.
@@ -44,9 +65,8 @@ deployed image before starting assisted beta provisioning and privileged-auth co
 - The current local Compose topology is development-only and is a no-go for internet exposure. A
   separate approved hosted-beta topology, TLS/private-service boundary, external secret injection,
   encrypted off-site backup/restore, monitoring, and rollback rehearsal are required.
-- Synthetic local Compose credentials appeared in diagnostic tool output on 2026-08-21. They are not
-  production credentials, but the local environment must be regenerated at the next safe migration
-  boundary and none of those values may be reused for beta.
+- Clean-clone CI-equivalent verification and real screen-reader, desktop Ctrl-Plus, and physical-device
+  review remain outstanding.
 
 ## Verification log
 
@@ -167,3 +187,82 @@ Codex must append dated entries here after each milestone, including exact comma
 - No production infrastructure, DNS, firewall, live credential, real-data, provider, payment, or
   app-store action was taken. The active LAN stack was left running on its prior images; credential
   rotation, fresh-stack relay/recovery evidence, restore, and current scanner results remain next.
+
+### 2026-08-21 — Release-foundation recovery and venue/field administration
+
+- Rotated the generated local credentials, recreated only the synthetic Compose data, rebuilt the
+  application stack, applied all three migrations, and passed repeat migration and idempotent seed
+  verification. All nine services are healthy behind the loopback-only gateway at
+  `127.0.0.1:8088`; remote access remains secure-forwarding-only.
+- `pnpm acceptance:outbox` passed its default, worker-restart, and Redis-restart rehearsals. Each mode
+  committed a real API mutation, proved its single attributable audit/outbox/idempotency record,
+  reached `COMPLETED`, and replayed without duplication. `pnpm db:restore:verify` passed after being
+  strengthened to compare every outbox row's identity and lifecycle state from one repeatable
+  snapshot. The durable internal-receipt outbox scope is complete; real provider handlers remain
+  excluded.
+- Hardened multi-stage web, API/migrator, worker, and scheduler images passed non-root/runtime
+  verification and targeted fresh scans with 0 HIGH and 0 CRITICAL findings. This does not close the
+  broader container gate: pinned third-party Compose images still have HIGH/CRITICAL findings, and
+  the JavaScript dependency audit still reports two high `image-size` advisories and one moderate
+  `uuid` advisory.
+- Added tenant-scoped, permission-checked venue and field create/update/list contracts, API services,
+  additive migration, optimistic concurrency, stable idempotency/conflict behavior, audit/outbox
+  recording, and the responsive `/admin/{organizationId}/venues` workbench. Focused web tests passed
+  49/49; API integration passed 8/8, tenancy 4/4, authorization 1/1, outbox lifecycle 4/4, and the
+  full browser journey passed 8/8. Real screen-reader and physical-device review remain open.
+- The next product slice is privileged invitation/onboarding and authentication control, followed by
+  field availability and validated manual scheduling. No hosted resource, production credential,
+  real data, external delivery, payment, or app-store action was taken.
+
+### 2026-08-21 — Authorized-customer league management
+
+- Added the additive league lifecycle/version migration, granular league permissions, strict
+  contracts and generated SDK operations, organization-scoped list/create/update API behavior, and
+  atomic idempotency/audit/outbox recording. API integration passed 14/14.
+- Added `/admin/{organizationId}/leagues`, administration-shell and overview navigation, responsive
+  semantic league cards, visible active/inactive status, and inline create/edit task panels. Retry-safe
+  mutations reuse a caller-owned key for an unchanged ambiguous retry and rotate it for changed input
+  or expected version. Stale saves retain customer entries and require an explicit Load latest values
+  action before replacement.
+- The web unit suite passed 61/61, the functional Playwright suite passed 9/9, the automated
+  accessibility suite passed 6/6 across desktop and mobile projects, and the synthetic evidence run
+  passed 1/1. The authenticated journey used a dedicated reusable league fixture, asserted HTTP 201
+  and 200 mutation results and audit history, and did not edit the seeded `church-softball` public league.
+- Retained and visually inspected synthetic evidence at
+  [desktop 1440](evidence/ui/2026-08-21-league-management/01-league-basics-desktop-1440.png),
+  [tablet 1024](evidence/ui/2026-08-21-league-management/02-league-form-tablet-1024.png), and
+  [mobile 393](evidence/ui/2026-08-21-league-management/03-league-form-mobile-393.png).
+  WEB-PAGE-016, WEB-FORM-010, and WEB-DOMAIN-007 are **Implemented / Needs changes** because real
+  screen-reader, desktop Ctrl-Plus/browser-zoom, and physical-device/manual review remain open.
+- The completed slice and evidence are included in the current checkpoint. It serves already
+  authorized organization members; zero-membership onboarding and operator hardening remain
+  incomplete. No hosted resource, production credential, real data, external delivery, payment, or
+  app-store action was taken.
+
+### 2026-08-22 — CI failure remediation and checkpoint verification
+
+- Reproduced the failed GitHub integration lane and traced it to runtime pruning that removed
+  required `@league/*/dist/src` package entry points. Runtime pruning now targets only exact package
+  roots, the standalone web image retains its SWC helper runtime, constrained builds are serialized,
+  and failed-stack CI diagnostics emit bounded logs after masking synthetic secret values.
+- Refreshed the gateway and Redis images, hardened PostgreSQL by running as its existing unprivileged
+  user without the unused `gosu` helper, and refreshed Mailpit. The blocking scan now covers every
+  hosted-beta-eligible application, gateway, database, and cache image and reports zero fixable High
+  or Critical findings. `SEC-EXC-002` keeps the exact pinned MinIO/MinIO-client/Mailpit development
+  images visible but report-only until its fail-closed 2026-09-15 expiry; they remain prohibited from
+  hosted beta.
+- Replaced package-manager audit ignores with repository-owned validation. `SEC-EXC-001` permits only
+  the two named `image-size@1.2.1` advisories before expiry, verifies the complete lockfile graph is
+  exclusively `apps/mobile` through `metro@0.84.4`, rejects pnpm audit-ignore configuration, and
+  fails closed on malformed reports, registry errors, scope drift, new High/Critical findings, or
+  2026-09-15.
+- The refreshed stack passed health, forward/repeat migrations, idempotent seed, isolated
+  dump/restore, 14/14 API integration tests, 4/4 tenancy tests, 1/1 authorization tests, and 4/4
+  real-PostgreSQL outbox tests. The exact CI browser sequence passed 9/9 functional and 6/6 automated
+  accessibility checks; its shared helper now honors the real authentication `Retry-After` response
+  when parallel test sign-ins reach the endpoint's limit.
+- Formatting, lint, typecheck, generated-contract verification, 63/63 web tests, 23/23 mobile tests,
+  32/32 tooling tests, the production build, Compose/network policy, import traceability, runtime-
+  image constraints, dependency audit, and blocking container scan passed locally. The host uses
+  Node 22, so the strict pinned Node 24.19.0 toolchain check and clean-checkout proof remain assigned
+  to the pushed GitHub Actions run.

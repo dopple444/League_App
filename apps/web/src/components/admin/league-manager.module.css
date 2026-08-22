@@ -1,0 +1,163 @@
+.manager,
+.leagueList,
+.leagueCard,
+.leagueIdentity,
+.taskHeading > div {
+  min-width: 0;
+}
+
+.leagueList {
+  display: grid;
+  gap: var(--space-md);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.leagueCard {
+  background: var(--color-background-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  display: grid;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+}
+
+.leagueCard:focus {
+  outline: 3px solid var(--color-border-focus);
+  outline-offset: 3px;
+}
+
+.leagueSummary {
+  align-items: center;
+  display: grid;
+  gap: var(--space-md);
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.leagueIdentity {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.leagueIdentity h2,
+.leagueIdentity p,
+.leagueIdentity code,
+.taskHeading h2,
+.leagueActions button {
+  overflow-wrap: anywhere;
+}
+
+.leagueIdentity h2,
+.leagueIdentity p {
+  margin: 0;
+}
+
+.slugLabel,
+.helper {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.slugLabel {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.slugLabel code {
+  color: var(--color-text-primary);
+  font-family: inherit;
+  font-weight: 600;
+}
+
+.leagueActions,
+.taskHeading {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  justify-content: space-between;
+}
+
+.leagueActions {
+  border-top: 1px solid var(--color-border-subtle);
+  padding-top: var(--space-md);
+}
+
+.taskPanel {
+  border-left: 0.35rem solid var(--color-status-info-indicator);
+  box-shadow: none;
+  margin-bottom: var(--space-lg);
+}
+
+.leagueCard .taskPanel {
+  margin: 0;
+}
+
+.taskHeading {
+  align-items: start;
+  margin-bottom: var(--space-lg);
+}
+
+.taskHeading h2,
+.helper {
+  margin: 0;
+}
+
+.requestError {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.requestError p {
+  margin: 0;
+}
+
+.requestError button {
+  justify-self: start;
+}
+
+.checkField {
+  align-items: start;
+  display: grid;
+  gap: var(--space-sm);
+  grid-template-columns: var(--target-touch-min) minmax(0, 1fr);
+}
+
+.checkField input {
+  height: 1.25rem;
+  justify-self: center;
+  margin-top: 0.15rem;
+  width: 1.25rem;
+}
+
+.checkField label {
+  align-items: center;
+  display: inline-flex;
+  font-weight: 700;
+  min-height: var(--target-touch-min);
+  min-width: var(--target-touch-min);
+}
+
+@media (max-width: 47.99rem) {
+  .leagueCard {
+    padding: var(--space-md);
+  }
+
+  .leagueSummary {
+    align-items: start;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .leagueSummary > :last-child {
+    justify-self: start;
+  }
+
+  .leagueActions button,
+  .taskHeading > button {
+    width: 100%;
+  }
+}

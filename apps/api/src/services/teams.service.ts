@@ -17,7 +17,7 @@ import type { Prisma, TenantDatabase, TenantTransaction } from '@league/database
 import { assertExpectedVersion, nextPublicationRevision, permissions } from '@league/domain';
 import { Inject, Injectable } from '@nestjs/common';
 
-import { ResourceNotFoundError } from '../common/errors.js';
+import { InactiveLeagueError, ResourceNotFoundError } from '../common/errors.js';
 import type { RequestMetadata } from '../common/request.js';
 import { TENANT_DATABASE } from '../common/tokens.js';
 import { AccessService } from './access.service.js';
@@ -104,8 +104,9 @@ export class TeamsService {
       permission: permissions.teamCreate,
       fingerprintPayload: { operation: 'team.create', seasonId, input },
       responseSchema: teamAdminSchema,
+      responseStatus: 201,
       operation: async (transaction) => {
-        await this.requireSeason(transaction, context.organizationId, seasonId);
+        await this.requireActiveLeague(transaction, context.organizationId, seasonId);
         const team = await transaction.team.create({
           data: { organizationId: context.organizationId, name: input.name },
         });
@@ -247,6 +248,7 @@ export class TeamsService {
               });
         let snapshot;
         if (active) {
+          await this.requireActiveLeague(transaction, context.organizationId, seasonId);
           await transaction.publicationSnapshot.updateMany({
             where: { resourceKind: 'TEAM_SEASON', resourceId: teamSeasonId, withdrawnAt: null },
             data: { withdrawnAt: new Date() },
@@ -316,6 +318,23 @@ export class TeamsService {
     });
     if (season === null) {
       throw new ResourceNotFoundError();
+    }
+  }
+
+  private async requireActiveLeague(
+    transaction: TenantTransaction,
+    organizationId: string,
+    seasonId: string,
+  ): Promise<void> {
+    const season = await transaction.season.findUnique({
+      where: { organizationId_id: { organizationId, id: seasonId } },
+      select: { league: { select: { active: true } } },
+    });
+    if (season === null) {
+      throw new ResourceNotFoundError();
+    }
+    if (!season.league.active) {
+      throw new InactiveLeagueError();
     }
   }
 

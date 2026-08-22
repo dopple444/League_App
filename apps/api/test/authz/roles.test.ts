@@ -36,11 +36,24 @@ describe.skipIf(!databaseTestsEnabled)('authorization matrix', () => {
         );
 
       await expect(check(users.admin, permissions.seasonCreate)).resolves.toBeUndefined();
+      await expect(check(users.admin, permissions.leagueRead)).resolves.toBeUndefined();
+      await expect(check(users.admin, permissions.leagueCreate)).resolves.toBeUndefined();
+      await expect(check(users.admin, permissions.leagueUpdate)).resolves.toBeUndefined();
+      await expect(check(users.admin, permissions.venueRead)).resolves.toBeUndefined();
+      await expect(check(users.admin, permissions.venueCreate)).resolves.toBeUndefined();
+      await expect(check(users.admin, permissions.venueUpdate)).resolves.toBeUndefined();
+      await expect(check(users.admin, permissions.fieldCreate)).resolves.toBeUndefined();
+      await expect(check(users.admin, permissions.fieldUpdate)).resolves.toBeUndefined();
       await expect(check(users.board, permissions.auditRead)).resolves.toBeUndefined();
       await expect(check(users.board, permissions.seasonCreate)).rejects.toThrow();
+      await expect(check(users.board, permissions.leagueRead)).rejects.toThrow();
+      await expect(check(users.board, permissions.leagueUpdate)).rejects.toThrow();
+      await expect(check(users.board, permissions.venueRead)).rejects.toThrow();
+      await expect(check(users.board, permissions.fieldUpdate)).rejects.toThrow();
       await expect(check(users.auditor, permissions.auditRead)).resolves.toBeUndefined();
       await expect(check(users.auditor, permissions.roleAssign)).rejects.toThrow();
       await expect(check(users.revoked, permissions.seasonCreate)).rejects.toThrow();
+      await expect(check(users.revoked, permissions.leagueCreate)).rejects.toThrow();
     } finally {
       await prisma.$disconnect();
     }

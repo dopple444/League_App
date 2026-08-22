@@ -11,21 +11,25 @@ import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 
 import {
   GovernanceController,
+  LeaguesController,
   MeController,
   PublicController,
   SeasonsController,
   SystemController,
   TeamsController,
+  VenuesController,
 } from './controllers/api.controllers.js';
 import { ApiErrorFilter } from './common/error.filter.js';
 import { AuthenticationGuard } from './common/auth.guard.js';
 import { LEAGUE_AUTH, PRISMA, SESSION_RESOLVER, TENANT_DATABASE } from './common/tokens.js';
 import { AccessService } from './services/access.service.js';
 import { GovernanceService } from './services/governance.service.js';
+import { LeaguesService } from './services/leagues.service.js';
 import { MutationService } from './services/mutation.service.js';
 import { PublicService } from './services/public.service.js';
 import { SeasonsService } from './services/seasons.service.js';
 import { TeamsService } from './services/teams.service.js';
+import { VenuesService } from './services/venues.service.js';
 
 function required(name: string): string {
   const value = process.env[name];
@@ -46,8 +50,10 @@ class PrismaLifecycle implements OnModuleDestroy {
 @Module({
   controllers: [
     MeController,
+    LeaguesController,
     SeasonsController,
     TeamsController,
+    VenuesController,
     GovernanceController,
     PublicController,
     SystemController,
@@ -91,8 +97,10 @@ class PrismaLifecycle implements OnModuleDestroy {
     },
     AccessService,
     MutationService,
+    LeaguesService,
     SeasonsService,
     TeamsService,
+    VenuesService,
     GovernanceService,
     PublicService,
     { provide: APP_GUARD, useClass: AuthenticationGuard },

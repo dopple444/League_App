@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { type FormEvent, useEffect, useState } from 'react';
 
@@ -12,9 +13,14 @@ import {
 } from '../../lib/api-client';
 import { FieldError, FormErrorSummary, invalidProps } from '../form-feedback';
 
-const validateSeason = (values: Record<string, string>): FieldErrors => {
+const validateSeason = (
+  values: Record<string, string>,
+  activeLeagueIds: ReadonlySet<string>,
+): FieldErrors => {
   const errors: Record<string, readonly string[]> = {};
-  if (!values.leagueId) errors.leagueId = ['Choose a league.'];
+  if (!values.leagueId || !activeLeagueIds.has(values.leagueId)) {
+    errors.leagueId = ['Choose an active league.'];
+  }
   if (!values.name?.trim()) errors.name = ['Enter a season name.'];
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(values.slug ?? ''))
     errors.slug = ['Use lowercase letters, numbers, and single hyphens.'];
@@ -41,12 +47,15 @@ export function SeasonCreateForm({ organizationId }: { readonly organizationId: 
       .getOrganizations()
       .then((items) => {
         if (!active) return;
-        const organizationLeagues =
-          items.find((item) => item.organizationId === organizationId)?.leagues ?? [];
-        setLeagues(organizationLeagues);
-        if (organizationLeagues.length === 1) {
-          setSelectedLeagueId(organizationLeagues[0]?.leagueId ?? '');
-        }
+        const activeLeagues =
+          items
+            .find((item) => item.organizationId === organizationId)
+            ?.leagues.filter((league) => league.active) ?? [];
+        setLeagues(activeLeagues);
+        setSelectedLeagueId((current) => {
+          if (activeLeagues.length === 1) return activeLeagues[0]?.leagueId ?? '';
+          return activeLeagues.some((league) => league.leagueId === current) ? current : '';
+        });
       })
       .catch(() => {
         if (active) setRequestError('We could not load the leagues for this organization.');
@@ -65,7 +74,8 @@ export function SeasonCreateForm({ organizationId }: { readonly organizationId: 
         String(data.get(key) ?? '').trim(),
       ]),
     );
-    const nextErrors = validateSeason(values);
+    const activeLeagueIds = new Set(leagues?.map((league) => league.leagueId) ?? []);
+    const nextErrors = validateSeason(values, activeLeagueIds);
     setErrors(nextErrors);
     setRequestError(null);
     if (Object.keys(nextErrors).length) return;
@@ -166,6 +176,13 @@ export function SeasonCreateForm({ organizationId }: { readonly organizationId: 
           <FieldError errors={errors} field="timezone" />
         </div>
       </div>
+      {leagues !== null && leagues.length === 0 ? (
+        <div className="callout" role="status">
+          <strong>No active leagues are available.</strong>{' '}
+          <Link href={`/admin/${organizationId}/leagues`}>Manage leagues</Link> to activate or add
+          one before creating a season.
+        </div>
+      ) : null}
       <div className="callout" role="note">
         <strong>Private by default.</strong> Creating this season does not publish it.
       </div>

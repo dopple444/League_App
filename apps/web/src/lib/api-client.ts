@@ -4,9 +4,14 @@ import {
 } from '@league/sdk';
 import type {
   AuditEventDto,
+  CreateFieldInput,
+  CreateLeagueInput,
   CreateSeasonInput,
   CreateTeamInput,
+  CreateVenueInput,
   ErrorEnvelope,
+  FieldAdminDto,
+  LeagueAdminDto,
   OrganizationMembershipDto,
   PublicGameDto,
   PublicLeagueHomeDto,
@@ -14,8 +19,12 @@ import type {
   PublicTeamDto,
   SeasonAdminDto,
   TeamAdminDto,
+  UpdateFieldInput,
+  UpdateLeagueInput,
   UpdateSeasonInput,
   UpdateTeamInput,
+  UpdateVenueInput,
+  VenueAdminDto,
 } from '@league/sdk';
 
 export type FieldErrors = Readonly<Record<string, readonly string[]>>;
@@ -23,12 +32,26 @@ export type LeagueSummary = OrganizationMembershipDto['leagues'][number];
 export type OrganizationSummary = OrganizationMembershipDto;
 export type SeasonAdmin = SeasonAdminDto;
 export type TeamAdmin = TeamAdminDto;
+export type VenueAdmin = VenueAdminDto;
+export type FieldAdmin = FieldAdminDto;
+export type LeagueAdmin = LeagueAdminDto;
 export type AuditEventSummary = AuditEventDto;
 export type PublicSeason = PublicSeasonDto;
 export type PublicLeague = PublicLeagueHomeDto;
 export type PublicTeam = PublicTeamDto;
 export type PublicScheduleGame = PublicGameDto;
-export type { CreateSeasonInput, CreateTeamInput, UpdateSeasonInput, UpdateTeamInput };
+export type {
+  CreateFieldInput,
+  CreateLeagueInput,
+  CreateSeasonInput,
+  CreateTeamInput,
+  CreateVenueInput,
+  UpdateFieldInput,
+  UpdateLeagueInput,
+  UpdateSeasonInput,
+  UpdateTeamInput,
+  UpdateVenueInput,
+};
 
 export interface PublicCollection<T> {
   readonly organization: PublicLeagueHomeDto['organization'];
@@ -129,6 +152,35 @@ export class LeagueApiClient {
     return (await this.call(() => this.generated().listMyOrganizations())).items;
   }
 
+  async getLeagues(organizationId: string): Promise<readonly LeagueAdmin[]> {
+    return (await this.call(() => this.generated().listLeagues(organizationId))).items;
+  }
+
+  createLeague(
+    organizationId: string,
+    input: CreateLeagueInput,
+    idempotencyKey: string = createIdempotencyKey(),
+  ): Promise<LeagueAdmin> {
+    return this.call(() =>
+      this.generated().createLeague(organizationId, input, {
+        idempotencyKey,
+      }),
+    );
+  }
+
+  updateLeague(
+    organizationId: string,
+    leagueId: string,
+    input: UpdateLeagueInput,
+    idempotencyKey: string = createIdempotencyKey(),
+  ): Promise<LeagueAdmin> {
+    return this.call(() =>
+      this.generated().updateLeague(organizationId, leagueId, input, {
+        idempotencyKey,
+      }),
+    );
+  }
+
   async getSeasons(organizationId: string): Promise<readonly SeasonAdmin[]> {
     return (await this.call(() => this.generated().listSeasons(organizationId))).items;
   }
@@ -227,6 +279,62 @@ export class LeagueApiClient {
 
   async getAuditEvents(organizationId: string): Promise<readonly AuditEventSummary[]> {
     return (await this.call(() => this.generated().listAuditEvents(organizationId))).items;
+  }
+
+  async getVenues(organizationId: string): Promise<readonly VenueAdmin[]> {
+    return (await this.call(() => this.generated().listVenues(organizationId))).items;
+  }
+
+  createVenue(
+    organizationId: string,
+    input: CreateVenueInput,
+    idempotencyKey: string = createIdempotencyKey(),
+  ): Promise<VenueAdmin> {
+    return this.call(() =>
+      this.generated().createVenue(organizationId, input, {
+        idempotencyKey,
+      }),
+    );
+  }
+
+  updateVenue(
+    organizationId: string,
+    venueId: string,
+    input: UpdateVenueInput,
+    idempotencyKey: string = createIdempotencyKey(),
+  ): Promise<VenueAdmin> {
+    return this.call(() =>
+      this.generated().updateVenue(organizationId, venueId, input, {
+        idempotencyKey,
+      }),
+    );
+  }
+
+  createField(
+    organizationId: string,
+    venueId: string,
+    input: CreateFieldInput,
+    idempotencyKey: string = createIdempotencyKey(),
+  ): Promise<FieldAdmin> {
+    return this.call(() =>
+      this.generated().createField(organizationId, venueId, input, {
+        idempotencyKey,
+      }),
+    );
+  }
+
+  updateField(
+    organizationId: string,
+    venueId: string,
+    fieldId: string,
+    input: UpdateFieldInput,
+    idempotencyKey: string = createIdempotencyKey(),
+  ): Promise<FieldAdmin> {
+    return this.call(() =>
+      this.generated().updateField(organizationId, venueId, fieldId, input, {
+        idempotencyKey,
+      }),
+    );
   }
 
   getPublicLeague(organizationSlug: string, leagueSlug: string): Promise<PublicLeague> {

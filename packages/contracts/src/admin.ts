@@ -20,6 +20,7 @@ export const organizationMembershipSchema = z.object({
       leagueId: identifierSchema,
       slug: slugSchema,
       name: z.string().min(1).max(160),
+      active: z.boolean(),
     }),
   ),
 });
@@ -30,6 +31,45 @@ export const organizationMembershipListSchema = z.object({
 
 export type OrganizationMembershipDto = z.infer<typeof organizationMembershipSchema>;
 export type OrganizationMembershipListDto = z.infer<typeof organizationMembershipListSchema>;
+
+const leagueNameSchema = z.string().trim().min(1).max(160);
+
+export const createLeagueSchema = z
+  .object({
+    name: leagueNameSchema,
+    slug: slugSchema,
+    active: z.boolean(),
+  })
+  .strict();
+
+export const updateLeagueSchema = z
+  .object({
+    name: leagueNameSchema,
+    slug: slugSchema,
+    active: z.boolean(),
+    expectedVersion: z.number().int().positive(),
+  })
+  .strict();
+
+export const leagueAdminSchema = z.object({
+  organizationId: identifierSchema,
+  leagueId: identifierSchema,
+  name: z.string(),
+  slug: slugSchema,
+  active: z.boolean(),
+  version: z.number().int().positive(),
+  createdAt: utcDateTimeSchema,
+  updatedAt: utcDateTimeSchema,
+});
+
+export const leagueAdminListSchema = z.object({
+  items: z.array(leagueAdminSchema).max(200),
+});
+
+export type CreateLeagueInput = z.infer<typeof createLeagueSchema>;
+export type UpdateLeagueInput = z.infer<typeof updateLeagueSchema>;
+export type LeagueAdminDto = z.infer<typeof leagueAdminSchema>;
+export type LeagueAdminListDto = z.infer<typeof leagueAdminListSchema>;
 
 export const createSeasonSchema = z
   .object({
@@ -110,6 +150,97 @@ export type CreateTeamInput = z.infer<typeof createTeamSchema>;
 export type UpdateTeamInput = z.infer<typeof updateTeamSchema>;
 export type TeamAdminDto = z.infer<typeof teamAdminSchema>;
 export type TeamAdminListDto = z.infer<typeof teamAdminListSchema>;
+
+const facilityNameSchema = z.string().trim().min(1).max(120);
+const publicDirectionsSchema = z
+  .string()
+  .trim()
+  .max(500)
+  .transform((value) => (value.length === 0 ? null : value))
+  .nullable();
+const fenceDistanceFeetSchema = z.number().int().min(100).max(600).nullable();
+
+export const createVenueSchema = z
+  .object({
+    name: facilityNameSchema,
+    active: z.boolean().optional(),
+  })
+  .strict();
+
+export const updateVenueSchema = expectedVersionSchema
+  .extend({
+    name: facilityNameSchema.optional(),
+    active: z.boolean().optional(),
+  })
+  .strict()
+  .refine((value) => value.name !== undefined || value.active !== undefined, {
+    message: 'At least one venue field must be provided.',
+    path: ['request'],
+  });
+
+export const createFieldSchema = z
+  .object({
+    name: facilityNameSchema,
+    publicDirections: publicDirectionsSchema.optional(),
+    hasLights: z.boolean().optional(),
+    fenceDistanceFeet: fenceDistanceFeetSchema.optional(),
+    active: z.boolean().optional(),
+  })
+  .strict();
+
+export const updateFieldSchema = expectedVersionSchema
+  .extend({
+    name: facilityNameSchema.optional(),
+    publicDirections: publicDirectionsSchema.optional(),
+    hasLights: z.boolean().optional(),
+    fenceDistanceFeet: fenceDistanceFeetSchema.optional(),
+    active: z.boolean().optional(),
+  })
+  .strict()
+  .refine(
+    (value) =>
+      value.name !== undefined ||
+      value.publicDirections !== undefined ||
+      value.hasLights !== undefined ||
+      value.fenceDistanceFeet !== undefined ||
+      value.active !== undefined,
+    { message: 'At least one field value must be provided.', path: ['request'] },
+  );
+
+export const fieldAdminSchema = z.object({
+  organizationId: identifierSchema,
+  venueId: identifierSchema,
+  fieldId: identifierSchema,
+  name: z.string(),
+  publicDirections: z.string().nullable(),
+  hasLights: z.boolean(),
+  fenceDistanceFeet: z.number().int().nullable(),
+  active: z.boolean(),
+  version: z.number().int().positive(),
+  createdAt: utcDateTimeSchema,
+  updatedAt: utcDateTimeSchema,
+});
+
+export const venueAdminSchema = z.object({
+  organizationId: identifierSchema,
+  venueId: identifierSchema,
+  name: z.string(),
+  active: z.boolean(),
+  version: z.number().int().positive(),
+  createdAt: utcDateTimeSchema,
+  updatedAt: utcDateTimeSchema,
+  fields: z.array(fieldAdminSchema),
+});
+
+export const venueAdminListSchema = z.object({ items: z.array(venueAdminSchema) });
+
+export type CreateVenueInput = z.input<typeof createVenueSchema>;
+export type UpdateVenueInput = z.input<typeof updateVenueSchema>;
+export type CreateFieldInput = z.input<typeof createFieldSchema>;
+export type UpdateFieldInput = z.input<typeof updateFieldSchema>;
+export type FieldAdminDto = z.infer<typeof fieldAdminSchema>;
+export type VenueAdminDto = z.infer<typeof venueAdminSchema>;
+export type VenueAdminListDto = z.infer<typeof venueAdminListSchema>;
 
 export const auditEventSchema = z.object({
   auditEventId: identifierSchema,

@@ -3,6 +3,8 @@ import { expect, test } from '@playwright/test';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
+import { signInAndOpenAdministration } from './auth';
+
 const getDemoPassword = (): string | undefined => {
   if (process.env.DEMO_ADMIN_PASSWORD) return process.env.DEMO_ADMIN_PASSWORD;
   const envPath = [resolve(process.cwd(), '.env'), resolve(process.cwd(), '../../.env')].find(
@@ -131,18 +133,7 @@ test('admin publishes a private team, verifies its audit trail, and withdraws it
   await expect(publicSchedule.getByRole('article').first()).toContainText('Demo Away Team');
   await expect(publicSchedule.getByRole('article').first()).toContainText('Demo Home Team');
 
-  await page.goto('/sign-in');
-  await page.getByLabel('Email address').fill('admin@demo.invalid');
-  await page.getByLabel('Password').fill(password ?? '');
-  await page.getByRole('button', { name: 'Sign in' }).click();
-  await expect(page).toHaveURL(/\/admin\/organizations$/u);
-  const openAdministration = page.getByRole('link', { name: 'Open administration' });
-  const adminHref = await openAdministration.getAttribute('href');
-  expect(adminHref).toMatch(/^\/admin\/[^/]+$/u);
-  const adminUrl = new URL(adminHref ?? '', page.url());
-  await openAdministration.click();
-  await expect(page).toHaveURL(adminUrl.href);
-  const adminBasePath = adminUrl.pathname;
+  const adminBasePath = await signInAndOpenAdministration(page, password ?? '');
 
   await page.getByRole('link', { name: 'Manage seasons' }).click();
   const seasonCard = page.getByRole('article').filter({ hasText: 'Spring 2026' });

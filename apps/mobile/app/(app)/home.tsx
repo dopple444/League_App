@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RefreshControl, Text, View } from 'react-native';
 
 import {
@@ -13,17 +13,26 @@ import {
   uiStyles,
 } from '../../src/components/ui';
 import {
+  MobileApiError,
   mobileApi,
   type PublicGame,
   type PublicLeague,
   type PublicTeam,
 } from '../../src/lib/api-client';
+import { selectActiveLeagues } from '../../src/lib/league-selection';
 import { useLeagueSession } from '../../src/providers/session-provider';
 
 interface Overview {
   readonly league: PublicLeague;
   readonly teams: readonly PublicTeam[];
   readonly games: readonly PublicGame[];
+}
+
+interface OverviewState {
+  readonly contextKey: string | null;
+  readonly status: 'idle' | 'loading' | 'ready' | 'error' | 'unavailable';
+  readonly overview: Overview | null;
+  readonly error: string | null;
 }
 
 const formatGameTime = (value: string, timezone: string): string => {
@@ -45,40 +54,103 @@ const formatGameTime = (value: string, timezone: string): string => {
 export default function HomeScreen() {
   const router = useRouter();
   const { selectedOrganization } = useLeagueSession();
-  const [overview, setOverview] = useState<Overview | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [refreshing, setRefreshing] = useState(false);
-  const load = useCallback(async () => {
-    if (!selectedOrganization) return;
-    const league = selectedOrganization.leagues[0];
-    if (!league) {
-      setError('This organization has no league available.');
+  const activeLeagues = useMemo(
+    () => selectActiveLeagues(selectedOrganization?.leagues ?? []),
+    [selectedOrganization?.leagues],
+  );
+  const organizationSlug = selectedOrganization?.slug ?? null;
+  const contextKey = selectedOrganization
+    ? `${selectedOrganization.organizationId}:${selectedOrganization.slug}:${activeLeagues
+        .map((league) => `${league.leagueId}:${league.slug}`)
+        .join(',')}`
+    : null;
+  const requestSequence = useRef(0);
+  const [state, setState] = useState<OverviewState>({
+    contextKey: null,
+    status: 'idle',
+    overview: null,
+    error: null,
+  });
+  const [refreshingContext, setRefreshingContext] = useState<string | null>(null);
+  const load = useCallback(
+    async (showLoading: boolean) => {
+      if (!organizationSlug || !contextKey || activeLeagues.length === 0) return;
+      const requestId = ++requestSequence.current;
+      if (showLoading) {
+        setState({ contextKey, status: 'loading', overview: null, error: null });
+      } else {
+        setState((current) => ({
+          contextKey,
+          status: current.contextKey === contextKey && current.overview ? 'ready' : 'loading',
+          overview: current.contextKey === contextKey ? current.overview : null,
+          error: null,
+        }));
+      }
+      try {
+        let publicLeague: PublicLeague | null = null;
+        let publishedLeagueSlug: string | null = null;
+        for (const league of activeLeagues) {
+          try {
+            publicLeague = await mobileApi.getPublicLeague(organizationSlug, league.slug);
+            publishedLeagueSlug = league.slug;
+            break;
+          } catch (loadError) {
+            if (loadError instanceof MobileApiError && loadError.status === 404) continue;
+            throw loadError;
+          }
+        }
+        if (requestSequence.current !== requestId) return;
+        if (!publicLeague || !publishedLeagueSlug) {
+          setState({ contextKey, status: 'unavailable', overview: null, error: null });
+          return;
+        }
+        const season = publicLeague.currentSeason;
+        if (!season) {
+          setState({
+            contextKey,
+            status: 'ready',
+            overview: { league: publicLeague, teams: [], games: [] },
+            error: null,
+          });
+          return;
+        }
+        const [teams, schedule] = await Promise.all([
+          mobileApi.getPublicTeams(organizationSlug, publishedLeagueSlug, season.slug),
+          mobileApi.getPublicSchedule(organizationSlug, publishedLeagueSlug, season.slug),
+        ]);
+        if (requestSequence.current !== requestId) return;
+        setState({
+          contextKey,
+          status: 'ready',
+          overview: {
+            league: publicLeague,
+            teams: teams.items,
+            games: [...schedule.items].sort((a, b) => a.startsAt.localeCompare(b.startsAt)),
+          },
+          error: null,
+        });
+      } catch {
+        if (requestSequence.current !== requestId) return;
+        setState((current) => ({
+          contextKey,
+          status: 'error',
+          overview: current.contextKey === contextKey ? current.overview : null,
+          error: 'We could not load league information. Please try again.',
+        }));
+      }
+    },
+    [activeLeagues, contextKey, organizationSlug],
+  );
+  useEffect(() => {
+    if (!contextKey || activeLeagues.length === 0) {
+      requestSequence.current += 1;
       return;
     }
-    setError(null);
-    try {
-      const publicLeague = await mobileApi.getPublicLeague(selectedOrganization.slug, league.slug);
-      const season = publicLeague.currentSeason;
-      if (!season) {
-        setOverview({ league: publicLeague, teams: [], games: [] });
-        return;
-      }
-      const [teams, schedule] = await Promise.all([
-        mobileApi.getPublicTeams(selectedOrganization.slug, league.slug, season.slug),
-        mobileApi.getPublicSchedule(selectedOrganization.slug, league.slug, season.slug),
-      ]);
-      setOverview({
-        league: publicLeague,
-        teams: teams.items,
-        games: [...schedule.items].sort((a, b) => a.startsAt.localeCompare(b.startsAt)),
-      });
-    } catch {
-      setError('We could not refresh the published league overview.');
-    }
-  }, [selectedOrganization]);
-  useEffect(() => {
-    void load();
-  }, [load]);
+    void load(true);
+    return () => {
+      requestSequence.current += 1;
+    };
+  }, [activeLeagues.length, contextKey, load]);
 
   if (!selectedOrganization)
     return (
@@ -90,17 +162,70 @@ export default function HomeScreen() {
         />
       </Screen>
     );
-  if (!overview && !error) return <LoadingState label="Loading published league information…" />;
+  if (activeLeagues.length === 0)
+    return (
+      <Screen>
+        <Heading
+          eyebrow={selectedOrganization.name}
+          title="League unavailable"
+          description="This organization does not currently have an active league."
+        />
+        <Card>
+          <Text style={uiStyles.sectionTitle}>No active league available</Text>
+          <Text style={uiStyles.muted}>
+            Ask a league administrator to activate a league, or switch organizations.
+          </Text>
+        </Card>
+        <View>
+          <ActionButton
+            label="Switch organization"
+            onPress={() => router.push('/(app)/organizations')}
+            variant="secondary"
+          />
+        </View>
+      </Screen>
+    );
+  const currentState = state.contextKey === contextKey ? state : null;
+  const overview = currentState?.overview ?? null;
+  const error = currentState?.error ?? null;
+  if (!currentState || currentState.status === 'loading') {
+    return <LoadingState label="Loading published league information…" />;
+  }
+  if (currentState.status === 'unavailable')
+    return (
+      <Screen>
+        <Heading
+          eyebrow={selectedOrganization.name}
+          title="League unavailable"
+          description="This organization does not currently have a published active league."
+        />
+        <Card>
+          <Text style={uiStyles.sectionTitle}>No published active league available</Text>
+          <Text style={uiStyles.muted}>
+            Check back after league staff publish an active league, or switch organizations.
+          </Text>
+        </Card>
+        <View>
+          <ActionButton
+            label="Switch organization"
+            onPress={() => router.push('/(app)/organizations')}
+            variant="secondary"
+          />
+        </View>
+      </Screen>
+    );
   const season = overview?.league.currentSeason;
   return (
     <Screen
       refreshControl={
         <RefreshControl
           onRefresh={() => {
-            setRefreshing(true);
-            void load().finally(() => setRefreshing(false));
+            setRefreshingContext(contextKey);
+            void load(false).finally(() => {
+              setRefreshingContext((current) => (current === contextKey ? null : current));
+            });
           }}
-          refreshing={refreshing}
+          refreshing={refreshingContext === contextKey}
         />
       }
     >
@@ -117,7 +242,7 @@ export default function HomeScreen() {
             <ActionButton
               label="Retry"
               onPress={() => {
-                void load();
+                void load(true);
               }}
               variant="secondary"
             />
@@ -126,7 +251,7 @@ export default function HomeScreen() {
           {error}
         </InlineError>
       ) : null}
-      {!season ? (
+      {overview && !season ? (
         <Card>
           <Text style={uiStyles.sectionTitle}>No published season</Text>
           <Text style={uiStyles.muted}>
