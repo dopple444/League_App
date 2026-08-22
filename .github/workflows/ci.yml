@@ -80,6 +80,8 @@ jobs:
         run: pnpm env:init:ci
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Build integration workspace dependencies
+        run: pnpm exec turbo run build --filter=@league/api --filter=@league/worker --concurrency=2
       - name: Install pinned browser test runtime
         run: pnpm --filter @league/web exec playwright install --with-deps chromium
       - name: Start private local stack
