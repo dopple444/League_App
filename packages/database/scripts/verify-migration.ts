@@ -3,6 +3,8 @@ import { fileURLToPath } from 'node:url';
 
 import { Client } from 'pg';
 
+import { waitForDatabaseReadiness } from './wait-for-database.js';
+
 const migrationUrl =
   process.env.HOST_TEST_MIGRATOR_DATABASE_URL ?? process.env.TEST_MIGRATOR_DATABASE_URL;
 if (migrationUrl === undefined || migrationUrl.length === 0) {
@@ -16,6 +18,25 @@ const migrate = () =>
     env: { ...process.env, DATABASE_URL: migrationUrl },
     stdio: 'inherit',
   });
+
+await waitForDatabaseReadiness(
+  async () => {
+    const readinessClient = new Client({
+      connectionString: migrationUrl,
+      connectionTimeoutMillis: 1_000,
+      query_timeout: 1_000,
+    });
+    let connected = false;
+    try {
+      await readinessClient.connect();
+      connected = true;
+      await readinessClient.query('SELECT 1');
+    } finally {
+      if (connected) await readinessClient.end().catch(() => undefined);
+    }
+  },
+  { maxAttempts: 12, retryDelayMs: 500 },
+);
 
 migrate();
 

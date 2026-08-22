@@ -128,8 +128,23 @@ jobs:
               echo "::endgroup::"
             fi
           done
-      - name: Verify migrations and seed
-        run: pnpm db:migrate:verify && pnpm db:seed:verify
+      - name: Verify migrations
+        id: verify_migrations
+        run: pnpm db:migrate:verify
+      - name: Verify deterministic seed
+        id: verify_seed
+        run: pnpm db:seed:verify
+      - name: Diagnose failed database verification
+        if: failure() && steps.integration_stack.outcome == 'success' && (steps.verify_migrations.outcome == 'failure' || steps.verify_seed.outcome == 'failure')
+        env:
+          MIGRATION_RESULT: ${{ steps.verify_migrations.outcome }}
+          SEED_RESULT: ${{ steps.verify_seed.outcome }}
+        shell: bash
+        run: |
+          echo "::error title=Database verification failed::Migration verification: ${MIGRATION_RESULT}; deterministic seed: ${SEED_RESULT}."
+          compose=(docker compose --env-file .env -f infra/compose/compose.yaml)
+          "${compose[@]}" ps --all postgres migrate
+          "${compose[@]}" exec -T postgres sh -c 'pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"' || true
       - name: Run API and relay security suites
         run: pnpm test:integration && pnpm test:tenancy && pnpm test:authz && pnpm test:outbox
       - name: Run browser and accessibility suites
