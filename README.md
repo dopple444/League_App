@@ -52,6 +52,7 @@ Do not begin with app-store submission, paid messaging, live payments, or a publ
 - `docs/LEAGUE_APP_UI_STYLE_GUIDE.md` — the normative visual language and specifications for pages, forms, screens, and generated artifacts.
 - `docs/UI_ARTIFACT_REGISTER.md` — the living inventory and style-compliance review ledger for implemented UI artifacts.
 - `docs/STATUS.md` — Codex's persistent handoff and progress record.
+- `docs/runbooks/CONTROLLED_BETA_ONBOARDING.md` — the assisted synthetic tenant-provisioning and invitation handoff procedure.
 - `docs/RESEARCH_SOURCES.md` — current official and vendor references used for this design.
 
 ## Guiding principle

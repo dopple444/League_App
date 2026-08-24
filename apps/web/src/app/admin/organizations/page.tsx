@@ -7,8 +7,8 @@ export default function OrganizationsPage() {
       <div className="content-width">
         <PageHeading
           eyebrow="Your access"
-          title="Choose an organization"
-          description="Your roles and permissions may differ in each organization."
+          title="Choose a workspace"
+          description="Open an active customer organization or your separately authorized platform workspace."
         />
         <OrganizationPicker />
       </div>

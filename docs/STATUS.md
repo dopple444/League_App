@@ -1,25 +1,29 @@
 # Project status
 
-Last updated: 2026-08-22
+Last updated: 2026-08-24
 
 ## Current state
 
 - Product/research blueprint complete.
 - Scoring clarified as live-first with immediate connected broadcasts and outage-safe offline continuation/submission/authorized attestation.
 - Codex repository guidance and autonomous execution runbook complete.
-- The canonical GitHub repository is `dopple444/League_App`. This checkpoint adds the privileged MFA
-  foundation and trusted-LAN test access to the venue/field, league-administration, transactional-
-  outbox, CI, runtime-image, and security-gate foundation.
+- The canonical GitHub repository is `dopple444/League_App`. This checkpoint adds controlled-beta
+  assisted tenant provisioning, invitation-authorized registration/acceptance, pending membership,
+  and MFA-gated activation to the privileged-MFA, venue/field, league-administration,
+  transactional-outbox, CI, runtime-image, and security-gate foundation.
 - The foundation contains the monorepo scaffold and working web/mobile vertical slices. The public web
   journey is navigable from the runtime-configured root gateway through league home, schedule, team
   directory, and team detail. Issued synthetic league administrators can also manage tenant-scoped,
   versioned leagues, venues, and fields through the browser. Better Auth TOTP/recovery codes, bounded
   sessions, targeted authentication throttling, identity-only security posture, and a pre-tenant
-  privileged-mutation MFA gate are implemented. Local static, database, restore, browser,
-  accessibility, fresh-stack, outbox recovery, and hosted-runtime checks have passed. A pushed
-  clean-checkout CI run, zero-membership invitation/operator hardening, removal of the two temporary
-  security exceptions, source inputs, and real assistive-technology/physical-device review remain
-  pending.
+  privileged-mutation MFA gate are implemented. A separately granted Platform Operator can now
+  create a customer organization, initial league, default League Administrator role, and copy-once
+  synthetic invitation without becoming a customer member. The invited administrator remains
+  ineffective and undiscoverable until verified MFA activates the pending membership. Local static,
+  database, restore, browser, accessibility, fresh-stack, outbox recovery, and hosted-runtime checks
+  have passed. A pushed clean-checkout CI run, full human operator/invitee UAT, removal of the two
+  temporary security exceptions, source inputs, and real assistive-technology/physical-device review
+  remain pending.
 - The League App UI Style Guide is now the visual reference, with a separate artifact register governing page, form, component, and generated-output review.
 - The shared Modern Field token package and base web/native primitives are implemented. DS-TOKEN-001 passed its foundation review. The changed public and administrative artifacts now have retained responsive synthetic screenshots and automated interaction/accessibility evidence but remain **Needs changes** until real screen-reader, desktop Ctrl-Plus/browser-zoom, and physical-device/manual review is recorded.
 - All nine local Compose services are healthy. For the requested remote-PC test, the gateway is
@@ -34,15 +38,14 @@ Last updated: 2026-08-22
 
 ## Active milestone
 
-Beta 0 zero-membership invitation/operator onboarding, followed by field availability and manual
-schedule authoring. The privileged MFA foundation is complete.
+Beta 0 field availability and validated manual schedule authoring. Controlled-beta zero-membership
+operator/invitation onboarding and the privileged MFA foundation are implemented.
 
 ## Next action
 
-Implement the zero-membership path through a separately permissioned and audited Platform Operator,
-Organization/League/administrator provisioning, invitation acceptance, pending membership, and MFA-
-gated activation. Then build date-specific field availability and the validated manual schedule
-create/edit/publish/revise workflow.
+Build date-specific field availability and the validated manual schedule create/edit/publish/revise
+workflow. In parallel, conduct the controlled-beta operator/invitee UAT and close the shared limiter,
+hosted proxy/origin, temporary security-exception, and human accessibility/device gates.
 In parallel, keep the broader container/dependency, clean-clone, and hosted-environment gates visible
 rather than treating the local runtime evidence as deployment approval.
 
@@ -58,8 +61,9 @@ rather than treating the local runtime evidence as deployment approval.
   only under `SEC-EXC-002` through 2026-09-14 and are prohibited from the hosted-beta topology; the
   exception fails closed on 2026-09-15.
 - Zero-membership invitations, pending activation, separately authorized operator provisioning, and
-  mandatory-MFA fixture/UAT are not yet implemented. Authentication limiting is process-local and
-  must become a shared atomic limiter before multiple API replicas; hosted proxy/trusted-origin
+  mandatory MFA activation are implemented and database/browser-automated. A complete human
+  Platform Operator-to-invitee rehearsal is still required. Authentication limiting is process-local
+  and must become a shared atomic limiter before multiple API replicas; hosted proxy/trusted-origin
   behavior remains a release gate.
 - Venue and field administration is implemented, but date-specific availability and manual schedule
   create/edit/validate/publish/revise remain incomplete.
@@ -301,3 +305,41 @@ Codex must append dated entries here after each milestone, including exact comma
   desktop Ctrl-Plus, and physical-device review remain open. The next slice is separately authorized
   Platform Operator provisioning plus invitation acceptance, pending membership, and MFA-gated
   activation; hosted proxy proof and a shared limiter remain release gates.
+
+### 2026-08-24 — Controlled-beta assisted tenant onboarding
+
+- Added PENDING membership, effective-dated `TENANT_PROVISION`/`INVITATION_REVOKE` grants, global
+  actor-scoped platform idempotency/audit history, tenant-owned administrator invitations, forced
+  tenant/platform RLS, least-privilege definer helpers, and a synthetic `operator@demo.invalid`
+  fixture with no customer membership. Nine additive migrations are applied; repeat migration and
+  idempotent main/test seed verification passed.
+- Added strict contracts/generated SDK operations and MFA/grant-gated atomic provisioning,
+  revocation, digest-only invitation inspection/registration, single-use PENDING acceptance, and
+  MFA-only activation. Database-backed coverage passed 22/22 integration, 4/4 tenancy, 1/1
+  authorization, and 4/4 outbox tests, including concurrent same/different-key mutations,
+  accept/revoke races, rollback, recovery-safe identity creation, hidden pending access, operator
+  non-membership, and a real Better Auth sign-in/TOTP/replacement-session/activation path.
+- Added `/platform/onboarding`, `/auth/accept-invite`, invitation-aware sign-in/MFA recovery, and the
+  capability-neutral workspace chooser. Final changed-surface validation passed 94/94 web and 18/18
+  API unit tests, contracts/SDK drift checks, formatting, lint, typecheck, the complete production
+  build, and the earlier full unit/tooling/mobile matrix (including 23/23 mobile and 32/32 tooling).
+- The standard `pnpm test:e2e` wrapper correctly refused this machine's non-loopback `WEB_ORIGIN`.
+  The explicitly approved trusted-LAN origin was then exercised directly. The first parallel run
+  exposed a token-safe synthetic-fragment injector race; the injector was replaced with an in-page
+  non-reporting handoff, and the repeat run passed 14/14 functional journeys. Desktop/mobile
+  accessibility, keyboard/focus, 1440/1024/393 reflow, minimum-target, mutation-blocking, and
+  token-free history/storage/DOM checks passed 10/10. The evidence run passed 1/1.
+- Retained and visually inspected seven synthetic, token-free screenshots under
+  `docs/evidence/ui/2026-08-24-controlled-beta-onboarding/`. No copy-once receipt, bearer, password,
+  MFA QR/recovery code, browser chrome, trace, HAR, or request/response body was retained. The changed
+  SYS-07, ADM-64, and SYS-02 artifacts are **Implemented / Needs changes** pending human review.
+- Isolated dump/restore and five-service stack smoke verification passed. All nine long-running
+  services are healthy, the migrator repeats as a no-op, and the gateway remains restricted to the
+  trusted LAN at `192.168.2.45:8088`. The dependency gate passed only under the exact two expiring
+  Metro-path exceptions; the blocking hosted-runtime image scan passed, while development-only
+  MinIO/MinIO-client/Mailpit findings remain visible under `SEC-EXC-002`.
+- No production infrastructure, public ingress, real customer/contact data, external delivery,
+  payment, or app-store action was taken. Complete human operator-to-invitee UAT, shared multi-replica
+  limiting, hosted TLS/proxy/origin/secret/monitoring/recovery proof, exception removal, and real
+  screen-reader/Ctrl-Plus/physical-device review remain release gates. Field availability and
+  validated manual schedule authoring are the next product slice.

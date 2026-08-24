@@ -8,8 +8,14 @@ datasource db {
 }
 
 enum MembershipStatus {
+  PENDING
   ACTIVE
   SUSPENDED
+}
+
+enum PlatformPermission {
+  TENANT_PROVISION
+  INVITATION_REVOKE
 }
 
 enum AuthorityKind {
@@ -48,18 +54,21 @@ enum GameStatus {
 }
 
 model User {
-  id               String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name             String
-  email            String                   @unique
-  emailVerified    Boolean                  @default(false) @map("email_verified")
-  twoFactorEnabled Boolean                  @default(false) @map("two_factor_enabled")
-  image            String?
-  createdAt        DateTime                 @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt        DateTime                 @updatedAt @map("updated_at") @db.Timestamptz(3)
-  sessions         Session[]
-  accounts         Account[]
-  twoFactors       TwoFactor[]
-  memberships      OrganizationMembership[]
+  id                    String                    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                  String
+  email                 String                    @unique
+  emailVerified         Boolean                   @default(false) @map("email_verified")
+  twoFactorEnabled      Boolean                   @default(false) @map("two_factor_enabled")
+  image                 String?
+  createdAt             DateTime                  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt             DateTime                  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  sessions              Session[]
+  accounts              Account[]
+  twoFactors            TwoFactor[]
+  memberships           OrganizationMembership[]
+  platformGrants        PlatformPermissionGrant[] @relation("PlatformPermissionGrantee")
+  platformGrantsIssued  PlatformPermissionGrant[] @relation("PlatformPermissionGrantor")
+  platformGrantsRevoked PlatformPermissionGrant[] @relation("PlatformPermissionRevoker")
 
   @@map("auth_user")
 }
@@ -128,47 +137,49 @@ model Verification {
 }
 
 model Organization {
-  organizationId       String                        @id @default(dbgenerated("gen_random_uuid()")) @map("organization_id") @db.Uuid
-  slug                 String                        @unique
-  name                 String
-  timezone             String
-  createdAt            DateTime                      @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt            DateTime                      @updatedAt @map("updated_at") @db.Timestamptz(3)
-  leagues              League[]
-  divisions            Division[]
-  seasons              Season[]
-  teams                Team[]
-  teamSeasons          TeamSeason[]
-  venues               Venue[]
-  fields               Field[]
-  memberships          OrganizationMembership[]
-  roles                Role[]
-  rolePermissions      RolePermission[]
-  roleAssignments      RoleAssignment[]
-  publications         PublicationSnapshot[]
-  scheduleVersions     ScheduleVersion[]
-  games                Game[]
-  auditEvents          AuditEvent[]
-  securityEvents       SecurityEvent[]
-  outboxEvents         OutboxEvent[]
-  idempotencyRecords   IdempotencyRecord[]
-  seasonConfigurations SeasonConfigurationRevision[]
+  organizationId           String                        @id @default(dbgenerated("gen_random_uuid()")) @map("organization_id") @db.Uuid
+  slug                     String                        @unique
+  name                     String
+  timezone                 String
+  createdAt                DateTime                      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt                DateTime                      @updatedAt @map("updated_at") @db.Timestamptz(3)
+  leagues                  League[]
+  divisions                Division[]
+  seasons                  Season[]
+  teams                    Team[]
+  teamSeasons              TeamSeason[]
+  venues                   Venue[]
+  fields                   Field[]
+  memberships              OrganizationMembership[]
+  roles                    Role[]
+  rolePermissions          RolePermission[]
+  roleAssignments          RoleAssignment[]
+  publications             PublicationSnapshot[]
+  scheduleVersions         ScheduleVersion[]
+  games                    Game[]
+  auditEvents              AuditEvent[]
+  securityEvents           SecurityEvent[]
+  outboxEvents             OutboxEvent[]
+  idempotencyRecords       IdempotencyRecord[]
+  seasonConfigurations     SeasonConfigurationRevision[]
+  administratorInvitations AdministratorInvitation[]
 
   @@map("organization")
 }
 
 model League {
-  id             String       @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String       @map("organization_id") @db.Uuid
-  slug           String
-  name           String
-  active         Boolean      @default(true)
-  version        Int          @default(1)
-  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt      DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
-  organization   Organization @relation(fields: [organizationId], references: [organizationId], onDelete: Restrict)
-  divisions      Division[]
-  seasons        Season[]
+  id                       String                    @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId           String                    @map("organization_id") @db.Uuid
+  slug                     String
+  name                     String
+  active                   Boolean                   @default(true)
+  version                  Int                       @default(1)
+  createdAt                DateTime                  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt                DateTime                  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  organization             Organization              @relation(fields: [organizationId], references: [organizationId], onDelete: Restrict)
+  divisions                Division[]
+  seasons                  Season[]
+  administratorInvitations AdministratorInvitation[]
 
   @@id([organizationId, id])
   @@unique([organizationId, slug])
@@ -343,8 +354,11 @@ model OrganizationMembership {
   id              String           @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId  String           @map("organization_id") @db.Uuid
   userId          String           @map("user_id") @db.Uuid
-  status          MembershipStatus @default(ACTIVE)
+  status          MembershipStatus @default(PENDING)
+  version         Int              @default(1)
+  activatedAt     DateTime?        @map("activated_at") @db.Timestamptz(3)
   createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime         @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
   organization    Organization     @relation(fields: [organizationId], references: [organizationId], onDelete: Restrict)
   user            User             @relation(fields: [userId], references: [id], onDelete: Restrict)
   roleAssignments RoleAssignment[]
@@ -356,18 +370,99 @@ model OrganizationMembership {
 }
 
 model Role {
-  id             String           @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String           @map("organization_id") @db.Uuid
-  key            String
-  name           String
-  authorityKind  AuthorityKind    @map("authority_kind")
-  organization   Organization     @relation(fields: [organizationId], references: [organizationId], onDelete: Restrict)
-  permissions    RolePermission[]
-  assignments    RoleAssignment[]
+  id                       String                    @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId           String                    @map("organization_id") @db.Uuid
+  key                      String
+  name                     String
+  authorityKind            AuthorityKind             @map("authority_kind")
+  organization             Organization              @relation(fields: [organizationId], references: [organizationId], onDelete: Restrict)
+  permissions              RolePermission[]
+  assignments              RoleAssignment[]
+  administratorInvitations AdministratorInvitation[]
 
   @@id([organizationId, id])
   @@unique([organizationId, key])
   @@map("role")
+}
+
+model AdministratorInvitation {
+  id                String       @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId    String       @map("organization_id") @db.Uuid
+  leagueId          String       @map("league_id") @db.Uuid
+  roleId            String       @map("role_id") @db.Uuid
+  emailNormalized   String       @map("email_normalized")
+  tokenDigest       String       @unique @map("token_digest")
+  expiresAt         DateTime     @map("expires_at") @db.Timestamptz(3)
+  acceptedAt        DateTime?    @map("accepted_at") @db.Timestamptz(3)
+  acceptedByUserId  String?      @map("accepted_by_user_id") @db.Uuid
+  revokedAt         DateTime?    @map("revoked_at") @db.Timestamptz(3)
+  revokedByUserId   String?      @map("revoked_by_user_id") @db.Uuid
+  revocationReason  String?      @map("revocation_reason")
+  activatedAt       DateTime?    @map("activated_at") @db.Timestamptz(3)
+  activatedByUserId String?      @map("activated_by_user_id") @db.Uuid
+  createdByUserId   String       @map("created_by_user_id") @db.Uuid
+  version           Int          @default(1)
+  createdAt         DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+  organization      Organization @relation(fields: [organizationId], references: [organizationId], onDelete: Restrict)
+  league            League       @relation(fields: [organizationId, leagueId], references: [organizationId, id], onDelete: Restrict)
+  role              Role         @relation(fields: [organizationId, roleId], references: [organizationId, id], onDelete: Restrict)
+
+  @@id([organizationId, id])
+  @@index([organizationId, emailNormalized])
+  @@index([organizationId, expiresAt])
+  @@map("administrator_invitation")
+}
+
+model PlatformPermissionGrant {
+  id               String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId           String             @map("user_id") @db.Uuid
+  permission       PlatformPermission
+  validFrom        DateTime           @map("valid_from") @db.Timestamptz(3)
+  expiresAt        DateTime?          @map("expires_at") @db.Timestamptz(3)
+  revokedAt        DateTime?          @map("revoked_at") @db.Timestamptz(3)
+  grantedByUserId  String?            @map("granted_by_user_id") @db.Uuid
+  revokedByUserId  String?            @map("revoked_by_user_id") @db.Uuid
+  reason           String
+  revocationReason String?            @map("revocation_reason")
+  createdAt        DateTime           @default(now()) @map("created_at") @db.Timestamptz(3)
+  user             User               @relation("PlatformPermissionGrantee", fields: [userId], references: [id], onDelete: Restrict)
+  grantedByUser    User?              @relation("PlatformPermissionGrantor", fields: [grantedByUserId], references: [id], onDelete: Restrict)
+  revokedByUser    User?              @relation("PlatformPermissionRevoker", fields: [revokedByUserId], references: [id], onDelete: Restrict)
+
+  @@index([userId, permission, validFrom])
+  @@map("platform_permission_grant")
+}
+
+model PlatformIdempotencyRecord {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  actorUserId    String   @map("actor_user_id") @db.Uuid
+  key            String
+  requestHash    String   @map("request_hash")
+  responseStatus Int      @map("response_status")
+  responseBody   Json     @map("response_body")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  expiresAt      DateTime @map("expires_at") @db.Timestamptz(3)
+
+  @@unique([actorUserId, key])
+  @@map("platform_idempotency_record")
+}
+
+model PlatformAuditEvent {
+  id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  actorUserId String      @map("actor_user_id") @db.Uuid
+  action      String
+  targetType  String      @map("target_type")
+  targetId    String      @map("target_id")
+  before      Json?
+  after       Json?
+  reason      String
+  requestId   String      @map("request_id")
+  source      AuditSource
+  occurredAt  DateTime    @default(now()) @map("occurred_at") @db.Timestamptz(3)
+
+  @@index([occurredAt])
+  @@map("platform_audit_event")
 }
 
 model RolePermission {

@@ -474,6 +474,10 @@ h3 {
   color: var(--color-status-danger-text);
 }
 
+.callout.error a {
+  color: inherit;
+}
+
 .empty-state {
   background: var(--color-background-surface);
   border: 2px dashed var(--color-border-subtle);

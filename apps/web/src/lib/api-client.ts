@@ -3,6 +3,10 @@ import {
   LeagueApiClient as GeneratedLeagueApiClient,
 } from '@league/sdk';
 import type {
+  AcceptAdministratorInvitationInput,
+  AdministratorInvitationAcceptanceDto,
+  AdministratorInvitationContextDto,
+  AdministratorInvitationRegistrationDto,
   AuditEventDto,
   CreateFieldInput,
   CreateLeagueInput,
@@ -12,6 +16,11 @@ import type {
   ErrorEnvelope,
   FieldAdminDto,
   LeagueAdminDto,
+  OnboardingActivationListDto,
+  PlatformOnboardingDto,
+  PlatformOnboardingListDto,
+  ProvisionPlatformOnboardingInput,
+  ProvisionPlatformOnboardingResultDto,
   OrganizationMembershipDto,
   PublicGameDto,
   PublicLeagueHomeDto,
@@ -26,6 +35,8 @@ import type {
   UpdateTeamInput,
   UpdateVenueInput,
   VenueAdminDto,
+  RegisterAdministratorInvitationInput,
+  RevokePlatformInvitationInput,
 } from '@league/sdk';
 
 export type FieldErrors = Readonly<Record<string, readonly string[]>>;
@@ -42,12 +53,22 @@ export type PublicLeague = PublicLeagueHomeDto;
 export type PublicTeam = PublicTeamDto;
 export type PublicScheduleGame = PublicGameDto;
 export type SecurityPosture = SecurityPostureDto;
+export type PlatformOnboarding = PlatformOnboardingDto;
+export type PlatformOnboardingList = PlatformOnboardingListDto;
+export type ProvisionPlatformOnboardingResult = ProvisionPlatformOnboardingResultDto;
+export type AdministratorInvitationContext = AdministratorInvitationContextDto;
+export type AdministratorInvitationRegistration = AdministratorInvitationRegistrationDto;
+export type AdministratorInvitationAcceptance = AdministratorInvitationAcceptanceDto;
 export type {
+  AcceptAdministratorInvitationInput,
   CreateFieldInput,
   CreateLeagueInput,
   CreateSeasonInput,
   CreateTeamInput,
   CreateVenueInput,
+  ProvisionPlatformOnboardingInput,
+  RegisterAdministratorInvitationInput,
+  RevokePlatformInvitationInput,
   UpdateFieldInput,
   UpdateLeagueInput,
   UpdateSeasonInput,
@@ -193,6 +214,58 @@ export class LeagueApiClient {
 
   getSecurityPosture(): Promise<SecurityPosture> {
     return this.call(() => this.generated().getMySecurityPosture());
+  }
+
+  listPlatformOnboarding(): Promise<PlatformOnboardingList> {
+    return this.call(() => this.generated().listPlatformOnboarding());
+  }
+
+  provisionTenant(
+    input: ProvisionPlatformOnboardingInput,
+    idempotencyKey: string = createIdempotencyKey(),
+  ): Promise<ProvisionPlatformOnboardingResult> {
+    return this.call(() =>
+      this.generated().provisionPlatformOnboarding(input, {
+        idempotencyKey,
+      }),
+    );
+  }
+
+  revokeAdministratorInvitation(
+    invitationId: string,
+    input: RevokePlatformInvitationInput,
+    idempotencyKey: string = createIdempotencyKey(),
+  ): Promise<PlatformOnboarding> {
+    return this.call(() =>
+      this.generated().revokePlatformInvitation(invitationId, input, {
+        idempotencyKey,
+      }),
+    );
+  }
+
+  inspectAdministratorInvitation(invitationToken: string): Promise<AdministratorInvitationContext> {
+    return this.call(() => this.generated().inspectAdministratorInvitation({ invitationToken }));
+  }
+
+  registerAdministratorInvitation(
+    input: RegisterAdministratorInvitationInput,
+  ): Promise<AdministratorInvitationRegistration> {
+    return this.call(() => this.generated().registerAdministratorInvitation(input));
+  }
+
+  acceptAdministratorInvitation(
+    input: AcceptAdministratorInvitationInput,
+    idempotencyKey: string = createIdempotencyKey(),
+  ): Promise<AdministratorInvitationAcceptance> {
+    return this.call(() =>
+      this.generated().acceptAdministratorInvitation(input, {
+        idempotencyKey,
+      }),
+    );
+  }
+
+  activatePendingMemberships(): Promise<OnboardingActivationListDto> {
+    return this.call(() => this.generated().activatePendingMemberships());
   }
 
   async getLeagues(organizationId: string): Promise<readonly LeagueAdmin[]> {

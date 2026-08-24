@@ -9,11 +9,15 @@ import { ZodError } from 'zod';
 
 import {
   AuthenticationRequiredError,
+  DuplicateOrganizationSlugError,
   DuplicateFacilityNameError,
   DuplicateLeagueSlugError,
   InactiveLeagueError,
   InvalidIdempotencyKeyError,
+  InvitationNotRevocableError,
+  InvitationUnavailableError,
   MfaEnrollmentRequiredError,
+  PlatformAccessDeniedError,
   PublishedLeagueSlugLockedError,
   ResourceNotFoundError,
 } from './errors.js';
@@ -66,6 +70,15 @@ export class ApiErrorFilter implements ExceptionFilter {
     if (exception instanceof MfaEnrollmentRequiredError) {
       return { status: 403, code: exception.code, message: exception.message };
     }
+    if (exception instanceof PlatformAccessDeniedError) {
+      return { status: 403, code: exception.code, message: exception.message };
+    }
+    if (exception instanceof InvitationUnavailableError) {
+      return { status: 404, code: exception.code, message: exception.message };
+    }
+    if (exception instanceof InvitationNotRevocableError) {
+      return { status: 409, code: exception.code, message: exception.message };
+    }
     if (exception instanceof AuthorizationDeniedError) {
       return { status: 403, code: exception.code, message: exception.message };
     }
@@ -73,6 +86,9 @@ export class ApiErrorFilter implements ExceptionFilter {
       return { status: 404, code: exception.code, message: exception.message };
     }
     if (exception instanceof DuplicateLeagueSlugError) {
+      return { status: 409, code: exception.code, message: exception.message };
+    }
+    if (exception instanceof DuplicateOrganizationSlugError) {
       return { status: 409, code: exception.code, message: exception.message };
     }
     if (

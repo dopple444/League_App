@@ -8,10 +8,11 @@ boundary. Redis, browser state, generated views, and worker queues are never aut
 The public endpoint, authenticated tenant endpoint, runtime database connection, migrator
 connection, and ignored source-document directory are separate trust boundaries.
 
-Assets include identity sessions, tenant membership/permissions, season/team drafts and published
-snapshots, audit/outbox/idempotency records, database/object-store credentials, and future legal
-source artifacts. Current fixtures are synthetic. No waiver body, signature, contact list, real
-minor record, payment credential, or provider token is authorized in this slice.
+Assets include identity sessions, tenant membership/permissions, controlled-beta invitation
+bearers and administrator addresses, platform grants, season/team drafts and published snapshots,
+audit/outbox/idempotency records, database/object-store credentials, and future legal source
+artifacts. Current fixtures are synthetic. No waiver body, signature, contact list, real minor
+record, payment credential, or provider token is authorized in this slice.
 
 ## Priority threats and controls
 
@@ -21,6 +22,10 @@ minor record, payment credential, or provider token is authorized in this slice.
 | Title implies authority | Board/officer assignments remain independent; server checks granular permission | authorization matrix |
 | Draft/private data reaches public response | Immutable publication snapshot and public DTO allowlist; absent/draft/withdrawn returns 404 | API/E2E public visibility tests |
 | Retried mutation duplicates state | Idempotency record plus state/audit/outbox in one transaction | retry and rollback tests |
+| Platform Operator becomes an implicit customer administrator | Platform grants are identity-scoped and separate from tenant membership; provisioning uses prospective-tenant RLS without creating operator membership | operator grant/MFA denial tests and zero-membership assertion |
+| Invitation bearer leaks through storage, URL, logs, or browser history | Domain-separated HMAC bearer; SHA-256 digest-only storage; fragment and JSON-body transport; immediate fragment removal; bearer-free list/audit/outbox/idempotency DTOs | contract, database, API, component, and browser leakage tests |
+| Invitation is guessed, reused, revoked late, or accepted by the wrong identity | 256-bit opaque bearer, bounded inspection, address match, expiry/revocation/version checks, single-use serializable acceptance, uniform unavailable response | invalid/revoked/expired/wrong-address/replay/concurrency tests |
+| Pending invitation authority becomes effective before MFA | Acceptance creates only PENDING membership and exact role assignment; discovery and authorization require ACTIVE; verified MFA performs one audited activation | pending discovery/authz denial and TOTP activation tests |
 | Audit/outbox failure loses trace | Transaction rollback; audit tables deny ordinary update/delete | forced-failure integration test |
 | Redis loss, worker crash, or stale delivery abandons/duplicates committed work | PostgreSQL-authoritative outbox; metadata-only queue envelope; leased tenant-scoped `SKIP LOCKED` claims; dispatch-generation fencing; terminal failure visibility | relay unit/integration tests, lease reclaim, concurrent claim, stale completion, and Redis restart rehearsal |
 | Session/secret disclosure | HttpOnly web session design, secure mobile storage boundary, redacted structured logs, ignored generated secrets | logger tests, secret scan, response inspection |

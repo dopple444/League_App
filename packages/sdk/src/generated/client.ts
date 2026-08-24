@@ -1,5 +1,9 @@
 /* This file is generated from packages/contracts/src/openapi.ts. */
 import type {
+  AcceptAdministratorInvitationInput,
+  AdministratorInvitationAcceptanceDto,
+  AdministratorInvitationContextDto,
+  AdministratorInvitationRegistrationDto,
   AuditEventListDto,
   CreateFieldInput,
   CreateLeagueInput,
@@ -9,13 +13,21 @@ import type {
   CreateVenueInput,
   ErrorEnvelope,
   FieldAdminDto,
+  InspectAdministratorInvitationInput,
   LeagueAdminDto,
   LeagueAdminListDto,
+  OnboardingActivationListDto,
   OrganizationMembershipListDto,
+  PlatformOnboardingDto,
+  PlatformOnboardingListDto,
   PublicationDto,
   PublicLeagueHomeDto,
   PublicScheduleDto,
   PublicTeamListDto,
+  ProvisionPlatformOnboardingInput,
+  ProvisionPlatformOnboardingResultDto,
+  RegisterAdministratorInvitationInput,
+  RevokePlatformInvitationInput,
   RevokeRoleAssignmentInput,
   RoleAssignmentDto,
   SecurityPostureDto,
@@ -129,12 +141,67 @@ export class LeagueApiClient {
     });
   }
 
+  private post<TResult>(path: string, body: unknown): Promise<TResult> {
+    return this.request<TResult>(path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+  }
+
   listMyOrganizations(): Promise<OrganizationMembershipListDto> {
     return this.request('/api/v1/me/organizations');
   }
 
   getMySecurityPosture(): Promise<SecurityPostureDto> {
     return this.request('/api/v1/me/security');
+  }
+
+  listPlatformOnboarding(): Promise<PlatformOnboardingListDto> {
+    return this.request('/api/v1/platform/onboarding');
+  }
+
+  provisionPlatformOnboarding(
+    input: ProvisionPlatformOnboardingInput,
+    options: MutationOptions,
+  ): Promise<ProvisionPlatformOnboardingResultDto> {
+    return this.mutation('/api/v1/platform/onboarding', 'POST', input, options);
+  }
+
+  revokePlatformInvitation(
+    invitationId: string,
+    input: RevokePlatformInvitationInput,
+    options: MutationOptions,
+  ): Promise<PlatformOnboardingDto> {
+    return this.mutation(
+      `/api/v1/platform/invitations/${segment(invitationId)}/revoke`,
+      'POST',
+      input,
+      options,
+    );
+  }
+
+  inspectAdministratorInvitation(
+    input: InspectAdministratorInvitationInput,
+  ): Promise<AdministratorInvitationContextDto> {
+    return this.post('/api/v1/onboarding/invitations/inspect', input);
+  }
+
+  registerAdministratorInvitation(
+    input: RegisterAdministratorInvitationInput,
+  ): Promise<AdministratorInvitationRegistrationDto> {
+    return this.post('/api/v1/onboarding/invitations/register', input);
+  }
+
+  acceptAdministratorInvitation(
+    input: AcceptAdministratorInvitationInput,
+    options: MutationOptions,
+  ): Promise<AdministratorInvitationAcceptanceDto> {
+    return this.mutation('/api/v1/onboarding/invitations/accept', 'POST', input, options);
+  }
+
+  activatePendingMemberships(): Promise<OnboardingActivationListDto> {
+    return this.post('/api/v1/onboarding/activations', {});
   }
 
   listLeagues(organizationId: string): Promise<LeagueAdminListDto> {

@@ -25,6 +25,42 @@ export class MfaEnrollmentRequiredError extends Error {
   }
 }
 
+export class PlatformAccessDeniedError extends Error {
+  readonly code = 'PLATFORM_ACCESS_DENIED';
+
+  constructor() {
+    super('You do not have permission to use controlled-beta platform operations.');
+    this.name = 'PlatformAccessDeniedError';
+  }
+}
+
+export class InvitationUnavailableError extends Error {
+  readonly code = 'INVITATION_UNAVAILABLE';
+
+  constructor() {
+    super('This invitation is unavailable. Ask the issuing operator for help.');
+    this.name = 'InvitationUnavailableError';
+  }
+}
+
+export class InvitationNotRevocableError extends Error {
+  readonly code = 'INVITATION_NOT_REVOCABLE';
+
+  constructor() {
+    super('This invitation can no longer be revoked.');
+    this.name = 'InvitationNotRevocableError';
+  }
+}
+
+export class DuplicateOrganizationSlugError extends Error {
+  readonly code = 'DUPLICATE_ORGANIZATION_SLUG';
+
+  constructor() {
+    super('An organization with that slug already exists.');
+    this.name = 'DuplicateOrganizationSlugError';
+  }
+}
+
 export class InvalidIdempotencyKeyError extends Error {
   readonly code = 'INVALID_IDEMPOTENCY_KEY';
 

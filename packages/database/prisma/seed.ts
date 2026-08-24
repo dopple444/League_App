@@ -21,6 +21,8 @@ const ids = {
   boardRoleA: '00000000-0000-4000-8000-000000000702',
   auditorRoleA: '00000000-0000-4000-8000-000000000703',
   officerRoleB: '00000000-0000-4000-8000-000000000704',
+  operatorProvisionGrant: '00000000-0000-4000-8000-000000000901',
+  operatorRevokeGrant: '00000000-0000-4000-8000-000000000902',
 } as const;
 
 const allOperationalPermissions = [
@@ -157,7 +159,11 @@ async function seedOrganizationA(
               userId: membershipSeed.userId,
             },
           },
-          create: { organizationId: ids.organizationA, userId: membershipSeed.userId },
+          create: {
+            organizationId: ids.organizationA,
+            userId: membershipSeed.userId,
+            status: 'ACTIVE',
+          },
           update: { status: 'ACTIVE' },
         });
         await tx.roleAssignment.upsert({
@@ -469,7 +475,11 @@ async function seedOrganizationB(
             userId: multiTenantUserId,
           },
         },
-        create: { organizationId: ids.organizationB, userId: multiTenantUserId },
+        create: {
+          organizationId: ids.organizationB,
+          userId: multiTenantUserId,
+          status: 'ACTIVE',
+        },
         update: { status: 'ACTIVE' },
       });
       await tx.roleAssignment.upsert({
@@ -535,6 +545,7 @@ async function main(): Promise<void> {
       auditor: { name: 'Synthetic Auditor', email: 'auditor@demo.invalid' },
       multi: { name: 'Synthetic Multi-Tenant Administrator', email: 'multi-admin@demo.invalid' },
       revoked: { name: 'Synthetic Revoked Officer', email: 'revoked@demo.invalid' },
+      operator: { name: 'Synthetic Platform Operator', email: 'operator@demo.invalid' },
     } as const;
     const users = {
       admin: await ensureIdentity(prisma, auth, identities.admin, password),
@@ -542,7 +553,35 @@ async function main(): Promise<void> {
       auditor: await ensureIdentity(prisma, auth, identities.auditor, password),
       multi: await ensureIdentity(prisma, auth, identities.multi, password),
       revoked: await ensureIdentity(prisma, auth, identities.revoked, password),
+      operator: await ensureIdentity(prisma, auth, identities.operator, password),
     };
+
+    const platformGrants = [
+      { id: ids.operatorProvisionGrant, permission: 'TENANT_PROVISION' as const },
+      { id: ids.operatorRevokeGrant, permission: 'INVITATION_REVOKE' as const },
+    ];
+    for (const grant of platformGrants) {
+      await prisma.platformPermissionGrant.upsert({
+        where: { id: grant.id },
+        create: {
+          id: grant.id,
+          userId: users.operator,
+          permission: grant.permission,
+          validFrom: new Date('2026-01-01T00:00:00.000Z'),
+          reason: 'Synthetic controlled-beta Platform Operator fixture.',
+        },
+        update: {
+          userId: users.operator,
+          permission: grant.permission,
+          validFrom: new Date('2026-01-01T00:00:00.000Z'),
+          expiresAt: null,
+          revokedAt: null,
+          revokedByUserId: null,
+          revocationReason: null,
+          reason: 'Synthetic controlled-beta Platform Operator fixture.',
+        },
+      });
+    }
 
     const database = new TenantDatabase(prisma);
     await seedOrganizationA(database, users);

@@ -1315,6 +1315,19 @@ The source does not provide explicit mockup filenames for PUB-01, ADM-31, MOB-13
 - **Mockup filenames:** `ADM-63-league-basics-desktop.png`, `ADM-63-league-form-tablet.png`, `ADM-63-league-form-mobile.png`.
 - **Boundary:** This page manages leagues only within an already authorized organization. Controlled-beta operator provisioning, invitation acceptance, and MFA are separate security-gated flows; unrestricted customer tenant creation remains the post-MVP ADM-61 concept.
 
+#### ADM-64 - Controlled-beta assisted tenant provisioning and invitation lifecycle
+
+- **Route and roles:** `/platform/onboarding` | Platform Operator with an effective controlled-beta provisioning or invitation-revocation grant and verified MFA.
+- **Primary goal and action:** Create a controlled-beta customer foundation or manage an eligible pending administrator invitation without granting the operator ordinary customer-tenant membership.
+- **Layout and target viewport:** Dedicated Platform Operator Workbench | Desktop (1440), tablet (1024), and functional single-column mobile reflow (393). It does not reuse the tenant Administration shell.
+- **Above the fold:** A distinct “Platform operations” identity, an explicit controlled-beta/synthetic-data boundary, current MFA protection state, and a primary “Provision customer” action only when that exact capability is effective. The page never presents self-service pricing, subscription tiers, tenant switching, or customer content.
+- **Main content:** A reason-required task form with persistent labels for Organization name, Organization URL slug, IANA timezone, Initial league name, League URL slug, invited administrator email, and invitation lifetime. A review summary repeats the exact customer, league, address, expiration, and audit reason before confirmation. Successful creation shows a receipt with stable organization/league/invitation identifiers and a copy-once synthetic invitation handoff. The bearer value is selectable and copyable but never persisted in browser storage or retained evidence. A compact invitation ledger shows only provisioning records available to the authorized operator, explicit Pending/Accepted pending MFA/Activated/Expired/Revoked wording, expiry, and a reason-required Revoke action for eligible pending invitations.
+- **Components:** Dedicated Operator Header, Page Heading, Boundary Alert, Responsive Task Panel, Form Error Summary, Text Input, Email Input, Select/Numeric Input, Review Summary, Status Badge, Read-Only Secret Handoff, Button Primary, Button Secondary, Button Destructive.
+- **Variants and states:** Verifying platform access, MFA enrollment required, permission denied, loading ledger, empty ledger, validation failure, duplicate organization/league slug, idempotent retry, ambiguous network retry, provisioning success, copy success/failure, pending, accepted pending MFA, activated, expired, revoked, reason-required revoke confirmation, stale/not-revocable invitation, service unavailable.
+- **Responsive and accessibility:** Controls retain 48px input and 44px action minimums, visible focus, semantic headings, persistent labels, a focusable error summary, and polite success/copy announcements. The review confirmation precedes the consequential action in focus order. Cards and long identifiers wrap without page-level overflow at 200% zoom. Status never relies on color. Reduced motion removes nonessential transitions.
+- **Security and privacy constraints:** The server authorizes provisioning and revocation independently from tenant roles and from each other, and requires live MFA for every mutation. The UI exposes only the actions represented by the post-MFA capability response. The operator is not inserted as a customer member. The raw invitation bearer is returned only to the successful synthetic handoff, never in a path/query, log, audit/outbox/idempotency record, screenshot, or persistent client store. Platform list responses never expose the bearer. Real email/SMS delivery and public hosting remain explicit Production Gates.
+- **Mockup filenames:** None established. Retain token-free reviewed screenshots at 1440px, 1024px, and 393px before marking Pass.
+
 ### 8.4 Android and iOS native application
 
 #### MOB-01 - Invitation, sign in, MFA, and role or organization switch
@@ -1609,13 +1622,15 @@ The source does not provide explicit mockup filenames for PUB-01, ADM-31, MOB-13
 
 #### SYS-02 - Invitation acceptance and account creation
 
-- **Route and roles:** `/auth/accept-invite` | Unauthenticated Users (with valid token).
-- **Primary goal and action:** Seamlessly transition an invited user (e.g., a drafted player or assigned scorekeeper) into a fully registered account.
+- **Route and roles:** `/auth/accept-invite` | Unauthenticated or authenticated user holding a controlled-beta administrator invitation.
+- **Primary goal and action:** Inspect an address-bound invitation, create an issued account or continue with the matching existing account, and accept a pending League Administrator assignment without making it effective before MFA.
 - **Layout and target viewport:** Centered Auth Shell | Desktop (1440) / Mobile (393).
-- **Above the fold:** A welcoming header confirming the context: "You've been invited to join the Meade County Church Softball League by Coach Smith.".
-- **Main content:** The user's email is pre-filled and locked. Form inputs require First Name, Last Name, Password creation, and Password Confirmation. A mandatory checkbox to accept the Terms of Service and Privacy Policy. Primary action: "Create Account & Join Team".
-- **Components:** Centered Auth Card, Form Inputs, Checkbox, Button Primary.
-- **Variants and states:** Expired Invitation (displays `color.status.danger` alert and instructions to contact the admin).
+- **Above the fold:** A neutral “Administrator invitation” heading and a verified-context card showing only the organization name, initial league name, masked invited address, and expiration. It never names another tenant, operator, member, or internal identifier.
+- **Main content:** The bearer arrives only in the URL fragment, is immediately removed from browser history, and is posted in JSON for inspection. New users enter Display name, Password, and Password confirmation; the server obtains the locked address from the invitation and Better Auth owns password creation. Existing users continue to normal sign-in while the fragment is carried only in memory/fragment. After authenticated address matching, acceptance creates a PENDING membership and exact role assignment, then sends an unenrolled user to SYS-06. No unapproved Terms/Privacy checkbox or dead legal link is introduced. Once verified MFA activates the membership, the user continues to SYS-07.
+- **Components:** Centered Auth Card, Verified Context Card, Masked Read-Only Address, Form Inputs, Button Primary, Button Secondary, Form Error Summary, Alert, Status Badge.
+- **Variants and states:** Missing bearer; inspecting; valid context; new-account registration; existing-account sign-in handoff; submitting; registered/continue to sign-in; accepted pending MFA; activated; rate limited; service unavailable; and one uniform unavailable state for an invalid, expired, revoked, consumed, or otherwise unusable invitation.
+- **Responsive and accessibility:** Persistent labels, password-manager-compatible new-password inputs, paste support, 48px inputs, 44px actions, visible focus, error-summary focus, live status announcements, and no horizontal overflow at 200% zoom. Invitation status and next action never rely on color alone.
+- **Security and privacy constraints:** Inspection reveals only allowlisted invitation context. The raw bearer never enters a request path/query, log, analytics event, browser persistence, retained screenshot, audit event, or outbox payload. Registration cannot enable open sign-up or overwrite an existing account/password. Acceptance is address-bound, idempotent, and single-use. PENDING membership is neither tenant-discoverable nor permission-effective before MFA activation.
 - **Mockup filenames:** `SYS-02-invitation-acceptance-desktop.png`, `SYS-02-invitation-acceptance-mobile.png`.
 
 #### SYS-03 - Password recovery, reset, and MFA verification
@@ -1649,6 +1664,19 @@ The source does not provide explicit mockup filenames for PUB-01, ADM-31, MOB-13
 - **Responsive and accessibility:** Persistent labels, `autocomplete="one-time-code"`, numeric mobile keyboard hints without preventing paste, 48px inputs, minimum 44px actions, visible focus, live status announcements, and no horizontal overflow at 200% zoom. The QR image has an adjacent manual-key alternative; recovery codes remain selectable text and are excluded from retained screenshots.
 - **Mockup filenames:** `SYS-06-mfa-enrollment-desktop.png`, `SYS-06-mfa-enrollment-mobile.png`, `SYS-06-mfa-challenge-desktop.png`, `SYS-06-mfa-challenge-mobile.png`.
 - **Boundary:** This flow secures an already issued identity. Invitation acceptance, pending-membership activation, account recovery, and assisted tenant provisioning remain separate flows. Local development may explicitly disable the mandatory policy for synthetic fixtures; production-like beta environments fail closed with the policy enabled.
+
+#### SYS-07 - Organization and platform-workspace selection with pending or zero access
+
+- **Route and roles:** `/admin/organizations` | Authenticated issued users after any required MFA challenge or enrollment.
+- **Primary goal and action:** Continue to an effective customer organization or the separately authorized Platform Operator workbench, while giving safe guidance when no effective access exists.
+- **Layout and target viewport:** Authenticated Selection Shell | Desktop (1440), tablet (1024), and Mobile (393).
+- **Above the fold:** “Choose a workspace” heading, concise explanation that permissions differ by organization, and an MFA-required alert when a platform grant or accepted invitation still requires enrollment.
+- **Main content:** Effective ACTIVE organization memberships appear as organization cards with one “Open administration” action. An effective platform grant appears as a visually distinct “Open platform operations” card and never masquerades as a customer organization. A PENDING membership is not named, counted, linked, or otherwise tenant-discoverable; the user sees only identity-level guidance to finish MFA. A genuine zero-membership user receives invitation/contact guidance and no first-tenant fallback, tenant directory, search, or self-service create action.
+- **Components:** Page Heading, Workspace Card, Status Badge, Empty State, Alert, Button Primary, Button Secondary, Sign Out.
+- **Variants and states:** Loading posture; MFA enrollment required; active organization(s); platform-only operator; mixed platform/customer access; safe pending-activation guidance; genuine zero access; permission/service error.
+- **Responsive and accessibility:** Cards stack below tablet widths, actions meet 44px minimums, headings and focus order follow reading order, long names wrap, status uses visible wording, and the page reflows without horizontal overflow at 200% zoom.
+- **Security and privacy constraints:** The page consumes only the current identity’s allowlisted posture plus ACTIVE organization memberships. It never enumerates tenants, selects a first database organization, or reveals the identity of a pending invitation before activation.
+- **Mockup filenames:** None established. Retain reviewed 1440px and 393px token-free screenshots before marking Pass.
 
 ### 8.6 Account and personal settings
 

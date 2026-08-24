@@ -53,6 +53,7 @@ export function MfaEnrollmentForm() {
   const [codesSaved, setCodesSaved] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [requestError, setRequestError] = useState<string | null>(null);
+  const [activationError, setActivationError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const setupKey = useMemo(() => (setup ? setupKeyFromUri(setup.totpURI) : ''), [setup]);
 
@@ -135,8 +136,33 @@ export function MfaEnrollmentForm() {
     try {
       await browserApi.verifyTotp(code);
       setVerified(true);
+      try {
+        await browserApi.activatePendingMemberships();
+        setActivationError(null);
+      } catch {
+        setActivationError(
+          'Authenticator setup succeeded, but workspace activation could not be completed. Save your recovery codes, then retry activation.',
+        );
+      }
     } catch (error) {
       setRequestError(providerMessage(error, 'verify'));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const continueAfterEnrollment = async () => {
+    if (!codesSaved || submitting) return;
+    setSubmitting(true);
+    try {
+      await browserApi.activatePendingMemberships();
+      setActivationError(null);
+      router.replace('/admin/organizations');
+      router.refresh();
+    } catch {
+      setActivationError(
+        'Workspace activation is still unavailable. Your authenticator is active and your recovery codes remain valid. Try again.',
+      );
     } finally {
       setSubmitting(false);
     }
@@ -185,6 +211,11 @@ export function MfaEnrollmentForm() {
         <div className="callout" role="status">
           Authenticator verification succeeded. Each recovery code can be used only once.
         </div>
+        {activationError ? (
+          <div className="callout error" role="alert">
+            {activationError}
+          </div>
+        ) : null}
         <ul className={styles.recoveryCodes} aria-label="One-time recovery codes">
           {setup.backupCodes.map((code) => (
             <li key={code}>
@@ -208,14 +239,11 @@ export function MfaEnrollmentForm() {
           </div>
         </div>
         <button
-          disabled={!codesSaved}
-          onClick={() => {
-            router.replace('/admin/organizations');
-            router.refresh();
-          }}
+          disabled={!codesSaved || submitting}
+          onClick={() => void continueAfterEnrollment()}
           type="button"
         >
-          Continue to organizations
+          {submitting ? 'Activating workspace…' : 'Continue to organizations'}
         </button>
       </section>
     );

@@ -123,6 +123,12 @@ Put `organization_id` on all tenant-owned records, even when it can be inferred.
 
 Cross-tenant platform support access is explicitly granted, time-bounded, reasoned, and audited. Avoid per-tenant databases until contractual isolation or operational scale justifies them.
 
+Controlled-beta provisioning uses a separate platform permission grant, actor-scoped idempotency
+record, and append-only platform audit event. A Platform Operator is not inserted into the customer
+organization. The prospective organization UUID becomes the tenant RLS context for the one atomic
+foundation transaction, while platform records are isolated by the authenticated actor at the
+database boundary.
+
 ## 6. Authentication and authorization
 
 - Better Auth manages identities, verified email/phone as configured, sessions, recovery, and MFA/passkey/OAuth capabilities selected for production.
@@ -131,6 +137,12 @@ Cross-tenant platform support access is explicitly granted, time-bounded, reason
 - `Person` and `User` remain distinct because roster members may lack a login and guardians may manage several people.
 - Authorization policies receive user, organization, role/permission, target resource, season state, and relevant relationship.
 - High-risk actions may require recent reauthentication/MFA.
+- Public email/password sign-up remains disabled. An unmounted server-only Better Auth instance may
+  create an identity only after a valid address-bound administrator invitation is inspected; it does
+  not expose a second public authentication handler or grant tenant access.
+- Invitation acceptance creates a `PENDING` organization membership and exact role assignment.
+  Pending memberships are excluded from discovery and authorization. Only a verified MFA session
+  may perform the audited transition to `ACTIVE`.
 
 ## 7. Core data model
 
@@ -141,6 +153,8 @@ Names below are conceptual; Codex may refine normalization while preserving inva
 - `organization`, `league`, `division`, `season`
 - `user`, `person`, `user_person_link`, `household`, `guardian_relationship`
 - `organization_membership`, `role`, `permission`, `role_permission`, `membership_role`
+- `administrator_invitation` (tenant-owned digest, expiry, acceptance, revocation, and activation
+  evidence)
 - `governance_body`, `office`, `term`, `appointment_election`, `governance_decision`
 - `feature_flag`, `organization_setting`, `branding`, `provider_connection`
 
@@ -204,8 +218,20 @@ Money uses integer minor units plus ISO currency; never floating point. Provider
 ### Platform assurance
 
 - `audit_event`, `security_event`, `support_access_grant`
+- `platform_permission_grant`, `platform_idempotency_record`, `platform_audit_event`
 - `export_request`, `data_subject_request`, `retention_action`
 - `webhook_event`, `outbox_event`, `job_result`
+
+Controlled-beta invitation invariants:
+
+- the raw invitation bearer is never stored; only a SHA-256 digest is tenant-owned;
+- the bearer appears only in a copy-once provisioning result, immediately consumed URL fragments,
+  and JSON POST bodies—never paths, queries, logs, list DTOs, audit/outbox payloads, or screenshots;
+- invalid, expired, revoked, used, wrong-address, and prior-membership cases share one unavailable
+  response;
+- platform authority is effective-dated and independent of customer membership;
+- provisioning is reason-required, MFA-only, serializable, and idempotent; replay reconstructs the
+  same bearer from the stored random invitation UUID without storing it in the idempotency record.
 
 ## 8. Game-event architecture
 

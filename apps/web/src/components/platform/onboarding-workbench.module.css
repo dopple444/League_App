@@ -1,0 +1,210 @@
+.workbench,
+.workspaceHeader,
+.taskPanel,
+.receipt,
+.ledger,
+.ledgerCard,
+.identity,
+.reviewList,
+.handoff {
+  min-width: 0;
+}
+
+.workspaceHeader {
+  align-items: start;
+  background: var(--color-background-inverse);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-inverse);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  justify-content: space-between;
+  margin-bottom: var(--space-lg);
+  padding: var(--space-lg);
+}
+
+.workspaceHeader p,
+.workspaceHeader strong {
+  margin: 0;
+}
+
+.workspaceHeader strong {
+  font-size: var(--font-size-lg);
+}
+
+.workspaceHeader .operatorEyebrow {
+  color: var(--color-text-inverse);
+}
+
+.taskPanel,
+.receipt {
+  border-left: 0.35rem solid var(--color-status-info-indicator);
+  box-shadow: none;
+  margin-bottom: var(--space-lg);
+}
+
+.taskHeader,
+.ledgerHeader,
+.cardHeader,
+.actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  justify-content: space-between;
+}
+
+.taskHeader {
+  align-items: start;
+  margin-bottom: var(--space-lg);
+}
+
+.taskHeader h2,
+.taskHeader p,
+.ledgerHeader h2,
+.ledgerHeader p,
+.cardHeader h3,
+.identity p,
+.receipt h2,
+.receipt p {
+  margin: 0;
+}
+
+.helper {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  margin: 0;
+}
+
+.reviewList {
+  display: grid;
+  gap: var(--space-sm);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.reviewList > div {
+  background: var(--color-background-surface-muted);
+  border-radius: var(--radius-sm);
+  padding: var(--space-md);
+}
+
+.reviewList dt {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+}
+
+.reviewList dd {
+  margin: var(--space-xs) 0 0;
+  overflow-wrap: anywhere;
+}
+
+.handoff {
+  background: var(--color-status-warning-surface);
+  border: 1px solid var(--color-status-warning-border);
+  border-radius: var(--radius-md);
+  color: var(--color-status-warning-text);
+  display: grid;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+}
+
+.handoff output {
+  background: var(--color-background-surface);
+  border: 1px solid var(--color-border-interactive);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-primary);
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: var(--font-size-sm);
+  overflow-wrap: anywhere;
+  padding: var(--space-md);
+  user-select: all;
+}
+
+.ledger {
+  display: grid;
+  gap: var(--space-md);
+  margin-top: var(--space-xl);
+}
+
+.ledgerList {
+  display: grid;
+  gap: var(--space-md);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ledgerCard {
+  background: var(--color-background-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  display: grid;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+}
+
+.identity {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.identity code,
+.identity p,
+.ledgerCard button {
+  overflow-wrap: anywhere;
+}
+
+.metaGrid {
+  display: grid;
+  gap: var(--space-sm);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.metaGrid > div {
+  min-width: 0;
+}
+
+.metaGrid span {
+  color: var(--color-text-muted);
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+}
+
+.metaGrid strong,
+.metaGrid time {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.revokePanel {
+  border-top: 1px solid var(--color-border-subtle);
+  display: grid;
+  gap: var(--space-md);
+  padding-top: var(--space-md);
+}
+
+@media (max-width: 63.99rem) {
+  .reviewList,
+  .metaGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 47.99rem) {
+  .workspaceHeader,
+  .taskPanel,
+  .receipt,
+  .ledgerCard {
+    padding: var(--space-md);
+  }
+
+  .taskHeader > button,
+  .actions button {
+    width: 100%;
+  }
+}

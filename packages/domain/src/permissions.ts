@@ -22,6 +22,17 @@ export const permissions = {
 
 export type Permission = (typeof permissions)[keyof typeof permissions];
 
+export const leagueAdministratorPermissions = Object.freeze(
+  Object.values(permissions),
+) as readonly Permission[];
+
+export const platformPermissions = {
+  tenantProvision: 'TENANT_PROVISION',
+  invitationRevoke: 'INVITATION_REVOKE',
+} as const;
+
+export type PlatformPermission = (typeof platformPermissions)[keyof typeof platformPermissions];
+
 export const authorityKinds = ['BOARD', 'OFFICER', 'OPERATIONS', 'AUDIT'] as const;
 export type AuthorityKind = (typeof authorityKinds)[number];
 

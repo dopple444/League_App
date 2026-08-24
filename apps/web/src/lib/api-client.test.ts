@@ -69,15 +69,40 @@ describe('LeagueApiClient SDK adapter', () => {
 
   it('reads the authenticated MFA policy through the generated SDK', async () => {
     const fetcher = vi.fn<typeof fetch>(async () =>
-      jsonResponse({ mfaEnabled: false, mfaRequired: true }),
+      jsonResponse({
+        mfaEnabled: false,
+        mfaRequired: true,
+        pendingActivation: true,
+        platformAccess: false,
+      }),
     );
     const client = new LeagueApiClient('https://league.example', fetcher);
 
     await expect(client.getSecurityPosture()).resolves.toEqual({
       mfaEnabled: false,
       mfaRequired: true,
+      pendingActivation: true,
+      platformAccess: false,
     });
     expect(String(fetcher.mock.calls[0]?.[0])).toContain('/api/v1/me/security');
+  });
+
+  it('preserves platform capability flags with the onboarding ledger', async () => {
+    const fetcher = vi.fn<typeof fetch>(async () =>
+      jsonResponse({
+        canProvisionTenants: false,
+        canRevokeInvitations: true,
+        items: [],
+      }),
+    );
+    const client = new LeagueApiClient('https://league.example', fetcher);
+
+    await expect(client.listPlatformOnboarding()).resolves.toEqual({
+      canProvisionTenants: false,
+      canRevokeInvitations: true,
+      items: [],
+    });
+    expect(String(fetcher.mock.calls[0]?.[0])).toContain('/api/v1/platform/onboarding');
   });
 
   it('routes tenant reads through the generated SDK', async () => {

@@ -15,6 +15,48 @@ const slug = {
   maxLength: 80,
 } as const;
 const version = { type: 'integer', minimum: 1 } as const;
+const invitationToken = { type: 'string', minLength: 32, maxLength: 512 } as const;
+const dateTime = { type: 'string', format: 'date-time' } as const;
+const nullableDateTime = { anyOf: [dateTime, { type: 'null' }] } as const;
+const platformOnboardingRequired = [
+  'organizationId',
+  'organizationName',
+  'organizationSlug',
+  'timezone',
+  'leagueId',
+  'leagueName',
+  'leagueSlug',
+  'invitationId',
+  'administratorEmail',
+  'status',
+  'expiresAt',
+  'acceptedAt',
+  'revokedAt',
+  'activatedAt',
+  'version',
+  'createdAt',
+] as const;
+const platformOnboardingProperties = {
+  organizationId: id,
+  organizationName: { type: 'string', minLength: 1, maxLength: 160 },
+  organizationSlug: slug,
+  timezone: { type: 'string', minLength: 1, maxLength: 64 },
+  leagueId: id,
+  leagueName: { type: 'string', minLength: 1, maxLength: 160 },
+  leagueSlug: slug,
+  invitationId: id,
+  administratorEmail: { type: 'string', format: 'email', maxLength: 254 },
+  status: {
+    type: 'string',
+    enum: ['PENDING', 'ACCEPTED_PENDING_MFA', 'ACTIVATED', 'EXPIRED', 'REVOKED'],
+  },
+  expiresAt: dateTime,
+  acceptedAt: nullableDateTime,
+  revokedAt: nullableDateTime,
+  activatedAt: nullableDateTime,
+  version,
+  createdAt: dateTime,
+} as const;
 const path = (name: string) => ({
   name,
   in: 'path',
@@ -54,6 +96,8 @@ export const openApiDocument: Readonly<Record<string, unknown>> = {
   },
   tags: [
     { name: 'Identity' },
+    { name: 'Platform' },
+    { name: 'Onboarding' },
     { name: 'Leagues' },
     { name: 'Seasons' },
     { name: 'Teams' },
@@ -76,6 +120,73 @@ export const openApiDocument: Readonly<Record<string, unknown>> = {
         tags: ['Identity'],
         security: secure,
         responses: { '200': response(ref('SecurityPosture')), ...errors },
+      },
+    },
+    '/api/v1/platform/onboarding': {
+      get: {
+        operationId: 'listPlatformOnboarding',
+        tags: ['Platform'],
+        security: secure,
+        responses: { '200': response(ref('PlatformOnboardingList')), ...errors },
+      },
+      post: {
+        operationId: 'provisionPlatformOnboarding',
+        tags: ['Platform'],
+        security: secure,
+        parameters: [idempotency],
+        requestBody: body(ref('ProvisionPlatformOnboardingInput')),
+        responses: {
+          '201': response(ref('ProvisionPlatformOnboardingResult'), 'Customer provisioned'),
+          ...errors,
+        },
+      },
+    },
+    '/api/v1/platform/invitations/{invitationId}/revoke': {
+      parameters: [path('invitationId')],
+      post: {
+        operationId: 'revokePlatformInvitation',
+        tags: ['Platform'],
+        security: secure,
+        parameters: [idempotency],
+        requestBody: body(ref('RevokePlatformInvitationInput')),
+        responses: { '200': response(ref('PlatformOnboarding')), ...errors },
+      },
+    },
+    '/api/v1/onboarding/invitations/inspect': {
+      post: {
+        operationId: 'inspectAdministratorInvitation',
+        tags: ['Onboarding'],
+        security: [],
+        requestBody: body(ref('InspectAdministratorInvitationInput')),
+        responses: { '200': response(ref('AdministratorInvitationContext')), ...errors },
+      },
+    },
+    '/api/v1/onboarding/invitations/register': {
+      post: {
+        operationId: 'registerAdministratorInvitation',
+        tags: ['Onboarding'],
+        security: [],
+        requestBody: body(ref('RegisterAdministratorInvitationInput')),
+        responses: { '200': response(ref('AdministratorInvitationRegistration')), ...errors },
+      },
+    },
+    '/api/v1/onboarding/invitations/accept': {
+      post: {
+        operationId: 'acceptAdministratorInvitation',
+        tags: ['Onboarding'],
+        security: secure,
+        parameters: [idempotency],
+        requestBody: body(ref('AcceptAdministratorInvitationInput')),
+        responses: { '200': response(ref('AdministratorInvitationAcceptance')), ...errors },
+      },
+    },
+    '/api/v1/onboarding/activations': {
+      post: {
+        operationId: 'activatePendingMemberships',
+        tags: ['Onboarding'],
+        security: secure,
+        requestBody: body(ref('ActivatePendingMembershipsInput')),
+        responses: { '200': response(ref('OnboardingActivationList')), ...errors },
       },
     },
     '/api/v1/organizations/{organizationId}/leagues': {
@@ -360,10 +471,141 @@ export const openApiDocument: Readonly<Record<string, unknown>> = {
       SecurityPosture: {
         type: 'object',
         additionalProperties: false,
-        required: ['mfaEnabled', 'mfaRequired'],
+        required: ['mfaEnabled', 'mfaRequired', 'platformAccess', 'pendingActivation'],
         properties: {
           mfaEnabled: { type: 'boolean' },
           mfaRequired: { type: 'boolean' },
+          platformAccess: { type: 'boolean' },
+          pendingActivation: { type: 'boolean' },
+        },
+      },
+      ProvisionPlatformOnboardingInput: {
+        type: 'object',
+        additionalProperties: false,
+        required: [
+          'organizationName',
+          'organizationSlug',
+          'timezone',
+          'leagueName',
+          'leagueSlug',
+          'administratorEmail',
+          'invitationExpiresInHours',
+          'reason',
+        ],
+        properties: {
+          organizationName: { type: 'string', minLength: 1, maxLength: 160 },
+          organizationSlug: slug,
+          timezone: { type: 'string', minLength: 1, maxLength: 64 },
+          leagueName: { type: 'string', minLength: 1, maxLength: 160 },
+          leagueSlug: slug,
+          administratorEmail: { type: 'string', format: 'email', maxLength: 254 },
+          invitationExpiresInHours: { type: 'integer', minimum: 1, maximum: 720 },
+          reason: { type: 'string', minLength: 1, maxLength: 500 },
+        },
+      },
+      PlatformOnboarding: {
+        type: 'object',
+        additionalProperties: false,
+        required: platformOnboardingRequired,
+        properties: platformOnboardingProperties,
+      },
+      PlatformOnboardingList: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['canProvisionTenants', 'canRevokeInvitations', 'items'],
+        properties: {
+          canProvisionTenants: { type: 'boolean' },
+          canRevokeInvitations: { type: 'boolean' },
+          items: { type: 'array', maxItems: 200, items: ref('PlatformOnboarding') },
+        },
+      },
+      ProvisionPlatformOnboardingResult: {
+        type: 'object',
+        additionalProperties: false,
+        required: [...platformOnboardingRequired, 'invitationToken'],
+        properties: { ...platformOnboardingProperties, invitationToken },
+      },
+      RevokePlatformInvitationInput: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['expectedVersion', 'reason'],
+        properties: {
+          expectedVersion: version,
+          reason: { type: 'string', minLength: 1, maxLength: 500 },
+        },
+      },
+      InspectAdministratorInvitationInput: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['invitationToken'],
+        properties: { invitationToken },
+      },
+      AdministratorInvitationContext: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['organizationName', 'leagueName', 'administratorEmailHint', 'expiresAt'],
+        properties: {
+          organizationName: { type: 'string', minLength: 1, maxLength: 160 },
+          leagueName: { type: 'string', minLength: 1, maxLength: 160 },
+          administratorEmailHint: { type: 'string', minLength: 3, maxLength: 254 },
+          expiresAt: dateTime,
+        },
+      },
+      RegisterAdministratorInvitationInput: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['invitationToken', 'name', 'password'],
+        properties: {
+          invitationToken,
+          name: { type: 'string', minLength: 1, maxLength: 120 },
+          password: { type: 'string', minLength: 12, maxLength: 128 },
+        },
+      },
+      AdministratorInvitationRegistration: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['continueToSignIn'],
+        properties: { continueToSignIn: { type: 'boolean', const: true } },
+      },
+      AcceptAdministratorInvitationInput: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['invitationToken'],
+        properties: { invitationToken },
+      },
+      AdministratorInvitationAcceptance: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['accepted', 'membershipStatus', 'mfaRequired', 'acceptedAt'],
+        properties: {
+          accepted: { type: 'boolean', const: true },
+          membershipStatus: { type: 'string', const: 'PENDING' },
+          mfaRequired: { type: 'boolean', const: true },
+          acceptedAt: dateTime,
+        },
+      },
+      ActivatePendingMembershipsInput: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {},
+      },
+      OnboardingActivation: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['organizationId', 'membershipId', 'membershipStatus', 'activatedAt'],
+        properties: {
+          organizationId: id,
+          membershipId: id,
+          membershipStatus: { type: 'string', const: 'ACTIVE' },
+          activatedAt: dateTime,
+        },
+      },
+      OnboardingActivationList: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['items'],
+        properties: {
+          items: { type: 'array', maxItems: 200, items: ref('OnboardingActivation') },
         },
       },
       CreateLeagueInput: {

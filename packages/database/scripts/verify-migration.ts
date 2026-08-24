@@ -53,6 +53,8 @@ try {
         GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA app TO league_test;
         REVOKE UPDATE, DELETE ON audit_event, season_configuration_revision FROM league_test;
         REVOKE DELETE ON publication_snapshot FROM league_test;
+        REVOKE SELECT, INSERT, UPDATE, DELETE ON platform_permission_grant FROM league_test;
+        REVOKE UPDATE, DELETE ON platform_audit_event FROM league_test;
       END IF;
     END
     $grant$;

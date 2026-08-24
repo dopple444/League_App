@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 
 import {
   hasPermission,
+  leagueAdministratorPermissions,
   permissions,
+  platformPermissions,
   requestFingerprint,
   type AuthorizationContext,
 } from '../src/index.js';
@@ -20,6 +22,14 @@ function context(overrides: Partial<AuthorizationContext> = {}): AuthorizationCo
 }
 
 describe('permission policy', () => {
+  it('keeps administrator and platform permission templates explicit', () => {
+    expect(new Set(leagueAdministratorPermissions)).toEqual(new Set(Object.values(permissions)));
+    expect(platformPermissions).toEqual({
+      tenantProvision: 'TENANT_PROVISION',
+      invitationRevoke: 'INVITATION_REVOKE',
+    });
+  });
+
   it('keeps board authority separate from officer permissions', () => {
     const boardOnly = context({
       roles: [

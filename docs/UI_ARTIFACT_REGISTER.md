@@ -1,6 +1,6 @@
 # UI artifact register
 
-Last updated: 2026-08-22
+Last updated: 2026-08-24
 
 Visual authority: [`LEAGUE_APP_UI_STYLE_GUIDE.md`](LEAGUE_APP_UI_STYLE_GUIDE.md)
 
@@ -37,7 +37,7 @@ The guide was introduced after the initial UI was implemented. The shared Modern
 | ------------- | --------------------------------------------------------------------------------------------------- | ------------------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------ | ----------- | ------------- | ------------- |
 | WEB-PAGE-001  | League gateway and tenant entry `/`                                                                 | Web page            | `apps/web/src/app/page.tsx`                                                                               | PUB-21                                           | Implemented | Needs changes | [WEB-PAGE-001](#web-page-001--league-gateway-and-tenant-entry)               |
 | WEB-PAGE-002  | Sign in `/sign-in`                                                                                  | Web page            | `apps/web/src/app/sign-in/page.tsx`                                                                       | SYS-01                                           | Implemented | Needs changes | —             |
-| WEB-PAGE-003  | Organization chooser `/admin/organizations`                                                         | Web page            | `apps/web/src/app/admin/organizations/page.tsx`                                                           | No exact match                                   | Implemented | Spec needed   | —             |
+| WEB-PAGE-003  | Organization and platform-workspace chooser `/admin/organizations`                                  | Web page            | `apps/web/src/app/admin/organizations/page.tsx`                                                           | SYS-07                                           | Implemented | Needs changes | [WEB-PAGE-003](#web-page-003--organization-and-platform-workspace-chooser)     |
 | WEB-PAGE-004  | Organization command center `/admin/{organizationId}`                                               | Web page            | `apps/web/src/app/admin/[organizationId]/page.tsx`                                                        | ADM-01                                           | Partial     | Needs changes | —             |
 | WEB-PAGE-005  | Season list `/admin/{organizationId}/seasons`                                                       | Web page            | `apps/web/src/app/admin/[organizationId]/seasons/page.tsx`                                                | ADM-03                                           | Partial     | Needs changes | —             |
 | WEB-PAGE-006  | New season `/admin/{organizationId}/seasons/new`                                                    | Web page            | `apps/web/src/app/admin/[organizationId]/seasons/new/page.tsx`                                            | ADM-03 (partial; guide specifies a wizard/modal) | Partial     | Needs changes | —             |
@@ -53,6 +53,8 @@ The guide was introduced after the initial UI was implemented. The shared Modern
 | WEB-PAGE-016  | League basics `/admin/{organizationId}/leagues`                                                   | Web page            | `apps/web/src/app/admin/[organizationId]/leagues/page.tsx`                                                 | ADM-63                                           | Implemented | Needs changes | [WEB-PAGE-016](#web-page-016--league-basics)                                  |
 | WEB-PAGE-017  | Privileged MFA enrollment `/auth/enroll-mfa`                                                     | Web page            | `apps/web/src/app/auth/enroll-mfa/page.tsx`                                                               | SYS-06                                           | Implemented | Needs changes | —                                                                            |
 | WEB-PAGE-018  | MFA sign-in challenge `/auth/two-factor`                                                         | Web page            | `apps/web/src/app/auth/two-factor/page.tsx`                                                               | SYS-06                                           | Implemented | Needs changes | —                                                                            |
+| WEB-PAGE-019  | Controlled-beta Platform Operator onboarding `/platform/onboarding`                              | Web page            | `apps/web/src/app/platform/onboarding/page.tsx`                                                           | ADM-64                                           | Implemented | Needs changes | [WEB-PAGE-019](#web-page-019--controlled-beta-platform-operator-onboarding)   |
+| WEB-PAGE-020  | Administrator invitation acceptance `/auth/accept-invite`                                       | Web page            | `apps/web/src/app/auth/accept-invite/page.tsx`                                                            | SYS-02                                           | Implemented | Needs changes | [WEB-PAGE-020](#web-page-020--administrator-invitation-acceptance)            |
 | WEB-STATE-001 | Global loading state                                                                                | Web system state    | `apps/web/src/app/loading.tsx`                                                                            | SYS-04                                           | Implemented | Needs changes | —             |
 | WEB-STATE-002 | Global error and service-unavailable states                                                         | Web system state    | `apps/web/src/app/error.tsx`; `apps/web/src/components/site-shell.tsx`                                    | SYS-04                                           | Implemented | Needs changes | —             |
 | WEB-STATE-003 | Not-found state                                                                                     | Web system state    | `apps/web/src/app/not-found.tsx`                                                                          | SYS-04                                           | Implemented | Needs changes | —             |
@@ -79,6 +81,9 @@ The guide was introduced after the initial UI was implemented. The shared Modern
 | WEB-FORM-010 | Create or edit league                | Web form    | `apps/web/src/components/admin/league-manager.tsx`      | ADM-63                                    | Implemented | Needs changes | [WEB-FORM-010](#web-form-010--create-or-edit-league)   |
 | WEB-FORM-011 | Privileged MFA enrollment            | Web form    | `apps/web/src/components/auth/mfa-enrollment-form.tsx`  | SYS-06                                    | Implemented | Needs changes | —                                                      |
 | WEB-FORM-012 | MFA sign-in challenge                | Web form    | `apps/web/src/components/auth/mfa-challenge-form.tsx`   | SYS-06                                    | Implemented | Needs changes | —                                                      |
+| WEB-FORM-013 | Controlled-beta customer provisioning | Web form    | `apps/web/src/components/platform/onboarding-workbench.tsx` | ADM-64                                 | Implemented | Needs changes | [WEB-FORM-013](#web-form-013--controlled-beta-customer-provisioning)          |
+| WEB-FORM-014 | Administrator invitation registration and acceptance | Web form | `apps/web/src/components/auth/invitation-acceptance.tsx` | SYS-02                              | Implemented | Needs changes | [WEB-FORM-014](#web-form-014--administrator-invitation-registration-and-acceptance) |
+| WEB-FORM-015 | Administrator invitation revocation | Web form    | `apps/web/src/components/platform/onboarding-workbench.tsx` | ADM-64                                 | Implemented | Needs changes | [WEB-FORM-015](#web-form-015--administrator-invitation-revocation)            |
 | MOB-FORM-001 | Sign in                              | Native form | `apps/mobile/app/(auth)/sign-in.tsx`                   | MOB-01                                    | Implemented | Needs changes | —             |
 
 ## Current shared-foundation baseline
@@ -88,6 +93,7 @@ The guide was introduced after the initial UI was implemented. The shared Modern
 | DS-TOKEN-001   | Shared semantic token package                                        | Cross-platform design system | `packages/ui-tokens/`                                                                                   | Sections 2, 4, and 10           | Implemented | Pass          | [DS-TOKEN-001](#ds-token-001--shared-semantic-token-package)                  |
 | WEB-SHELL-001  | Public header, footer, and site icon                                  | Web shell                    | `apps/web/src/app/layout.tsx`; `apps/web/src/app/icon.tsx`; `apps/web/src/app/globals.css`; `apps/web/src/components/site-shell.tsx` | Sections 2, 5, 6, and 10        | Implemented | Needs changes | [WEB-SHELL-001](#web-shell-001--public-header-and-footer)                     |
 | WEB-SHELL-002  | Administration shell                                                 | Web shell                    | `apps/web/src/app/globals.css`; `apps/web/src/components/admin/admin-shell.tsx`                         | Sections 5, 6, and 10           | Partial     | Needs changes | [WEB-SHELL-002](#web-shell-002--administration-shell)                         |
+| WEB-SHELL-003  | Platform Operator workbench shell                                     | Web shell                    | `apps/web/src/app/globals.css`; `apps/web/src/app/platform/onboarding/page.tsx`                         | ADM-64; Sections 5, 6, and 10   | Implemented | Needs changes | [WEB-SHELL-003](#web-shell-003--platform-operator-workbench-shell)             |
 | WEB-NAV-001    | Breadcrumbs                                                          | Web navigation               | `apps/web/src/components/breadcrumbs.tsx`                                                               | Section 6                       | Implemented | Needs changes | —                                                                             |
 | WEB-NAV-002    | Contextual public-league navigation                                  | Web navigation               | `apps/web/src/components/public-league-navigation.tsx`                                                  | PUB-21; PUB-01; Sections 5–6    | Implemented | Needs changes | [WEB-NAV-002](#web-nav-002--contextual-public-league-navigation)              |
 | WEB-PRIM-001   | Page heading, status badge, and empty/service states                 | Web component set            | `apps/web/src/app/globals.css`; `apps/web/src/components/site-shell.tsx`                                | Sections 4 and 6; SYS-04        | Implemented | Needs changes | [WEB-PRIM-001](#web-prim-001--web-heading-status-and-system-state-primitives) |
@@ -99,6 +105,7 @@ The guide was introduced after the initial UI was implemented. The shared Modern
 | WEB-DOMAIN-005 | Public schedule results                                              | Web interaction/data display | `apps/web/src/components/public-schedule.tsx`                                                           | PUB-03                          | Implemented | Needs changes | [WEB-DOMAIN-005](#web-domain-005--public-schedule-results)                    |
 | WEB-DOMAIN-006 | Venue accordion and nested field table                              | Web interaction/data display | `apps/web/src/components/admin/venue-field-manager.tsx`                                                 | ADM-26                          | Implemented | Needs changes | [WEB-DOMAIN-006](#web-domain-006--venue-accordion-and-nested-field-table)     |
 | WEB-DOMAIN-007 | League card list and lifecycle status                               | Web interaction/data display | `apps/web/src/components/admin/league-manager.tsx`                                                       | ADM-63                          | Implemented | Needs changes | [WEB-DOMAIN-007](#web-domain-007--league-card-list-and-lifecycle-status)       |
+| WEB-DOMAIN-008 | Controlled-beta invitation ledger and lifecycle status             | Web interaction/data display | `apps/web/src/components/platform/onboarding-workbench.tsx`                                             | ADM-64                          | Implemented | Needs changes | [WEB-DOMAIN-008](#web-domain-008--controlled-beta-invitation-ledger-and-lifecycle-status) |
 | MOB-PRIM-001   | Screen, heading, card, action, error, loading, and status primitives | Native component set         | `apps/mobile/app/_layout.tsx`; `apps/mobile/src/components/ui.tsx`                                      | Sections 4, 6, and 10           | Implemented | Needs changes | [MOB-PRIM-001](#mob-prim-001--native-ui-primitives-and-font-adapter)          |
 
 The unimplemented `PUB`, `TEAM`, `ADM`, `MOB`, `SYS`, `ACC`, `DOC`, and `COM` catalog remains in the style guide and is intentionally not duplicated here. Add its entries to this register when implementation starts.
@@ -593,3 +600,163 @@ The initial foundation ambiguities were resolved on 2026-08-18 in the style guid
 - Screenshot/output evidence: None recorded.
 - Checklist result: Needs changes.
 - Gaps, exceptions, and follow-up: Complete Android/iOS device or emulator visual, dynamic-type, TalkBack/VoiceOver, touch, dark/system-setting, and reduced-motion checks before Pass.
+
+### WEB-PAGE-003 — Organization and platform-workspace chooser
+
+- Guide specification and revision: SYS-07 and Modern Field Sections 4–6, revised 2026-08-24.
+- Requirements and constraints: show only ACTIVE customer organizations or separately authorized
+  platform access; keep PENDING membership undiscoverable; do not imply customer membership,
+  provisioning capability, or public self-service from platform access.
+- Reviewer and date: Codex, 2026-08-24.
+- Viewports or output formats checked: automated 1440px, 1024px, and 393px reflow; retained desktop
+  and mobile synthetic captures.
+- Automated checks: 94/94 web tests, 14/14 trusted-LAN functional browser journeys, and 10/10
+  desktop/mobile accessibility checks passed. Mocked browser coverage verifies keyboard navigation,
+  capability-neutral copy, zero horizontal overflow, and no automated WCAG A/AA findings.
+- Screenshot/output evidence:
+  [desktop 1440](evidence/ui/2026-08-24-controlled-beta-onboarding/06-workspace-chooser-desktop-1440.png),
+  [mobile 393](evidence/ui/2026-08-24-controlled-beta-onboarding/07-workspace-chooser-mobile-393.png).
+- Checklist result: Needs changes.
+- Gaps, exceptions, and follow-up: The captures were visually inspected and contain synthetic data
+  only. Real screen-reader, desktop Ctrl-Plus, physical-device/manual, and complete human
+  operator/invitee UAT remain outstanding.
+
+### WEB-PAGE-019 — Controlled-beta Platform Operator onboarding
+
+- Guide specification and revision: ADM-64 and Modern Field Sections 4–6, revised 2026-08-24.
+- Requirements and constraints: separate effective platform grants, verified MFA, reason-required
+  audited mutations, no operator customer membership, copy-once fragment handoff, and no bearer in
+  paths, queries, lists, storage, logs, screenshots, audit, outbox, or idempotency history.
+- Reviewer and date: Codex, 2026-08-24.
+- Viewports or output formats checked: automated 1440px, 1024px, and 393px reflow; retained desktop,
+  tablet, and mobile synthetic captures.
+- Automated checks: 94/94 web tests, 22/22 API integration tests, 14/14 trusted-LAN functional
+  browser journeys, and 10/10 desktop/mobile accessibility checks passed. Browser coverage verifies
+  keyboard focus/restoration, validation summaries, independent capabilities, blocked evidence
+  mutations, 44/48px targets, and no automated WCAG A/AA findings.
+- Screenshot/output evidence:
+  [workbench desktop 1440](evidence/ui/2026-08-24-controlled-beta-onboarding/03-platform-workbench-desktop-1440.png),
+  [form tablet 1024](evidence/ui/2026-08-24-controlled-beta-onboarding/04-platform-provision-form-tablet-1024.png),
+  [form mobile 393](evidence/ui/2026-08-24-controlled-beta-onboarding/05-platform-provision-form-mobile-393.png).
+- Checklist result: Needs changes.
+- Gaps, exceptions, and follow-up: Retained browser state is deterministic and mutation-blocked; no
+  copy-once receipt was captured. Complete human Platform Operator-to-invitee UAT, real
+  screen-reader, desktop Ctrl-Plus, and physical-device/manual review remain outstanding.
+
+### WEB-PAGE-020 — Administrator invitation acceptance
+
+- Guide specification and revision: SYS-02 and Modern Field Sections 4–6, revised 2026-08-24.
+- Requirements and constraints: address-bound non-enumerating invitation context; bearer consumed
+  from a fragment before inspection; POST-body/in-memory handling only; invitation-authorized account
+  creation; acceptance into ineffective PENDING access; MFA before activation.
+- Reviewer and date: Codex, 2026-08-24.
+- Viewports or output formats checked: automated 1440px, 720px compact, and 393px reflow; retained
+  desktop and mobile synthetic captures.
+- Automated checks: 94/94 web tests, 22/22 API integration tests, 14/14 trusted-LAN functional
+  browser journeys, and 10/10 desktop/mobile accessibility checks passed. The browser observes zero
+  fragment/query length when inspection starts and asserts token-free history, storage, and visible
+  state using only safe booleans/counts.
+- Screenshot/output evidence:
+  [desktop 1440](evidence/ui/2026-08-24-controlled-beta-onboarding/01-invitation-ready-desktop-1440.png),
+  [mobile 393](evidence/ui/2026-08-24-controlled-beta-onboarding/02-invitation-ready-mobile-393.png).
+- Checklist result: Needs changes.
+- Gaps, exceptions, and follow-up: The captures omit passwords, bearer values, MFA secrets, and
+  browser chrome. Real screen-reader, desktop Ctrl-Plus, physical-device/manual, and full human
+  invitee UAT remain outstanding.
+
+### WEB-FORM-013 — Controlled-beta customer provisioning
+
+- Guide specification and revision: ADM-64 plus Section 6 form behavior, revised 2026-08-24.
+- Requirements and constraints: persistent required labels, bounded name/slug/timezone/email/expiry/
+  reason validation, review-before-confirmation, task locking, retry-safe idempotency, and a
+  copy-once receipt that is never retained as evidence.
+- Reviewer and date: Codex, 2026-08-24.
+- Viewports or output formats checked: 1440px, 1024px, and 393px automated reflow; retained tablet and
+  mobile empty-form states.
+- Automated checks: unit and browser coverage verifies validation focus, 44/48px targets, review,
+  idempotency-key reuse/rotation, mutation locking, safe copy failure, receipt clearing, keyboard
+  cancellation/focus restoration, and no automated WCAG A/AA findings.
+- Screenshot/output evidence:
+  [tablet 1024](evidence/ui/2026-08-24-controlled-beta-onboarding/04-platform-provision-form-tablet-1024.png),
+  [mobile 393](evidence/ui/2026-08-24-controlled-beta-onboarding/05-platform-provision-form-mobile-393.png).
+- Checklist result: Needs changes.
+- Gaps, exceptions, and follow-up: No provisioning receipt is retained by design. Human
+  operator/invitee, screen-reader, Ctrl-Plus, and physical-device review remain outstanding.
+
+### WEB-FORM-014 — Administrator invitation registration and acceptance
+
+- Guide specification and revision: SYS-02 plus Section 6 form behavior, revised 2026-08-24.
+- Requirements and constraints: no editable invited address; persistent name/password labels;
+  password-manager/paste support; generic existing-account behavior; terminal wrong-account sign-out;
+  transient in-memory retry; no activation before verified MFA.
+- Reviewer and date: Codex, 2026-08-24.
+- Viewports or output formats checked: automated desktop/mobile/compact reflow with retained 1440px and
+  393px ready states.
+- Automated checks: component/browser coverage verifies validation, fragment stripping before POST,
+  rate-limit retry, terminal and transient recovery, sign-in/MFA handoff, 44/48px targets, and no
+  automated WCAG A/AA findings.
+- Screenshot/output evidence:
+  [desktop 1440](evidence/ui/2026-08-24-controlled-beta-onboarding/01-invitation-ready-desktop-1440.png),
+  [mobile 393](evidence/ui/2026-08-24-controlled-beta-onboarding/02-invitation-ready-mobile-393.png).
+- Checklist result: Needs changes.
+- Gaps, exceptions, and follow-up: No password, bearer, or MFA state is retained. Human invitee,
+  screen-reader, Ctrl-Plus, and physical-device review remain outstanding.
+
+### WEB-FORM-015 — Administrator invitation revocation
+
+- Guide specification and revision: ADM-64 plus Section 6 destructive-action behavior, revised
+  2026-08-24.
+- Requirements and constraints: independent revocation capability, live authenticated MFA session,
+  reason-required confirmation, optimistic version, retry-safe idempotency, uniform denial, and
+  attributable platform/tenant audit history.
+- Reviewer and date: Codex, 2026-08-24.
+- Viewports or output formats checked: 1440px, 1024px, and 393px automated workbench/reflow coverage;
+  retained ledger states at desktop and mobile.
+- Automated checks: component/browser coverage verifies reason validation with linked focusable error
+  summary, `aria-invalid`, keyboard operation, exact capability hiding, safe unchanged retry, and no
+  mutation during evidence capture. Database tests cover replay/conflict and accept/revoke races.
+- Screenshot/output evidence:
+  [ledger desktop 1440](evidence/ui/2026-08-24-controlled-beta-onboarding/03-platform-workbench-desktop-1440.png),
+  [ledger mobile 393](evidence/ui/2026-08-24-controlled-beta-onboarding/05-platform-provision-form-mobile-393.png).
+- Checklist result: Needs changes.
+- Gaps, exceptions, and follow-up: The destructive confirmation is automated but intentionally not
+  retained as a separate screenshot. Human screen-reader, Ctrl-Plus, physical-device, and UAT review
+  remain outstanding.
+
+### WEB-SHELL-003 — Platform Operator workbench shell
+
+- Guide specification and revision: ADM-64 plus Modern Field Sections 5, 6, and 10, revised
+  2026-08-24.
+- Requirements and constraints: visually distinct platform authority, explicit synthetic boundary,
+  visible MFA protection, no tenant administration shell or tenant switching implication, and
+  single-column functional mobile reflow.
+- Reviewer and date: Codex, 2026-08-24.
+- Viewports or output formats checked: 1440px, 1024px, and 393px automated and retained states.
+- Automated checks: keyboard/focus, target sizing, overflow, reduced-state, and Axe checks passed in
+  desktop/mobile browser projects with the 94/94 web suite and production build.
+- Screenshot/output evidence:
+  [desktop 1440](evidence/ui/2026-08-24-controlled-beta-onboarding/03-platform-workbench-desktop-1440.png),
+  [tablet 1024](evidence/ui/2026-08-24-controlled-beta-onboarding/04-platform-provision-form-tablet-1024.png),
+  [mobile 393](evidence/ui/2026-08-24-controlled-beta-onboarding/05-platform-provision-form-mobile-393.png).
+- Checklist result: Needs changes.
+- Gaps, exceptions, and follow-up: Real screen-reader, desktop Ctrl-Plus, physical-device/manual, and
+  live authorized-operator visual review remain outstanding.
+
+### WEB-DOMAIN-008 — Controlled-beta invitation ledger and lifecycle status
+
+- Guide specification and revision: ADM-64 and Modern Field Sections 4–6, revised 2026-08-24.
+- Requirements and constraints: no bearer in list responses; explicit Pending, Accepted pending MFA,
+  Activated, Expired, and Revoked text; non-color status; independent revoke capability; bounded
+  synthetic contact/identifier presentation and safe long-token wrapping.
+- Reviewer and date: Codex, 2026-08-24.
+- Viewports or output formats checked: automated 1440px, 1024px, and 393px reflow; retained desktop and
+  mobile ledger states.
+- Automated checks: strict contract tests and browser/component checks verify bearer-free responses,
+  lifecycle labels, capability filtering, refresh/revoke states, long-identifier wrapping, keyboard
+  operation, zero horizontal overflow, and no automated WCAG A/AA findings.
+- Screenshot/output evidence:
+  [desktop 1440](evidence/ui/2026-08-24-controlled-beta-onboarding/03-platform-workbench-desktop-1440.png),
+  [mobile 393](evidence/ui/2026-08-24-controlled-beta-onboarding/05-platform-provision-form-mobile-393.png).
+- Checklist result: Needs changes.
+- Gaps, exceptions, and follow-up: Only Pending is retained visually; other lifecycle states are
+  automated. Human screen-reader, Ctrl-Plus, physical-device/manual, and end-to-end UAT remain open.

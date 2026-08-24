@@ -8,9 +8,11 @@ approval.
 | --- | --- | --- | --- | --- |
 | User/session identifiers | Confidential personal | Authentication and attributable actions; self/admin only | Better Auth tables in PostgreSQL | HttpOnly web session boundary; mobile secure-storage boundary; never public/logged |
 | Organization membership and role assignment | Internal | Tenant selection and server authorization | PostgreSQL | organization-scoped, audited, runtime RLS |
+| Controlled-beta administrator invitation | Confidential personal; security-sensitive | Bind one issued administrator email address to a time-limited tenant role handoff | PostgreSQL | tenant RLS; normalized address plus SHA-256 bearer digest only; lifecycle evidence retained; raw bearer is copy-once and never logged/stored |
+| Platform permission, idempotency, and audit metadata | Internal; security-sensitive | Separately authorize and attribute controlled-beta provisioning/revocation | PostgreSQL | effective-dated grants behind a security-definer check; actor-scoped forced RLS for idempotency/audit; append-only audit; no raw bearer/password |
 | Organization/league/season/team drafts | Internal | League administration | PostgreSQL | organization-scoped, version checked, not exposed publicly |
 | Published league/team/schedule snapshot | Public | Approved public read-only pages/API | immutable PostgreSQL publication snapshot | explicit DTO allowlist; withdrawn/nonexistent is 404 |
-| Audit/security/idempotency metadata | Internal; security-sensitive | Traceability, authorization evidence, and retry deduplication | PostgreSQL | tenant-scoped; audit history append-restricted; no secret/contact payloads in logs |
+| Tenant audit/security/idempotency metadata | Internal; security-sensitive | Traceability, authorization evidence, and retry deduplication | PostgreSQL | tenant-scoped; audit history append-restricted; no secret/contact payloads in logs |
 | Outbox event and lifecycle | Internal; security-sensitive | Durable post-commit work dispatch, retry, recovery, and terminal-failure evidence | PostgreSQL | tenant RLS; payload/identity immutable to runtime; lifecycle-only updates; retained records; metadata-only Redis envelope and logs |
 | Generated local credentials | Secret | Local service/auth/database access | ignored mode-0600 `.env` | independent high-entropy values, never printed or committed |
 | Synthetic demo identity | Confidential synthetic | Reproducible demo and tests | PostgreSQL | `.invalid` identity; generated ignored password; never reused for production |

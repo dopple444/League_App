@@ -52,6 +52,76 @@ describe('TenantDatabase', () => {
     await expect(database.listDueOutboxOrganizationIds(501)).rejects.toBeInstanceOf(RangeError);
   });
 
+  it('keeps pending membership and platform discovery behind current-user context', async () => {
+    const executeRaw = vi.fn().mockResolvedValue(1);
+    const queryRaw = vi
+      .fn()
+      .mockResolvedValueOnce([{ organization_id: '00000000-0000-4000-8000-000000000001' }])
+      .mockResolvedValueOnce([{ allowed: true }])
+      .mockResolvedValueOnce([
+        {
+          organization_id: '00000000-0000-4000-8000-000000000001',
+          organization_slug: 'synthetic-organization',
+          organization_name: 'Synthetic Organization',
+          organization_timezone: 'America/New_York',
+          league_id: '00000000-0000-4000-8000-000000000101',
+          league_slug: 'synthetic-league',
+          league_name: 'Synthetic League',
+          invitation_id: '00000000-0000-4000-8000-000000000201',
+          administrator_email: 'invitee@example.invalid',
+          invitation_expires_at: new Date('2026-08-25T00:00:00.000Z'),
+          invitation_accepted_at: null,
+          invitation_revoked_at: null,
+          invitation_activated_at: null,
+          invitation_version: 1,
+          invitation_created_at: new Date('2026-08-24T00:00:00.000Z'),
+        },
+      ])
+      .mockResolvedValueOnce([{ organization_id: '00000000-0000-4000-8000-000000000001' }]);
+    const transaction = { $executeRaw: executeRaw, $queryRaw: queryRaw };
+    const client = {
+      $transaction: vi.fn(async (callback: (value: unknown) => Promise<unknown>) =>
+        callback(transaction),
+      ),
+    } as unknown as PrismaClient;
+    const database = new TenantDatabase(client);
+    const userId = '00000000-0000-4000-8000-000000000010';
+
+    await expect(database.listPendingMembershipOrganizationIds(userId)).resolves.toEqual([
+      '00000000-0000-4000-8000-000000000001',
+    ]);
+    await expect(database.hasPlatformPermission(userId, 'TENANT_PROVISION')).resolves.toBe(true);
+    await expect(database.listPlatformOnboarding(userId)).resolves.toEqual([
+      expect.objectContaining({
+        organizationId: '00000000-0000-4000-8000-000000000001',
+        invitationId: '00000000-0000-4000-8000-000000000201',
+        administratorEmail: 'invitee@example.invalid',
+      }),
+    ]);
+    await expect(
+      database.resolvePlatformInvitationOrganization(
+        userId,
+        '00000000-0000-4000-8000-000000000201',
+      ),
+    ).resolves.toBe('00000000-0000-4000-8000-000000000001');
+
+    expect(executeRaw).toHaveBeenCalledTimes(4);
+    expect(queryRaw).toHaveBeenCalledTimes(4);
+  });
+
+  it('resolves an invitation digest to only its tenant identifier', async () => {
+    const queryRaw = vi
+      .fn()
+      .mockResolvedValue([{ organization_id: '00000000-0000-4000-8000-000000000001' }]);
+    const client = { $queryRaw: queryRaw } as unknown as PrismaClient;
+    const database = new TenantDatabase(client);
+
+    await expect(database.resolveAdministratorInvitationOrganization('a'.repeat(64))).resolves.toBe(
+      '00000000-0000-4000-8000-000000000001',
+    );
+    expect(queryRaw).toHaveBeenCalledOnce();
+  });
+
   it('normalizes aggregate outbox health without exposing tenant event data', async () => {
     const queryRaw = vi.fn().mockResolvedValue([
       {

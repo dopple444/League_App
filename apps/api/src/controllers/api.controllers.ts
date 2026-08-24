@@ -1,6 +1,7 @@
 import type { AuthenticatedUser } from '@league/auth';
-import { privilegedMfaRequired } from '@league/auth';
 import {
+  acceptAdministratorInvitationSchema,
+  activatePendingMembershipsSchema,
   createFieldSchema,
   createLeagueSchema,
   createRoleAssignmentSchema,
@@ -9,9 +10,12 @@ import {
   createVenueSchema,
   expectedVersionSchema,
   identifierSchema,
+  inspectAdministratorInvitationSchema,
   openApiDocument,
+  provisionPlatformOnboardingSchema,
+  registerAdministratorInvitationSchema,
+  revokePlatformInvitationSchema,
   revokeRoleAssignmentSchema,
-  securityPostureSchema,
   slugSchema,
   updateSeasonSchema,
   updateTeamSchema,
@@ -40,6 +44,8 @@ import { AccessService } from '../services/access.service.js';
 import { GovernanceService } from '../services/governance.service.js';
 import { LeaguesService } from '../services/leagues.service.js';
 import type { MutationContext } from '../services/mutation.service.js';
+import { OnboardingService } from '../services/onboarding.service.js';
+import type { PlatformMutationContext } from '../services/platform-mutation.service.js';
 import { PublicService } from '../services/public.service.js';
 import { SeasonsService } from '../services/seasons.service.js';
 import { TeamsService } from '../services/teams.service.js';
@@ -65,9 +71,23 @@ function mutationContext(
   };
 }
 
+function platformMutationContext(
+  request: ApiRequest,
+  idempotencyKey: string | undefined,
+): Omit<PlatformMutationContext, 'organizationId'> {
+  return {
+    user: user(request),
+    metadata: requestMetadata(request),
+    idempotencyKey: requireIdempotencyKey(idempotencyKey),
+  };
+}
+
 @Controller('api/v1/me')
 export class MeController {
-  constructor(@Inject(AccessService) private readonly access: AccessService) {}
+  constructor(
+    @Inject(AccessService) private readonly access: AccessService,
+    @Inject(OnboardingService) private readonly onboarding: OnboardingService,
+  ) {}
 
   @Get('organizations')
   organizations(@Req() request: ApiRequest) {
@@ -76,11 +96,94 @@ export class MeController {
 
   @Get('security')
   security(@Req() request: ApiRequest) {
-    const currentUser = user(request);
-    return securityPostureSchema.parse({
-      mfaEnabled: currentUser.twoFactorEnabled,
-      mfaRequired: privilegedMfaRequired(process.env.NODE_ENV, process.env.PRIVILEGED_MFA_REQUIRED),
-    });
+    return this.onboarding.securityPosture(user(request));
+  }
+}
+
+@Controller('api/v1/platform')
+export class PlatformOnboardingController {
+  constructor(@Inject(OnboardingService) private readonly onboarding: OnboardingService) {}
+
+  @Get('onboarding')
+  list(@Req() request: ApiRequest) {
+    return this.onboarding.listPlatformOnboarding(user(request));
+  }
+
+  @Post('onboarding')
+  @HttpCode(201)
+  provision(
+    @Headers('idempotency-key') idempotencyKey: string | undefined,
+    @Body() bodyValue: unknown,
+    @Req() request: ApiRequest,
+  ) {
+    return this.onboarding.provision(
+      platformMutationContext(request, idempotencyKey),
+      provisionPlatformOnboardingSchema.parse(bodyValue),
+    );
+  }
+
+  @Post('invitations/:invitationId/revoke')
+  @HttpCode(200)
+  revoke(
+    @Param('invitationId') invitationId: string,
+    @Headers('idempotency-key') idempotencyKey: string | undefined,
+    @Body() bodyValue: unknown,
+    @Req() request: ApiRequest,
+  ) {
+    return this.onboarding.revoke(
+      platformMutationContext(request, idempotencyKey),
+      identifierSchema.parse(invitationId),
+      revokePlatformInvitationSchema.parse(bodyValue),
+    );
+  }
+}
+
+@PublicRoute()
+@Controller('api/v1/onboarding/invitations')
+export class PublicInvitationOnboardingController {
+  constructor(@Inject(OnboardingService) private readonly onboarding: OnboardingService) {}
+
+  @Post('inspect')
+  @HttpCode(200)
+  inspect(@Body() bodyValue: unknown, @Req() request: ApiRequest) {
+    const input = inspectAdministratorInvitationSchema.parse(bodyValue);
+    return this.onboarding.inspect(input.invitationToken, requestMetadata(request));
+  }
+
+  @Post('register')
+  @HttpCode(200)
+  register(@Body() bodyValue: unknown, @Req() request: ApiRequest) {
+    return this.onboarding.register(
+      registerAdministratorInvitationSchema.parse(bodyValue),
+      requestMetadata(request),
+    );
+  }
+}
+
+@Controller('api/v1/onboarding')
+export class AuthenticatedOnboardingController {
+  constructor(@Inject(OnboardingService) private readonly onboarding: OnboardingService) {}
+
+  @Post('invitations/accept')
+  @HttpCode(200)
+  accept(
+    @Headers('idempotency-key') idempotencyKey: string | undefined,
+    @Body() bodyValue: unknown,
+    @Req() request: ApiRequest,
+  ) {
+    return this.onboarding.accept(
+      user(request),
+      requestMetadata(request),
+      requireIdempotencyKey(idempotencyKey),
+      acceptAdministratorInvitationSchema.parse(bodyValue),
+    );
+  }
+
+  @Post('activations')
+  @HttpCode(200)
+  activate(@Body() bodyValue: unknown, @Req() request: ApiRequest) {
+    activatePendingMembershipsSchema.parse(bodyValue);
+    return this.onboarding.activate(user(request), requestMetadata(request));
   }
 }
 
